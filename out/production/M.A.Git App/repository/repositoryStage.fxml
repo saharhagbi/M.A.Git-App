@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Text?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="454.0" prefWidth="692.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <GridPane BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="494.0" minWidth="10.0" prefWidth="175.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="494.0" minWidth="10.0" prefWidth="125.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="358.0" minWidth="10.0" prefWidth="134.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="358.0" minWidth="10.0" prefWidth="174.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="358.0" minWidth="10.0" prefWidth="73.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <MenuBar prefHeight="32.0" prefWidth="781.0" GridPane.columnSpan="5">
+              <menus>
+                <Menu mnemonicParsing="false" text="Repository">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Load repository from xml" />
+                        <MenuItem mnemonicParsing="false" text="Load existing repository" />
+                        <MenuItem mnemonicParsing="false" text="Create new repository" />
+                        <MenuItem mnemonicParsing="false" text="Export existing repository to xml" />
+                        <MenuItem mnemonicParsing="false" text="Set new user name" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Commit Actions">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Commit " />
+                        <MenuItem mnemonicParsing="false" text="Show history" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Branch Actions">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Show all branches" />
+                        <Menu mnemonicParsing="false" text="Delete branch">
+                          <items>
+                            <MenuItem mnemonicParsing="false" text="Action 1" />
+                          </items>
+                        </Menu>
+                        <MenuItem mnemonicParsing="false" text="Create branch" />
+                        <MenuItem mnemonicParsing="false" text="Reset" />
+                        <MenuItem mnemonicParsing="false" text="Checkout" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+            <Button mnemonicParsing="false" prefHeight="31.0" prefWidth="500.0" text="ShowStatus" GridPane.rowIndex="1" />
+            <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label prefHeight="21.0" prefWidth="192.0" text="Path to Repository" />
+                  <Label prefHeight="21.0" prefWidth="216.0" text="User Name" GridPane.rowIndex="1" />
+               </children>
+            </GridPane>
+            <MenuButton mnemonicParsing="false" prefHeight="31.0" prefWidth="500.0" text="Pull\Push" GridPane.columnIndex="3" GridPane.rowIndex="1">
+              <items>
+                <MenuItem mnemonicParsing="false" text="PUSH" />
+                <MenuItem mnemonicParsing="false" text="PULL" />
+              </items>
+            </MenuButton>
+            <Button mnemonicParsing="false" prefHeight="31.0" prefWidth="500.0" text="Merge" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+            <ListView prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Branch List" wrappingWidth="116.6015625" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+         </children>
+      </GridPane>
+   </top>
+   <left>
+      <AnchorPane prefHeight="340.0" prefWidth="180.0" BorderPane.alignment="CENTER">
+         <children>
+            <TreeView layoutY="102.0" prefHeight="294.0" prefWidth="154.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+         </children>
+      </AnchorPane>
+   </left>
+   <right>
+      <AnchorPane prefHeight="394.0" prefWidth="118.0" BorderPane.alignment="CENTER">
+         <children>
+            <TreeView layoutX="-41.0" layoutY="80.0" prefHeight="394.0" prefWidth="159.0" AnchorPane.bottomAnchor="-100.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+         </children>
+      </AnchorPane>
+   </right>
+   <bottom>
+      <HBox prefHeight="100.0" prefWidth="540.0" BorderPane.alignment="CENTER" />
+   </bottom>
+   <center>
+      <ListView prefHeight="294.0" prefWidth="458.0" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>
