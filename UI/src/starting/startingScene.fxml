@@ -15,8 +15,8 @@
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <Button fx:id="m_BtnNewRepository" mnemonicParsing="false" onAction="#createNewRepositry" prefHeight="424.0" prefWidth="1147.0" text="New Repository" />
-      <Button mnemonicParsing="false" prefHeight="390.0" prefWidth="1245.0" text="Load Repository From XML" GridPane.rowIndex="1" />
-      <Button mnemonicParsing="false" prefHeight="193.0" prefWidth="677.0" text="Load Existing Repositoty" GridPane.rowIndex="2" />
+      <Button fx:id="m_NewRepositoryBtn" mnemonicParsing="false" onAction="#CreateNewRepositry_OnClick" prefHeight="424.0" prefWidth="1147.0" text="New Repository" />
+      <Button fx:id="m_LoadRepoFromXMLBtn" mnemonicParsing="false" onAction="#LoadRepositoryFromXML_OnClick" prefHeight="390.0" prefWidth="1245.0" text="Load Repository From XML" GridPane.rowIndex="1" />
+      <Button fx:id="m_LoadExistingRepositoryBtn" mnemonicParsing="false" onAction="#LoadExistingRepository_OnClick" prefHeight="193.0" prefWidth="677.0" text="Load Existing Repositoty" GridPane.rowIndex="2" />
    </children>
 </GridPane>

@@ -20,6 +20,23 @@ public class Engine
     public static final String sf_NoChangesMsg = "No changes have been made since last commit" + System.lineSeparator();
     private Repository m_CurrentRepository = null;
     private User m_User = new User("Administrator");
+    private XMLMain m_XMLMain = new XMLMain();
+
+
+    /*private void loadRepositoryFromXML(i_UserPath) throws Exception
+    {
+        boolean isXMLRepoExist;
+
+        isXMLRepoExist = m_XMLMain.CheckXMLFile(Paths.get(i_UserPath));
+
+        if (!isXMLRepoExist)
+            setCurrentRepository(
+                    m_XMLMain.ParseAndWriteXML(m_XMLMain.GetXmlRepository())
+            );
+        else
+            handleCurrentRepositoryAlreadyExist(m_XMLMain.GetXmlRepository());
+    }*/
+
 
     public static void CreateRepositoryDirectories(Path i_rootFolderPath)
     {

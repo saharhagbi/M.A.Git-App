@@ -25,6 +25,8 @@ public class XMLMain
     {
     }
 
+
+
     public void setXmlRepositoryInXMLParser(MagitRepository i_XmlRepository)
     {
         this.m_XmlRepository = i_XmlRepository;
