@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-//asdlkjaslkdasdas
 public class Item
 {
     private final TypeOfFile m_TypeOfFile;
