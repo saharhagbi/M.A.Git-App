@@ -4,8 +4,8 @@ import common.MAGitResourceConstants;
 import common.MAGitUtilities;
 import common.StringConstants;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import main.MAGitController;
 
@@ -29,37 +29,36 @@ public class StartingController
     @FXML
     public void CreateNewRepositry_OnClick()
     {
-        DirectoryChooser DirChooser = new DirectoryChooser();
-        File selectedDir = DirChooser.showDialog(null);
-
-        if (selectedDir == null)
-        {
-            //TODO:
-            // handle in case of cancelling
-        }
+        File selectedDir = MAGitUtilities.GetDirectory(MAGitUtilities.GetStage(m_NewRepositoryBtn));
+        //check if repository already exist, and if not
 
         try
         {
             String repositoryName = MAGitUtilities.GetString("Enter the name of your repository", "Name",
                     "Repository Name");
             m_MagitController.CreateNewRepositry(repositoryName, selectedDir.toPath());
+            moveToRepositoryScene();
         } catch (Exception e)
         {
             //Todo:
             // handle exception in UI, pop up window
             // handle in case that repository already exist in location!! (popup window> need to move to repository stage?)
+            MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", "Repository already exist",
+                    "repository already exist in this location please choose another option");
             e.printStackTrace();
         }
 
-        moveToRepositoryScene();
+
     }
 
     @FXML
     public void LoadRepositoryFromXML_OnClick() throws Exception
     {
-        String pathToXML = MAGitUtilities.GetString("Enter yout path to XML file", "Path:", "XML file");
 
-        m_MagitController.loadRepositoryFromXML(pathToXML);
+        File selectedFile = MAGitUtilities.GetFile(MAGitUtilities.GetStage(m_LoadRepoFromXMLBtn));
+        //String pathToXML = MAGitUtilities.GetString("Enter yout path to XML file", "Path:", "XML file");
+
+        m_MagitController.loadRepositoryFromXML(selectedFile.getAbsolutePath());
 
         moveToRepositoryScene();
     }
@@ -72,8 +71,9 @@ public class StartingController
         try
         {
             String RepositoryName = MAGitUtilities.GetString("Enter your repository name.", "Name:", "Repository Name");
-            String RepositoryPath = MAGitUtilities.GetString("Enter your existing repository path", "Path:", "Repository Path");
-            m_MagitController.PullAnExistingRepository(RepositoryName, RepositoryPath);
+            File selecredDir = MAGitUtilities.GetDirectory(MAGitUtilities.GetStage(m_LoadExistingRepositoryBtn));
+            //String RepositoryPath = MAGitUtilities.GetString("Enter your existing repository path", "Path:", "Repository Path");
+            m_MagitController.PullAnExistingRepository(RepositoryName, selecredDir.getAbsolutePath());
         } catch (Exception e)
         {
             //TODO:
@@ -112,7 +112,7 @@ public class StartingController
 
         String defaultChoice = String.format(StringConstants.XML_REPOSITORY);
 
-        String userChoice = MAGitUtilities.GetUsetChoice(title, headerText, defaultChoice, UserChoices);
+        String userChoice = MAGitUtilities.GetUserChoice(title, headerText, defaultChoice, UserChoices);
 
         try
         {

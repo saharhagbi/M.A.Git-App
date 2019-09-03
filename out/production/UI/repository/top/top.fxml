@@ -71,7 +71,7 @@
               </items>
             </MenuButton>
             <Button maxWidth="-Infinity" mnemonicParsing="false" prefHeight="31.0" prefWidth="5000.0" text="Show-Status" />
-            <Button fx:id="m_CommitBtn" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="27.0" prefWidth="5000.0" text="Commit" GridPane.columnIndex="1" />
+            <Button fx:id="m_CommitBtn" maxWidth="-Infinity" mnemonicParsing="false" onAction="#Commit_OnClick" prefHeight="27.0" prefWidth="5000.0" text="Commit" GridPane.columnIndex="1" />
             <Button maxWidth="-Infinity" mnemonicParsing="false" prefHeight="31.0" prefWidth="5000.0" text="Merge" GridPane.columnIndex="4" />
             <ComboBox maxWidth="-Infinity" prefWidth="5000.0" promptText="Branches" GridPane.columnIndex="2" />
          </children>

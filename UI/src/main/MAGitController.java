@@ -1,5 +1,6 @@
 package main;
 
+import Objects.Commit;
 import XmlObjects.MagitRepository;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -87,5 +88,25 @@ public class MAGitController
             StartingController startingController = (StartingController) Controller;
             startingController.SetMagitController(this);
         }
+    }
+
+    public boolean IsFirstCommit()
+    {
+        return m_PrimaryController.IsFirstCommit();
+    }
+
+    public void CommitChanges(String i_CommitMessage) throws Exception
+    {
+        m_PrimaryController.CommitChanges(i_CommitMessage);
+    }
+
+    public String ShowStatus() throws Exception
+    {
+        return m_PrimaryController.ShowStatus();
+    }
+
+    public Commit GetCurrentCommit()
+    {
+    return    m_PrimaryController.GetCurrentCommit();
     }
 }

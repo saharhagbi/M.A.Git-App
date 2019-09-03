@@ -1,5 +1,6 @@
 package repository;
 
+import Objects.Commit;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
@@ -57,5 +58,25 @@ public class RepositoryController
     public void SwitchScenes(String i_PathToStartingScene, Stage i_CurrentStage) throws IOException
     {
         m_MagitController.SwitchScenes(i_PathToStartingScene, i_CurrentStage);
+    }
+
+    public boolean IsFirstCommit()
+    {
+        return m_MagitController.IsFirstCommit();
+    }
+
+    public void CommitChanges(String i_CommitMessage) throws Exception
+    {
+        m_MagitController.CommitChanges(i_CommitMessage);
+    }
+
+    public String ShowStatus() throws Exception
+    {
+        return m_MagitController.ShowStatus();
+    }
+
+    public Commit GetCurrentCommit()
+    {
+        return m_MagitController.GetCurrentCommit();
     }
 }

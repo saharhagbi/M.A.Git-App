@@ -1,5 +1,6 @@
 package primaryController;
 
+import Objects.Commit;
 import System.Engine;
 import XmlObjects.XMLMain;
 import common.NumConstants;
@@ -44,7 +45,7 @@ public class PrimaryController
     {
         int userChoice;
 
-        userChoice = i_selectedItem.equals(StringConstants.XML_REPOSITORY)? NumConstants.ONE : NumConstants.TWO;
+        userChoice = i_selectedItem.equals(StringConstants.XML_REPOSITORY) ? NumConstants.ONE : NumConstants.TWO;
 
         m_Engine.ExecuteUserChoice(userChoice, m_XMLMain.GetXmlRepository(), m_XMLMain);
     }
@@ -53,5 +54,25 @@ public class PrimaryController
     public void PullAnExistingRepository(String i_RepositoryName, String i_RepositoryPath) throws Exception
     {
         m_Engine.PullAnExistingRepository(i_RepositoryPath, i_RepositoryName);
+    }
+
+    public boolean IsFirstCommit()
+    {
+        return m_Engine.getCurrentRepository().ThereAreNoCmmitsYet();
+    }
+
+    public void CommitChanges(String i_CommitMessage) throws Exception
+    {
+        m_Engine.CommitInCurrentRepository(i_CommitMessage);
+    }
+
+    public String ShowStatus() throws Exception
+    {
+        return m_Engine.ShowStatus();
+    }
+
+    public Commit GetCurrentCommit()
+    {
+        return m_Engine.getCurrentRepository().getActiveBranch().getCurrentCommit();
     }
 }
