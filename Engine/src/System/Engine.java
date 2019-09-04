@@ -17,7 +17,7 @@ import java.util.List;
 
 public class Engine
 {
-    public static final String sf_NoChangesMsg = "No changes have been made since last commit" + System.lineSeparator();
+    public static final String sf_NOTHING_TO_COMMIT_ON = "There Is Nothing To Commit On";
     private Repository m_CurrentRepository = null;
     private User m_User = new User("Administrator");
     private XMLMain m_XMLMain = new XMLMain();
@@ -139,7 +139,7 @@ public class Engine
             return differences;
         } else
         {
-            return sf_NoChangesMsg;
+            return sf_NOTHING_TO_COMMIT_ON;
         }
     }
 

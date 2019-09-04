@@ -1,6 +1,5 @@
 package repository.top;
 
-import Objects.Commit;
 import common.MAGitResourceConstants;
 import common.MAGitUtilities;
 import common.StringConstants;
@@ -13,6 +12,7 @@ import javafx.stage.Stage;
 import repository.RepositoryController;
 
 import java.io.IOException;
+import java.util.concurrent.FutureTask;
 
 public class TopController
 {
@@ -52,6 +52,7 @@ public class TopController
             {
                 try
                 {
+                    updateMessage("Commit...");
                     if (m_RepositoryController.IsFirstCommit())
                     {
                         doCommit();
@@ -59,44 +60,66 @@ public class TopController
                     {
                         if (m_RepositoryController.ShowStatus().equals(StringConstants.NOTHING_TO_COMMIT_ON))
                         {
-
-                           /* Platform.runLater(()->{
-
-                            });*/
-                            MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.INFORMATION, StringConstants.COMMIT, "Can't Execute Commit"
-                                    , StringConstants.NOTHING_TO_COMMIT_ON);
+                            Platform.runLater(() ->
+                            {
+                                MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.INFORMATION, StringConstants.COMMIT, "Can't Execute Commit"
+                                        , StringConstants.NOTHING_TO_COMMIT_ON);
+                            });
                         } else
                         {
                             doCommit();
-
                         }
-
                     }
-                } catch (Exception e)
+                } catch (Exception commitException)
                 {
-                    e.printStackTrace();
+                    //TODO:
+                    // handle proper message if commit failed(look at exceptions from ui)
+                    commitException.printStackTrace();
                 }
 
                 //we arrived here it mean that everything is ok and we need to update all window by new commit
 
-                Commit lastCommit = m_RepositoryController.GetCurrentCommit();
-
-                //m_RepositoryController.UpdateTableColumnAccordingToLastCommit();
-                //m_RepositoryController.AddNodeCommitToTree();
                 return null;
             }
         };
 
         // todo: bind task to ui
-        Label test = new Label();
-        test.textProperty().bind(commitTask.messageProperty());
+        bindCommitTaskComponentsToUI(m_RepositoryController.GetLabelBar(), m_RepositoryController.GetProgressBar(), commitTask);
         new Thread(commitTask).start();
-       // commitTask.get
+
+      /*  commitTask.
+                setOnSucceeded(() ->
+                        m_RepositoryController.UpdateTableColumnAccordingToLastCommit(),
+                m_RepositoryController.AddNodeCommitToTree());*/
+
+        //function above if needed to execute to one function
+    }
+
+   /* private void onFinishCommit()
+    {
+        m_RepositoryController.UpdateTableColumnAccordingToLastCommit();
+        m_RepositoryController.AddNodeCommitToTree();
+    }*/
+
+
+    //check if needed to do it in generic method in repository controller
+    private void bindCommitTaskComponentsToUI(Label i_LabelBar, ProgressBar i_ProgressBar, Task i_CommitTask)
+    {
+        i_LabelBar.textProperty().bind(i_CommitTask.messageProperty());
+        i_ProgressBar.progressProperty().bind(i_CommitTask.progressProperty());
     }
 
     private void doCommit() throws Exception
     {
-        String commitMessage = MAGitUtilities.GetString("Enter your commit message please", "Message:", StringConstants.COMMIT);
+        FutureTask<String> futureTask = new FutureTask<String>(() ->
+                MAGitUtilities.GetString("Enter your commit message please", "Message:", StringConstants.COMMIT
+                ));
+
+        Platform.runLater(futureTask);
+
+        String commitMessage = futureTask.get();
+
+        //commitMessage = MAGitUtilities.GetString("Enter your commit message please", "Message:", StringConstants.COMMIT);
         m_RepositoryController.CommitChanges(commitMessage);
     }
 }

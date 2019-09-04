@@ -2,6 +2,8 @@ package repository;
 
 import Objects.Commit;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -78,5 +80,15 @@ public class RepositoryController
     public Commit GetCurrentCommit()
     {
         return m_MagitController.GetCurrentCommit();
+    }
+
+    public ProgressBar GetProgressBar()
+    {
+        return m_BottomController.GetProgressBar();
+    }
+
+    public Label GetLabelBar()
+    {
+        return m_BottomController.GetLabelBar();
     }
 }

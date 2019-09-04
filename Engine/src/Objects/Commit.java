@@ -15,7 +15,7 @@ public class Commit
 {
     private Folder m_RootFolder;
     private String m_SHA1;
-    private String m_PrevCommitSha1 = null;
+    private String m_PrevCommitSha1;
     private String m_CommitMessage;
     private User m_UserCreated;
     private Date m_Date;

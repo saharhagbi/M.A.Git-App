@@ -190,6 +190,8 @@ public class Repository
 
         } else
         {
+            //todo:
+            // check if needed to remove code
             throw new Exception("There is nothing to commit in repository!");
         }
     }

@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 
 
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="130.0" prefWidth="723.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="repository.bottom.BottomController" />
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="168.0" prefWidth="743.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="repository.bottom.BottomController">
+   <children>
+      <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="179.0" prefWidth="743.0">
+         <children>
+            <ProgressBar fx:id="m_ProgressBar" layoutX="83.0" layoutY="143.0" prefHeight="23.0" prefWidth="474.0" progress="0.0" />
+            <Label fx:id="m_ProgressLabel" layoutY="144.0" prefHeight="21.0" prefWidth="66.0" text="Progress: " />
+         </children>
+      </AnchorPane>
+   </children>
+</HBox>
