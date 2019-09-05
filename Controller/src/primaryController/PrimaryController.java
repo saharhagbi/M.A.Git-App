@@ -6,7 +6,7 @@ import XmlObjects.XMLMain;
 import common.NumConstants;
 import common.StringConstants;
 import main.MAGitController;
-
+import System.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -58,7 +58,7 @@ public class PrimaryController
 
     public boolean IsFirstCommit()
     {
-        return m_Engine.getCurrentRepository().ThereAreNoCmmitsYet();
+        return m_Engine.GetCurrentRepository().ThereAreNoCmmitsYet();
     }
 
     public void CommitChanges(String i_CommitMessage) throws Exception
@@ -66,13 +66,38 @@ public class PrimaryController
         m_Engine.CommitInCurrentRepository(i_CommitMessage);
     }
 
-    public String ShowStatus() throws Exception
+    public FolderDifferences ShowStatus() throws Exception
     {
         return m_Engine.ShowStatus();
     }
 
-    public Commit GetCurrentCommit()
+    /*public Commit GetCurrentCommit()
     {
-        return m_Engine.getCurrentRepository().getActiveBranch().getCurrentCommit();
+        return m_Engine.GetCurrentRepository().getActiveBranch().getCurrentCommit();
+    }*/
+
+    public Repository GetCurrentRepository()
+    {
+        return m_Engine.GetCurrentRepository();
+    }
+
+    public void CreateNewBranch(String i_NewBranch) throws Exception
+    {
+        m_Engine.CreateNewBranchToSystem(i_NewBranch);
+    }
+
+    public void DeleteBranch(String i_BranchNameToErase) throws Exception
+    {
+        m_Engine.DeleteBranchFromSystem(i_BranchNameToErase);
+    }
+
+    public boolean RootFolderChanged() throws Exception
+    {
+        return m_Engine.CheckIfRootFolderChanged();
+    }
+
+    public void CheckOut(String i_BranchName) throws Exception
+    {
+        m_Engine.CheckOut(i_BranchName);
     }
 }

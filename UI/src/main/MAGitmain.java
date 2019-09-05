@@ -19,18 +19,14 @@ public class MAGitmain extends Application
     {
         URL startingFXML = getClass().getResource(MAGitResourceConstants.STARTING_SCENE);
         FXMLLoader loader = new FXMLLoader(startingFXML);
-///////////////////////////////////////////////////////////////////////////////
 
-
-        ////////////////////////////////////////////////////////////////
-        // load MAGitmain.MAGitmain fxml
         loader.setLocation(startingFXML);
         Parent root = loader.load(startingFXML.openStream());
         StartingController startingController = loader.getController();
 
         primaryStage.setTitle(StringConstants.MAGIT);
 
-        Scene scene = new Scene(root, 1050, 600);
+        Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

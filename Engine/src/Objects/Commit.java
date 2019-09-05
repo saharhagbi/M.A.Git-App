@@ -1,6 +1,7 @@
 package Objects;
 
 import System.User;
+import System.FolderDifferences;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.IOException;
@@ -55,6 +56,8 @@ public class Commit
         return commitInfo.toString();
     }
 
+
+
     public static String GetInformationFromCommitTextFile(String i_commitsSha1, Path i_commitTextFileUnzipped, Path i_ObjectsFolderPath) throws IOException
     {
         StringBuilder commitHistoryBuilder = new StringBuilder();
@@ -88,17 +91,17 @@ public class Commit
         return DigestUtils.sha1Hex(strForCalculatingSHA1.toString());
     }
 
-    public static String findDifferences(Commit i_LatestCommit, Commit i_OtherCommit)
+    public static FolderDifferences findDifferences(Commit i_LatestCommit, Commit i_OtherCommit)
     {
-        String changesBetweenThisCommitAndTheOther;
+        FolderDifferences differences = null;
         if (!i_LatestCommit.getSHA1().equals(i_OtherCommit.m_RootFolder.getSHA1()))
         {
-            changesBetweenThisCommitAndTheOther = Folder.FinedDifferences(i_LatestCommit.m_RootFolder, i_OtherCommit.m_RootFolder);
+            differences = Folder.FinedDifferences(i_LatestCommit.m_RootFolder, i_OtherCommit.m_RootFolder);
         } else
         {
-            changesBetweenThisCommitAndTheOther = "No Changes have Been Made";
+            //TODO: Throw exception
         }
-        return changesBetweenThisCommitAndTheOther;
+        return differences;
     }
 
     public Folder getRootFolder()

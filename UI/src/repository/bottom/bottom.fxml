@@ -2,17 +2,50 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 
-
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="168.0" prefWidth="743.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="repository.bottom.BottomController">
+<AnchorPane maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="143.0" prefWidth="555.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="repository.bottom.BottomController">
    <children>
-      <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="179.0" prefWidth="743.0">
+      <HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="188.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
-            <ProgressBar fx:id="m_ProgressBar" layoutX="83.0" layoutY="143.0" prefHeight="23.0" prefWidth="474.0" progress="0.0" />
-            <Label fx:id="m_ProgressLabel" layoutY="144.0" prefHeight="21.0" prefWidth="66.0" text="Progress: " />
+            <GridPane maxWidth="1.7976931348623157E308" prefHeight="400.0" HBox.hgrow="ALWAYS">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints maxHeight="380.0" minHeight="10.0" prefHeight="156.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="188.0" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <AnchorPane maxHeight="1.7976931348623157E308" prefHeight="200.0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">
+                     <children>
+                        <Label fx:id="m_ProgressLabel" layoutX="14.0" layoutY="9.0" text="Progress: " />
+                        <ProgressBar fx:id="m_ProgressBar" layoutX="88.0" layoutY="8.0" prefHeight="21.0" prefWidth="315.0" progress="0.0" />
+                     </children>
+                  </AnchorPane>
+                  <ScrollPane GridPane.hgrow="ALWAYS">
+                     <content>
+                        <TabPane maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="560.0" tabClosingPolicy="UNAVAILABLE">
+                           <tabs>
+                              <Tab text="Untitled Tab">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="161.0" prefWidth="435.0" />
+                                </content>
+                              </Tab>
+                           </tabs>
+                        </TabPane>
+                     </content>
+                  </ScrollPane>
+               </children>
+            </GridPane>
          </children>
-      </AnchorPane>
+      </HBox>
    </children>
-</HBox>
+</AnchorPane>

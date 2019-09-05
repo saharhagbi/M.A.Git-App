@@ -11,7 +11,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -105,12 +104,13 @@ public class Repository
         return theNewCommit;
     }
 
-    public String CreateNewCommitAndUpdateActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
+    public FolderDifferences CreateNewCommitAndUpdateActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
     {
-        String differencesBetweenLastAndCurrentCommit = new String();
+        FolderDifferences differencesBetweenLastAndCurrentCommit =null;
         if (Folder.isDirEmpty(m_RepositoryPath))
         {
-            return String.format("The root folder is Empty - nothing to commit");
+            //TODO: Throw Exception
+            //return String.format("The root folder is Empty - nothing to commit");
         }
         //else - the root folder contains some files
 
