@@ -1,13 +1,12 @@
 package repository;
 
+import System.*;
 import Objects.Commit;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import main.MAGitController;
 import repository.bottom.BottomController;
@@ -20,12 +19,13 @@ import java.io.IOException;
 
 public class RepositoryController
 {
+
     @FXML
     private GridPane m_Top;
     @FXML
     private TopController m_TopController;
     @FXML
-    private HBox m_Bottom;
+    private AnchorPane m_Bottom;
     @FXML
     private BottomController m_BottomController;
     @FXML
@@ -40,9 +40,11 @@ public class RepositoryController
     private AnchorPane m_Left;
     @FXML
     private LeftController m_LeftController;
-
     private MAGitController m_MagitController;
 
+    private Repository m_CurrentRepository;
+
+    @FXML
     public void initialize()
     {
         m_TopController.SetRepositoryController(this);
@@ -50,6 +52,18 @@ public class RepositoryController
         m_BottomController.SetRepositoryController(this);
         m_LeftController.SetRepositoryController(this);
         m_RightController.SetRepositoryController(this);
+    }
+
+    public Repository GetCurrentRepository()
+    {
+        return m_CurrentRepository;
+    }
+
+    public void initAllComponents()
+    {
+        m_CurrentRepository = m_MagitController.GetCurrentRepository();
+        m_TopController.InitAllComponentsInTop(m_CurrentRepository);
+        m_LeftController.InitAllComponentsInLeft();
     }
 
     public void SetMagitController(MAGitController i_MagitController)
@@ -79,7 +93,7 @@ public class RepositoryController
 
     public Commit GetCurrentCommit()
     {
-        return m_MagitController.GetCurrentCommit();
+        return m_CurrentRepository.getActiveBranch().getCurrentCommit();
     }
 
     public ProgressBar GetProgressBar()
@@ -90,5 +104,15 @@ public class RepositoryController
     public Label GetLabelBar()
     {
         return m_BottomController.GetLabelBar();
+    }
+
+    public void CreateNewBranch(String i_NewBranch) throws Exception
+    {
+        m_MagitController.CreateNewBranch(i_NewBranch);
+    }
+
+    public void DeleteBranch(String i_BranchNameToErase) throws Exception
+    {
+        m_MagitController.DeleteBranch(i_BranchNameToErase);
     }
 }

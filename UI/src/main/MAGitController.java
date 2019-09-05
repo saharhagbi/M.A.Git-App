@@ -1,6 +1,6 @@
 package main;
 
-import Objects.Commit;
+import System.Repository;
 import XmlObjects.MagitRepository;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -24,15 +24,6 @@ public class MAGitController
     {
         this.m_PrimaryController = new PrimaryController(this);
         this.m_StartingController = i_StartingController;
-
-        /*URL repositoryFXML = getClass().getResource(MAGitResourceConstants.REPOSITORY_SCENE);
-        FXMLLoader loader = new FXMLLoader(repositoryFXML);
-
-        //init all members in FXMLLoader
-        loader.load(repositoryFXML.openStream());
-
-        m_RepositoryController = loader.getController();
-        m_RepositoryController.SetAllControllers(this);*/
     }
 
     public void CreateNewRepositry(String i_RepoName, Path i_RepoPath) throws Exception
@@ -60,33 +51,50 @@ public class MAGitController
         m_PrimaryController.PullAnExistingRepository(i_RepositoryName, i_RepositoryPath);
     }
 
-    public void SwitchScenes(String i_PathToSceneFXML, Stage i_CurrentStage) throws IOException
+    public void SwitchScenes(String i_PathToFXMLScene, Stage i_PrimaryStage) throws IOException
     {
-        URL startingFXML = getClass().getResource(i_PathToSceneFXML);
-        FXMLLoader loader = new FXMLLoader(startingFXML);
-        Parent root = loader.load();
+        URL fxml = getClass().getResource(i_PathToFXMLScene);
+        FXMLLoader loader = new FXMLLoader(fxml);
+        Parent root = loader.load(fxml.openStream());
 
-        setMagitController(loader);
+        boolean isRepositoryScene = setMagitController(loader);
 
         Scene scene = new Scene(root);
-        i_CurrentStage.setScene(scene);
-        i_CurrentStage.show();
+
+        i_PrimaryStage.setScene(scene);
+
+        setComponentsInCaseRepositoryScene(i_PrimaryStage, isRepositoryScene);
+
+        i_PrimaryStage.show();
+
     }
 
-    private void setMagitController(FXMLLoader i_Loader)
+    private void setComponentsInCaseRepositoryScene(Stage i_PrimaryStage, boolean isRepositoryScene)
+    {
+        if (isRepositoryScene)
+            m_RepositoryController.initAllComponents();
+    }
+
+    private boolean setMagitController(FXMLLoader i_Loader)
     {
         Object Controller;
         Controller = i_Loader.getController();
 
-        if(Controller.getClass() == RepositoryController.class)
+        if (Controller.getClass() == RepositoryController.class)
         {
-            RepositoryController repositoryController = (RepositoryController)Controller;
+            RepositoryController repositoryController = (RepositoryController) Controller;
             repositoryController.SetMagitController(this);
-        }
-        else
+            m_RepositoryController = repositoryController;
+
+            return true;
+
+        } else
         {
             StartingController startingController = (StartingController) Controller;
             startingController.SetMagitController(this);
+            m_StartingController = startingController;
+
+            return false;
         }
     }
 
@@ -105,8 +113,23 @@ public class MAGitController
         return m_PrimaryController.ShowStatus();
     }
 
-    public Commit GetCurrentCommit()
+   /* public Commit GetCurrentCommit()
     {
     return    m_PrimaryController.GetCurrentCommit();
+    }*/
+
+    public Repository GetCurrentRepository()
+    {
+        return m_PrimaryController.GetCurrentRepository();
+    }
+
+    public void CreateNewBranch(String i_NewBranch) throws Exception
+    {
+        m_PrimaryController.CreateNewBranch(i_NewBranch);
+    }
+
+    public void DeleteBranch(String i_BranchNameToErase) throws Exception
+    {
+        m_PrimaryController.DeleteBranch(i_BranchNameToErase);
     }
 }

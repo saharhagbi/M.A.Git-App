@@ -6,7 +6,7 @@ import XmlObjects.XMLMain;
 import common.NumConstants;
 import common.StringConstants;
 import main.MAGitController;
-
+import System.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -58,7 +58,7 @@ public class PrimaryController
 
     public boolean IsFirstCommit()
     {
-        return m_Engine.getCurrentRepository().ThereAreNoCmmitsYet();
+        return m_Engine.GetCurrentRepository().ThereAreNoCmmitsYet();
     }
 
     public void CommitChanges(String i_CommitMessage) throws Exception
@@ -71,8 +71,23 @@ public class PrimaryController
         return m_Engine.ShowStatus();
     }
 
-    public Commit GetCurrentCommit()
+    /*public Commit GetCurrentCommit()
     {
-        return m_Engine.getCurrentRepository().getActiveBranch().getCurrentCommit();
+        return m_Engine.GetCurrentRepository().getActiveBranch().getCurrentCommit();
+    }*/
+
+    public Repository GetCurrentRepository()
+    {
+        return m_Engine.GetCurrentRepository();
+    }
+
+    public void CreateNewBranch(String i_NewBranch) throws Exception
+    {
+        m_Engine.CreateNewBranchToSystem(i_NewBranch);
+    }
+
+    public void DeleteBranch(String i_BranchNameToErase) throws Exception
+    {
+        m_Engine.DeleteBranchFromSystem(i_BranchNameToErase);
     }
 }

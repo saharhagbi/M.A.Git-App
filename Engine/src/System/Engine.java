@@ -161,7 +161,7 @@ public class Engine
         System.out.println(commitHistoryOfActiveBranch);
     }
 
-    public Repository getCurrentRepository()
+    public Repository GetCurrentRepository()
     {
         return m_CurrentRepository;
     }
@@ -201,7 +201,6 @@ public class Engine
     public String ShowAllCurrentCommitData()
     {
         return this.m_CurrentRepository.getActiveBranch().getCurrentCommit().getAllFolderAndBlobsData();
-
     }
 
     public void CreateNewBranchToSystem(String i_NameOfNewBranch) throws Exception

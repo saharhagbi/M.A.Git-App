@@ -55,6 +55,8 @@ public class Commit
         return commitInfo.toString();
     }
 
+
+
     public static String GetInformationFromCommitTextFile(String i_commitsSha1, Path i_commitTextFileUnzipped, Path i_ObjectsFolderPath) throws IOException
     {
         StringBuilder commitHistoryBuilder = new StringBuilder();
