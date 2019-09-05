@@ -90,4 +90,14 @@ public class PrimaryController
     {
         m_Engine.DeleteBranchFromSystem(i_BranchNameToErase);
     }
+
+    public boolean RootFolderChanged() throws Exception
+    {
+        return m_Engine.CheckIfRootFolderChanged();
+    }
+
+    public void CheckOut(String i_BranchName) throws Exception
+    {
+        m_Engine.CheckOut(i_BranchName);
+    }
 }

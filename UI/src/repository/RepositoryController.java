@@ -115,4 +115,14 @@ public class RepositoryController
     {
         m_MagitController.DeleteBranch(i_BranchNameToErase);
     }
+
+    public boolean RootFolderChanged() throws Exception
+    {
+        return m_MagitController.RootFolderChanged();
+    }
+
+    public void CheckOut(String i_BranchName) throws Exception
+    {
+        m_MagitController.CheckOut(i_BranchName);
+    }
 }

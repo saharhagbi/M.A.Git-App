@@ -132,4 +132,14 @@ public class MAGitController
     {
         m_PrimaryController.DeleteBranch(i_BranchNameToErase);
     }
+
+    public boolean RootFolderChanged() throws Exception
+    {
+        return m_PrimaryController.RootFolderChanged();
+    }
+
+    public void CheckOut(String i_BranchName) throws Exception
+    {
+        m_PrimaryController.CheckOut(i_BranchName);
+    }
 }

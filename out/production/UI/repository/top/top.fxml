@@ -38,7 +38,7 @@
                   <MenuItem fx:id="m_CreateBranch" mnemonicParsing="false" onAction="#CreateBranch_OnClick" text="Create Branch" />
                   <MenuItem mnemonicParsing="false" text="Reset" />
                   <Menu fx:id="m_DeletsBranchMenu" mnemonicParsing="false" text="Delete Branch" />
-                  <MenuItem mnemonicParsing="false" text="Checkout" />
+                  <MenuItem fx:id="m_CheckoutMenuItem" mnemonicParsing="false" onAction="#Checkout_OnClick" text="Checkout" />
                </items>
             </Menu>
         </menus>
