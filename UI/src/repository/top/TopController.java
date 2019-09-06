@@ -351,7 +351,8 @@ public class TopController
         FutureTask<String> futureTask = new FutureTask<String>(() ->
                 MAGitUtilities.GetUserChoice("Changes in WC", "There were changes since last commit"
                         + System.lineSeparator() +
-                        "Are you sure you want to continue?", "Yes", new String[]{"Yes", "No"}));
+                        "Are you sure you want to continue?" + System.lineSeparator() +
+                        "Choose no, to commit first", StringConstants.YES, new String[]{StringConstants.YES, StringConstants.NO}));
         Platform.runLater(futureTask);
 
         String answer = futureTask.get();
@@ -363,11 +364,11 @@ public class TopController
         switch (i_Answer)
         {
             case StringConstants.NO:
-                Platform.runLater(() ->
+               /* Platform.runLater(() ->
                         MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.INFORMATION, StringConstants.COMMIT, StringConstants.COMMIT,
                                 "Ok, So let's commit first")
-                );
-                Commit_OnClick();
+                );*/
+                doCommit();
                 break;
         }
         getBranchNameAndCheckOut();
