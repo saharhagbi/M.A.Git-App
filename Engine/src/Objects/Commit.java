@@ -3,6 +3,7 @@ package Objects;
 import System.User;
 import System.FolderDifferences;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -166,5 +167,20 @@ public class Commit
     public String getPrevCommitSha1()
     {
         return m_PrevCommitSha1;
+    }
+
+    public static Boolean IsSha1ValidForCommit(String i_Sha1ForCommit,Path i_ObjectsFolderPath) throws IOException {
+        Boolean validSha1ForCommit = false;
+        Path commitZippedPath = Paths.get(i_ObjectsFolderPath.toString()+"\\"+i_Sha1ForCommit);
+        Path TempFolderPath = Paths.get(i_ObjectsFolderPath.getParent().toString()+"\\Temp");
+        if(commitZippedPath.toFile().exists()){
+           Path commitUnzipped = Item.UnzipFile(commitZippedPath,TempFolderPath);
+           String[] commitText = Commit.GetCommitFieldsFromCommitTextFile(commitUnzipped);
+           if(commitText.length!=5||commitText[1].length()!=40)
+              validSha1ForCommit = false;
+           else
+               validSha1ForCommit = true;
+        }
+        return validSha1ForCommit;
     }
 }

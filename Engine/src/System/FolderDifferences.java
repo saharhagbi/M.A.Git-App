@@ -26,7 +26,7 @@ public class FolderDifferences {
         m_AddedItemList.add(i_ChangedItem);
     }
 
-    public void AddAnEntireFolderDiffernce(FolderDifferences i_FolderDifference){
+    public void AddAnEntireFolderDifference(FolderDifferences i_FolderDifference){
         for(int i=0;i<i_FolderDifference.m_AddedItemList.size();i++){
             m_AddedItemList.add(i_FolderDifference.m_AddedItemList.get(i));
         }
