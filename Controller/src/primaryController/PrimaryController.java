@@ -66,7 +66,7 @@ public class PrimaryController
         m_Engine.CommitInCurrentRepository(i_CommitMessage);
     }
 
-    public String ShowStatus() throws Exception
+    public FolderDifferences ShowStatus() throws Exception
     {
         return m_Engine.ShowStatus();
     }

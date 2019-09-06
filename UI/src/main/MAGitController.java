@@ -1,6 +1,8 @@
 package main;
 
 import System.Repository;
+import System.FolderDifferences;
+
 import XmlObjects.MagitRepository;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -108,7 +110,7 @@ public class MAGitController
         m_PrimaryController.CommitChanges(i_CommitMessage);
     }
 
-    public String ShowStatus() throws Exception
+    public FolderDifferences ShowStatus() throws Exception
     {
         return m_PrimaryController.ShowStatus();
     }

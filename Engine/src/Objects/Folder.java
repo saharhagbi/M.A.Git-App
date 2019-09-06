@@ -2,18 +2,17 @@ package Objects;
 
 import System.CompareItems;
 import System.User;
+import System.FolderDifferences;
 import XmlObjects.RepositoryWriter;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -46,8 +45,9 @@ public class Folder extends Item
     }
 
     //TODO: finish this method
-    public static String FinedDifferences(Folder i_newRootFolder, Folder i_OldRootFolder)
+    public static FolderDifferences FinedDifferences(Folder i_newRootFolder, Folder i_OldRootFolder)
     {
+        FolderDifferences differences = new FolderDifferences();
         StringBuilder changesBetweenFolders = new StringBuilder();
         Iterator keyIterator = i_newRootFolder.m_MapOfItems.keySet().iterator();
         Map<Path, Item> modifiableNewFolderMap = new HashMap<Path, Item>(i_newRootFolder.m_MapOfItems);
@@ -64,12 +64,15 @@ public class Folder extends Item
                 {
                     if (newFolderItem.getTypeOfFile() == BLOB)// Item is a blob
                     {
-                        changesBetweenFolders.append(ANSI_YELLOW + "File changed : " + ANSI_RESET + keyPath.toString() + '\n');
+                        //changesBetweenFolders.append(ANSI_YELLOW + "File changed : " + ANSI_RESET + keyPath.toString() + '\n');
+                        differences.AddToChangedItemList(newFolderItem);
                     } else//Item is a folder
                     {
-                        changesBetweenFolders.append(ANSI_YELLOW + "Folder changed: " + ANSI_RESET + keyPath.toString() + '\n');
-                        String changesInsideThisItemFolder = FinedDifferences((Folder) newFolderItem, (Folder) oldFolderItem);
-                        changesBetweenFolders.append(changesInsideThisItemFolder);
+                        //changesBetweenFolders.append(ANSI_YELLOW + "Folder changed: " + ANSI_RESET + keyPath.toString() + '\n');
+                        differences.AddToChangedItemList(newFolderItem);
+                        FolderDifferences changesInsideThisItemFolder = FinedDifferences((Folder) newFolderItem, (Folder) oldFolderItem);
+                        differences.AddAnEntireFolderDifference(changesInsideThisItemFolder);
+                        //changesBetweenFolders.append(changesInsideThisItemFolder);
                     }
                     modifiableOldFolderMap.remove(keyPath);// remove item so we keep searching for changes
                 }
@@ -77,14 +80,15 @@ public class Folder extends Item
             {
                 if (newFolderItem.getTypeOfFile() == BLOB)
                 {
-                    changesBetweenFolders.append(ANSI_GREEN + "File added : " + ANSI_RESET + newFolderItem.GetPath().toString() + '\n');
+                    //changesBetweenFolders.append(ANSI_GREEN + "File added : " + ANSI_RESET + newFolderItem.GetPath().toString() + '\n');
+
                 } else
                 {
-                    changesBetweenFolders.append(ANSI_GREEN + "Folder added : " + ANSI_RESET + newFolderItem.GetPath().toString() + '\n');
-                    String addedItemsInsideThisItemFolder = getAddedFiles((Folder) newFolderItem);
-                    changesBetweenFolders.append(addedItemsInsideThisItemFolder);
+                    //changesBetweenFolders.append(ANSI_GREEN + "Folder added : " + ANSI_RESET + newFolderItem.GetPath().toString() + '\n');
+                    //String addedItemsInsideThisItemFolder = getAddedFiles((Folder) newFolderItem);
+                    //changesBetweenFolders.append(addedItemsInsideThisItemFolder);
                 }
-
+                differences.AddToAddedItemList(newFolderItem);
             }
             //was the same so we dont want to mention it anymore
             modifiableNewFolderMap.remove(keyPath);
@@ -98,13 +102,15 @@ public class Folder extends Item
             Item item = (Item) modifiableOldFolderMap.get(keyPath);
             if (item.getTypeOfFile() == BLOB)
             {
-                changesBetweenFolders.append(ANSI_RED + "File removed : " + ANSI_RESET + keyPath.toString() + System.lineSeparator());
+                //changesBetweenFolders.append(ANSI_RED + "File removed : " + ANSI_RESET + keyPath.toString() + System.lineSeparator());
+
             } else
             {
-                changesBetweenFolders.append(ANSI_RED + "Folder removed : " + ANSI_RESET + keyPath.toString() + System.lineSeparator());
+                //changesBetweenFolders.append(ANSI_RED + "Folder removed : " + ANSI_RESET + keyPath.toString() + System.lineSeparator());
             }
+            differences.AddToRemovedItemList(item);
         }
-        return changesBetweenFolders.toString();
+        return differences;
     }
 
     private static String getAddedFiles(Folder i_FolderThatHasBeenAdded)

@@ -86,7 +86,7 @@ public class RepositoryController
         m_MagitController.CommitChanges(i_CommitMessage);
     }
 
-    public String ShowStatus() throws Exception
+    public FolderDifferences ShowStatus() throws Exception
     {
         return m_MagitController.ShowStatus();
     }

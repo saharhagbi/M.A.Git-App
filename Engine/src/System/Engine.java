@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.List;
 
 public class Engine
@@ -127,20 +126,18 @@ public class Engine
         FileUtils.writeStringToFile(HEADFilePath.toFile(), "Master", "UTF-8", false);
     }
 
-    public String ShowStatus() throws Exception
+    public FolderDifferences ShowStatus() throws Exception
     {
         //1. create the currentWorkingCopy as Folder
-
+        FolderDifferences differences = null;
         Folder wc = this.m_CurrentRepository.GetUpdatedWorkingCopy(this.m_User);
         Folder lastCommitWc = this.m_CurrentRepository.getActiveBranch().getCurrentCommit().getRootFolder();
         if (!wc.getSHA1().equals(lastCommitWc.getSHA1()))
         {
-            String differences = Folder.FinedDifferences(wc, lastCommitWc);
-            return differences;
-        } else
-        {
-            return sf_NOTHING_TO_COMMIT_ON;
+            differences = Folder.FinedDifferences(wc, lastCommitWc);
+
         }
+        return differences;
     }
 
     public void CheckOut(String i_BranchName) throws Exception
