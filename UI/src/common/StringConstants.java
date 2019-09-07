@@ -10,5 +10,6 @@ public class StringConstants
     public static final String ADMINISTRATOR = "Administrator";
     public static final String YES = "Yes";
     public static final String NO = "No";
+    public static final String PROGRESS = "Progress: ";
 
 }

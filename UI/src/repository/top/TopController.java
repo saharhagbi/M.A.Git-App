@@ -1,6 +1,7 @@
 package repository.top;
 
 import System.Branch;
+import System.FolderDifferences;
 import System.Repository;
 import common.MAGitResourceConstants;
 import common.MAGitUtilities;
@@ -82,7 +83,7 @@ public class TopController
                         doCommit();
                     } else
                     {
-                        if (m_RepositoryController.ShowStatus() != null)
+                        if (m_RepositoryController.ShowStatus() == null)
                         {
                             Platform.runLater(() ->
                             {
@@ -108,7 +109,7 @@ public class TopController
             }
         };
 
-        bindCommitTaskComponentsToUI(m_RepositoryController.GetLabelBar(), m_RepositoryController.GetProgressBar(), commitTask);
+        bindTaskComponentsToUI(m_RepositoryController.GetLabelBar(), m_RepositoryController.GetProgressBar(), commitTask);
         new Thread(commitTask).start();
 
         // todo: finish update components when commit is added
@@ -120,7 +121,7 @@ public class TopController
     }
 
     //check if needed to do it in generic method in repository controller
-    private void bindCommitTaskComponentsToUI(Label i_LabelBar, ProgressBar i_ProgressBar, Task i_CommitTask)
+    private void bindTaskComponentsToUI(Label i_LabelBar, ProgressBar i_ProgressBar, Task i_CommitTask)
     {
         i_LabelBar.textProperty().bind(i_CommitTask.messageProperty());
         i_ProgressBar.progressProperty().bind(i_CommitTask.progressProperty());
@@ -352,15 +353,25 @@ public class TopController
                     e.printStackTrace();
                 } finally
                 {
-                    updateProgress(1, 1);
-                    updateMessage("Progress:");
+                    updateTask();
                 }
                 return null;
             }
+
+            private void updateTask()
+            {
+                updateProgress(1, 1);
+                updateMessage("Progress:");
+            }
         };
 
-        bindCommitTaskComponentsToUI(m_RepositoryController.GetLabelBar(), m_RepositoryController.GetProgressBar(), checkoutTask);
+        bindTaskComponentsToUI(m_RepositoryController.GetLabelBar(), m_RepositoryController.GetProgressBar(), checkoutTask);
         new Thread(checkoutTask).start();
+
+        /*  checkoutTask.
+                setOnSucceeded(() ->
+                        m_RepositoryController.UpdateTableColumnAccordingToLastCommit(),
+                m_RepositoryController.AddNodeCommitToTree());*/
     }
 
     private void getUserChoiceAndCheckout() throws Exception
@@ -413,14 +424,57 @@ public class TopController
     {
         try
         {
+            m_RepositoryController.InitProgress("Reset...");
             String SHA1OfCommit = MAGitUtilities.GetString("Enter the sha1 of the commit you want to reset to", "SHA1:",
                     StringConstants.COMMIT + " SHA1");
 
             m_RepositoryController.ResetHeadBranch(SHA1OfCommit);
+            m_RepositoryController.UpdateProgress();
+
         } catch (Exception e)
         {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    void ShowStatus_OnClick(ActionEvent event)
+    {
+
+        Task showStatusTask = new Task()
+        {
+            @Override
+            protected Object call() throws Exception
+            {
+                try
+                {
+                    updateMessage("Show Status...");
+                    FolderDifferences folderDifferences = m_RepositoryController.ShowStatus();
+
+                    if (folderDifferences == null)
+                        Platform.runLater(() ->
+                        {
+                            MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Show Status", "No Changes",
+                                    "There are no Changes since last commit");
+
+                        });
+                    else
+                        m_RepositoryController.ShowDifferencesFiles(folderDifferences);
+                } catch (Exception e)
+
+                {
+                    e.printStackTrace();
+                } finally
+                {
+                    updateProgress(1, 1);
+                    updateMessage(StringConstants.PROGRESS);
+                    return null;
+                }
+            }
+        };
+
+        bindTaskComponentsToUI(m_RepositoryController.GetLabelBar(), m_RepositoryController.GetProgressBar(), showStatusTask);
+        new Thread(showStatusTask).start();
     }
 }
 

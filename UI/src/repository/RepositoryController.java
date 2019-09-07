@@ -133,4 +133,19 @@ public class RepositoryController
     {
         m_MagitController.ResetHeadBranch(i_Sha1OfCommit);
     }
+
+    public void ShowDifferencesFiles(FolderDifferences i_FolderDifferences)
+    {
+        m_LeftController.ShowDifferencesFiles(i_FolderDifferences);
+    }
+
+    public void InitProgress(String i_Label)
+    {
+        m_BottomController.InitProgress(i_Label);
+    }
+
+    public void UpdateProgress()
+    {
+        m_BottomController.UpdateProgress();
+    }
 }

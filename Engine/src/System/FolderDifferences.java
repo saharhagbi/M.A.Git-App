@@ -18,6 +18,21 @@ public class FolderDifferences
         m_ChangedItemList = new ArrayList<>();
     }
 
+    public List<Item> GetAddedItemList()
+    {
+        return m_AddedItemList;
+    }
+
+    public List<Item> GetRemovedItemList()
+    {
+        return m_RemovedItemList;
+    }
+
+    public List<Item> GetChangedItemList()
+    {
+        return m_ChangedItemList;
+    }
+
     public void AddToAddedItemList(Item i_AddedItem)
     {
         m_AddedItemList.add(i_AddedItem);
@@ -25,12 +40,12 @@ public class FolderDifferences
 
     public void AddToRemovedItemList(Item i_RemovedItem)
     {
-        m_AddedItemList.add(i_RemovedItem);
+        m_RemovedItemList.add(i_RemovedItem);
     }
 
     public void AddToChangedItemList(Item i_ChangedItem)
     {
-        m_AddedItemList.add(i_ChangedItem);
+        m_ChangedItemList.add(i_ChangedItem);
     }
 
     public void AddAnEntireFolderDifference(FolderDifferences i_FolderDifference)

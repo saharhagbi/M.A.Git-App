@@ -29,4 +29,17 @@ public class BottomController
     {
         return m_ProgressLabel;
     }
+
+    public void InitProgress(String i_Label)
+    {
+        m_ProgressBar.setProgress(-1);
+        m_ProgressLabel.setText(i_Label);
+    }
+
+    public void UpdateProgress()
+    {
+        m_ProgressBar.setProgress(1);
+        m_ProgressLabel.setText("Progress");
+
+    }
 }

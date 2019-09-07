@@ -66,8 +66,6 @@ public class StartingController
     @FXML
     public void LoadExistingRepository_OnClick()
     {
-       /* String RepositoryPath = null;
-        String RepositoryName = null;*/
         try
         {
             String RepositoryName = MAGitUtilities.GetString("Enter your repository name.", "Name:", "Repository Name");
