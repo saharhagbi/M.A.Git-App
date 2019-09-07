@@ -16,18 +16,16 @@ public class Commit
 {
     private Folder m_RootFolder;
     private String m_SHA1;
-    private String m_PrevCommitSHA1;
-    private String m_SecondPrevCommitSHA1;
+    private String m_PrevCommitSha1;
     private String m_CommitMessage;
     private User m_UserCreated;
     private Date m_Date;
 
-    public Commit(String i_CommitsSha1, Folder i_RootFolder, String i_SHA1PrevCommit, String i_SecondPrevCommitSHA1, String i_CommitMessage, User i_UserCreated, Date i_Date)
+    public Commit(String i_CommitsSha1, Folder i_RootFolder, String i_SHA1PrevCommit, String i_CommitMessage, User i_UserCreated, Date i_Date)
     {
         this.m_SHA1 = i_CommitsSha1;
         this.m_RootFolder = i_RootFolder;
-        this.m_PrevCommitSHA1 = i_SHA1PrevCommit;
-        this.m_SecondPrevCommitSHA1 = i_SecondPrevCommitSHA1;
+        this.m_PrevCommitSha1 = i_SHA1PrevCommit;
         this.m_CommitMessage = i_CommitMessage;
         this.m_UserCreated = i_UserCreated;
         this.m_Date = i_Date;
@@ -82,12 +80,11 @@ public class Commit
 
     }
 
-    public static String createSha1ForCommit(Folder i_rootFolder, String i_sha1PrevCommit, String i_sha1OfSecondPrevCommit, String i_commitMessage, User i_user, Date date)
+    public static String createSha1ForCommit(Folder i_rootFolder, String i_sha1PrevCommit, String i_commitMessage, User i_user, Date date)
     {
         StringBuilder strForCalculatingSHA1 = new StringBuilder();
         strForCalculatingSHA1.append(i_rootFolder.getSHA1());
         strForCalculatingSHA1.append(i_sha1PrevCommit);
-        strForCalculatingSHA1.append(i_sha1OfSecondPrevCommit);
         strForCalculatingSHA1.append(i_commitMessage);
 
         return DigestUtils.sha1Hex(strForCalculatingSHA1.toString());
@@ -151,7 +148,7 @@ public class Commit
 
         //example: 123,50087888a7c34344416ec0fd600f394dadf3d9d8,FOLDER,Administrator,06.39.2019-06:39:27:027
         StringBuilder contentOfCommitTextFile = new StringBuilder(rootFolderStringBuilder);//[0]rootFolder line of details name,sha1,type,user,date
-        contentOfCommitTextFile.append(m_PrevCommitSHA1 + '\n');//[1]prevCommit sha1
+        contentOfCommitTextFile.append(m_PrevCommitSha1 + '\n');//[1]prevCommit sha1
         contentOfCommitTextFile.append(m_CommitMessage + '\n');//[2]message
         contentOfCommitTextFile.append(dateFormat.format(m_Date) + "\n");//[3]date
         contentOfCommitTextFile.append(m_UserCreated.getUserName());//[4]user
@@ -161,7 +158,7 @@ public class Commit
 
     public String GetPrevSha1()
     {
-        return this.m_PrevCommitSHA1;
+        return this.m_PrevCommitSha1;
     }
 
     public String getAllFolderAndBlobsData()
@@ -183,6 +180,6 @@ public class Commit
 
     public String getPrevCommitSha1()
     {
-        return m_PrevCommitSHA1;
+        return m_PrevCommitSha1;
     }
 }
