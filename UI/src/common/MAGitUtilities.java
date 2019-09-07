@@ -4,6 +4,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Control;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -81,5 +82,15 @@ public class MAGitUtilities
             // handle in case of cancelling
         }
         return selectedFile;
+    }
+
+    public static void HighlightText(Text i_Txt)
+    {
+        i_Txt.setStyle("-fx-font-weight: bold; -fx-stroke: #2638ff");
+    }
+
+    public static void UnhighlightText(Text i_Txt)
+    {
+        i_Txt.setStyle(null);
     }
 }

@@ -82,7 +82,7 @@ public class TopController
                         doCommit();
                     } else
                     {
-                        if (m_RepositoryController.ShowStatus().equals(StringConstants.NOTHING_TO_COMMIT_ON))
+                        if (m_RepositoryController.ShowStatus() != null)
                         {
                             Platform.runLater(() ->
                             {
@@ -228,12 +228,30 @@ public class TopController
                     Text txt = new Text(branch.getBranchName());
 
                     if (isHeadBranch(branch.getBranchName()))
-                        txt.setStyle("-fx-font-weight: bold; -fx-stroke: #2638ff");
+                        MAGitUtilities.HighlightText(txt);
 
                     return txt;
                 }).collect(Collectors.toList()));
 
         m_ComboBoxBranches.setItems(m_BranchesListComboBox);
+    }
+
+    private void hightlightHeadBranchInComboBox(boolean i_Highlight)
+    {
+        m_BranchesListComboBox
+                .filtered(txt ->
+                        txt.getText().equals(m_RepositoryController.GetCurrentRepository().getActiveBranch().getBranchName()))
+                .forEach(txt ->
+                {
+                    if (i_Highlight)
+                        MAGitUtilities.HighlightText(txt);
+                    else
+                    {
+                        MAGitUtilities.UnhighlightText(txt);
+                        /*m_BranchesListComboBox.remove(txt);
+                        addBranchToComboBox(new Text(txt.getText()));*/
+                    }
+                });
     }
 
     private boolean isHeadBranch(String i_BranchName)
@@ -280,26 +298,25 @@ public class TopController
                 "Info of All Branches:", allBranchesInfo.toString());
     }
 
-           /* Node wrapTxt = Borders.wrap(new TextArea(branchInfo.toString()))
-                    .lineBorder().color(Color.GREEN)
-                    .thickness(1)
-                    .radius(0,5, 5, 0)
-                    .build().build();*/
-
+    /* Node wrapTxt = Borders.wrap(new TextArea(branchInfo.toString()))
+             .lineBorder().color(Color.GREEN)
+             .thickness(1)
+             .radius(0,5, 5, 0)
+             .build().build();*/
     @FXML
     void CreateBranch_OnClick(ActionEvent event)
     {
-        String newBranch = null;
-        String SHA1Commit = null;
+        String newBranch;
+        String SHA1Commit;
         try
         {
             newBranch = MAGitUtilities.GetString("Enter the name of the new Branch", "Name", "New Branch");
             SHA1Commit = MAGitUtilities.GetString("Enter the SHA1 of the commit you want the branch will point",
                     "SHA1:", "Commit SHA1");
 
-            //todo:
-            // find commit pointed by sha1
-            m_RepositoryController.CreateNewBranch(newBranch);
+            //Todo:
+            // thomas function of creating new commit needed
+            m_RepositoryController.CreateNewBranch(newBranch, SHA1Commit);
             addBranchToComboBox(new Text(newBranch));
             addBranchToMenuBar(newBranch);
         } catch (Exception e)
@@ -361,43 +378,50 @@ public class TopController
 
     private void handleUserChoice(String i_Answer) throws Exception
     {
-        switch (i_Answer)
-        {
-            case StringConstants.NO:
-               /* Platform.runLater(() ->
-                        MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.INFORMATION, StringConstants.COMMIT, StringConstants.COMMIT,
-                                "Ok, So let's commit first")
-                );*/
-                doCommit();
-                break;
-        }
+        if (i_Answer.equals(StringConstants.NO))
+            doCommit();
+
         getBranchNameAndCheckOut();
     }
 
     private void getBranchNameAndCheckOut() throws Exception
     {
-        List<String> tempList = m_AllBranches.stream().map(branch -> branch.getBranchName()).collect(Collectors.toList());
+        List<String> tempList = m_AllBranches
+                .stream()
+                .map(branch -> branch.getBranchName())
+                .collect(Collectors.toList());
+
         String[] choices = tempList.stream().toArray(String[]::new);
 
         //String[] choices = (String[]) tempList.toArray();
         FutureTask<String> futureTask = new FutureTask<String>(() ->
                 MAGitUtilities.GetUserChoice(
-                        "Branch Name", "Choose one branch from below", "choose branch here",
+                        "Branch Name", "Now, Choose one branch from below for checkout", "choose branch here",
                         choices)
         );
 
         Platform.runLater(futureTask);
 
         String branchName = futureTask.get();
-           /* String branchName = MAGitUtilities.GetUserChoice(
-                    "Branch Name", "Choose one branch from below", "choose branch here",
-                    choices);
-        );
-*/
-
+        hightlightHeadBranchInComboBox(false);
         m_RepositoryController.CheckOut(branchName);
+        hightlightHeadBranchInComboBox(true);
     }
 
+    @FXML
+    void Reset_OnClick(ActionEvent event)
+    {
+        try
+        {
+            String SHA1OfCommit = MAGitUtilities.GetString("Enter the sha1 of the commit you want to reset to", "SHA1:",
+                    StringConstants.COMMIT + " SHA1");
+
+            m_RepositoryController.ResetHeadBranch(SHA1OfCommit);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
 }
 
 

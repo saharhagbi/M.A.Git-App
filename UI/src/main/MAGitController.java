@@ -125,9 +125,9 @@ public class MAGitController
         return m_PrimaryController.GetCurrentRepository();
     }
 
-    public void CreateNewBranch(String i_NewBranch) throws Exception
+    public void CreateNewBranch(String i_NewBranch, String i_SHA1Commit) throws Exception
     {
-        m_PrimaryController.CreateNewBranch(i_NewBranch);
+        m_PrimaryController.CreateNewBranch(i_NewBranch, i_SHA1Commit);
     }
 
     public void DeleteBranch(String i_BranchNameToErase) throws Exception
@@ -143,5 +143,10 @@ public class MAGitController
     public void CheckOut(String i_BranchName) throws Exception
     {
         m_PrimaryController.CheckOut(i_BranchName);
+    }
+
+    public void ResetHeadBranch(String i_Sha1OfCommit) throws Exception
+    {
+        m_PrimaryController.ResetHeadBranch(i_Sha1OfCommit);
     }
 }

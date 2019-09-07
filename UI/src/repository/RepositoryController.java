@@ -1,12 +1,14 @@
 package repository;
 
-import System.*;
 import Objects.Commit;
+import System.FolderDifferences;
+import System.Repository;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import main.MAGitController;
 import repository.bottom.BottomController;
@@ -106,9 +108,10 @@ public class RepositoryController
         return m_BottomController.GetLabelBar();
     }
 
-    public void CreateNewBranch(String i_NewBranch) throws Exception
+    public void CreateNewBranch(String i_NewBranch, String i_SHA1Commit) throws Exception
+
     {
-        m_MagitController.CreateNewBranch(i_NewBranch);
+        m_MagitController.CreateNewBranch(i_NewBranch, i_SHA1Commit);
     }
 
     public void DeleteBranch(String i_BranchNameToErase) throws Exception
@@ -124,5 +127,10 @@ public class RepositoryController
     public void CheckOut(String i_BranchName) throws Exception
     {
         m_MagitController.CheckOut(i_BranchName);
+    }
+
+    public void ResetHeadBranch(String i_Sha1OfCommit) throws Exception
+    {
+        m_MagitController.ResetHeadBranch(i_Sha1OfCommit);
     }
 }

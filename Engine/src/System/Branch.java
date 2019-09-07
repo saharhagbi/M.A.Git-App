@@ -47,8 +47,6 @@ public class Branch
         return commitHistoryBuilder.toString();
     }
 
-
-
     public static List<Branch> GetAllBranches(Path i_BranchFolderPath) throws Exception
     {
         List<Branch> allBranches = new ArrayList<Branch>();

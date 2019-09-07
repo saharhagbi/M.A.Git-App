@@ -1,12 +1,13 @@
 package primaryController;
 
-import Objects.Commit;
 import System.Engine;
+import System.FolderDifferences;
+import System.Repository;
 import XmlObjects.XMLMain;
 import common.NumConstants;
 import common.StringConstants;
 import main.MAGitController;
-import System.*;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -81,9 +82,9 @@ public class PrimaryController
         return m_Engine.GetCurrentRepository();
     }
 
-    public void CreateNewBranch(String i_NewBranch) throws Exception
+    public void CreateNewBranch(String i_NewBranch, String i_SHA1Commit) throws Exception
     {
-        m_Engine.CreateNewBranchToSystem(i_NewBranch);
+        m_Engine.CreateNewBranchToSystem(i_NewBranch/*, i_SHA1Commit*/);
     }
 
     public void DeleteBranch(String i_BranchNameToErase) throws Exception
@@ -99,5 +100,10 @@ public class PrimaryController
     public void CheckOut(String i_BranchName) throws Exception
     {
         m_Engine.CheckOut(i_BranchName);
+    }
+
+    public void ResetHeadBranch(String i_Sha1OfCommit) throws Exception
+    {
+        m_Engine.ResetHeadBranch(i_Sha1OfCommit);
     }
 }

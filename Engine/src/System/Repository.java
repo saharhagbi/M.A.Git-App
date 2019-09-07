@@ -485,13 +485,15 @@ public class Repository
         return m_BranchesFolderPath;
     }
 
-    public void AddingNewBranchInRepository(String i_nameOfNewBranch) throws IOException
+
+    public void AddingNewBranchInRepository(String i_nameOfNewBranch/*, String i_SHA1OfCommit*/) throws IOException
     {
-        Branch newBranchToAdd = new Branch(i_nameOfNewBranch, m_ActiveBranch.getCurrentCommit());
+        //Commit commitOfSHA1 = function...
+        Branch newBranchToAdd = new Branch(i_nameOfNewBranch, m_ActiveBranch.getCurrentCommit()/*commitOfSHA1*/);
 
         m_Branches.add(newBranchToAdd);
         RepositoryWriter.WritingFileByPath(
-                m_BranchesFolderPath + sf_Slash + i_nameOfNewBranch + sf_txtExtension,
+                m_BranchesFolderPath + sf_Slash + i_nameOfNewBranch + sf_txtExtension, /*commitOfSHA1.getSHA1*/
                 m_ActiveBranch.getCurrentCommit().getSHA1()
         );
     }
