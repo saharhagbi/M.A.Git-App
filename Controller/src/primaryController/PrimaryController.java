@@ -1,5 +1,6 @@
 package primaryController;
 
+import Objects.Commit;
 import System.Engine;
 import System.FolderDifferences;
 import System.Repository;
@@ -64,6 +65,8 @@ public class PrimaryController
 
     public void CommitChanges(String i_CommitMessage) throws Exception
     {
+        //m_Engine.CommitInCurrentRepository(i_CommitMessage);
+       // Commit currentCommit = m_Engine.GetCurrentRepository().getActiveBranch().getCurrentCommit();
         m_Engine.CommitInCurrentRepository(i_CommitMessage);
     }
 

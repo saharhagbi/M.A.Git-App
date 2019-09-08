@@ -28,7 +28,6 @@
           <Menu mnemonicParsing="false" text="Repository">
             <items>
                   <MenuItem fx:id="m_SwitchRepoMenuItem" mnemonicParsing="false" onAction="#SwitchRepository_OnClick" text="Switch Repository" />
-                  <MenuItem fx:id="m_ExportToXmlMenuItem" mnemonicParsing="false" text="Export to XML" />
                   <MenuItem fx:id="m_SetUserNameMenuItem" mnemonicParsing="false" onAction="#SetUserName_OnClick" text="Set User Name" />
             </items>
           </Menu>

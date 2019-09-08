@@ -97,7 +97,7 @@ public class RepositoryController
 
     public Commit GetCurrentCommit()
     {
-        return m_CurrentRepository.getActiveBranch().getCurrentCommit();
+        return m_CurrentRepository.getActiveBranch().getPointedCommit();
     }
 
     public ProgressBar GetProgressBar()

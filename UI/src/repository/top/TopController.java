@@ -290,8 +290,8 @@ public class TopController
                         branchInfo.append("------>");
 
                     return branchInfo.append("Branch Name: " + branch.getBranchName() + System.lineSeparator())
-                            .append("The SHA1 of pointed commit is: " + branch.getCurrentCommit().getSHA1() + System.lineSeparator())
-                            .append("Message of the pointedCommit is: " + branch.getCurrentCommit().getCommitMessage()
+                            .append("The SHA1 of pointed commit is: " + branch.getPointedCommit().getSHA1() + System.lineSeparator())
+                            .append("Message of the pointedCommit is: " + branch.getPointedCommit().getCommitMessage()
                                     + System.lineSeparator() + System.lineSeparator());
                 }))
                 .forEach((branchInfo) ->

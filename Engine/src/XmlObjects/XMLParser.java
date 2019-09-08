@@ -103,7 +103,7 @@ public class XMLParser
         }
     }
 
-    private Commit createCurrentCommitAndItsAllPrevCommits(MagitSingleCommit i_CurrentPointedMSC) throws ParseException
+    private Commit createCurrentCommitAndItsAllPrevCommits(MagitSingleCommit i_CurrentPointedMSC) throws Exception
     {
         List<String> precedingCommitsID = getPrecedingCommitsID(i_CurrentPointedMSC);
 
@@ -156,14 +156,15 @@ public class XMLParser
         dateOfCreation = XMLDateFormatter.FormatStringToDateType(i_CurrentPointedMSC.dateOfCreation);
         String CommitSha1;
 
-        /*CommitSha1 = Commit.createSha1ForCommit(folderToCreate, PrevCommit, SecondPrevCommit i_CurrentPointedMSC.message,
+        CommitSha1 = Commit.createSha1ForCommit(folderToCreate, PrevCommit.getSHA1(), SecondPrevCommit.getSHA1(), i_CurrentPointedMSC.message,
                 userCreated, dateOfCreation);
+
         Commit commitToReturn = new Commit(CommitSha1,
                 folderToCreate,
-                PrevCommit,
-                SecondPrevCommit,
+                PrevCommit.getSHA1(),
+                SecondPrevCommit.getSHA1(),
                 i_CurrentPointedMSC.message,
-                userCreated, dateOfCreation);*/
+                userCreated, dateOfCreation);
 
         return null;
 //        return commitToReturn;

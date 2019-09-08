@@ -78,9 +78,9 @@ public class Engine
         }
     }
 
-    public void CommitInCurrentRepository(String i_CommitMessage,Commit i_CurrentCommit) throws Exception
+    public void CommitInCurrentRepository(String i_CommitMessage) throws Exception
     {
-        m_CurrentRepository.CreateNewCommitAndUpdateActiveBranch(i_CurrentCommit,m_User,i_CommitMessage);
+        m_CurrentRepository.CreateNewCommitAndUpdateActiveBranch(m_User, i_CommitMessage);
     }
 
     public void CreateNewLocalRepository(Path i_PathToRootFolderOfRepository, String i_RepositoryName) throws Exception
@@ -131,7 +131,10 @@ public class Engine
         //1. create the currentWorkingCopy as Folder
         FolderDifferences differences = null;
         Folder wc = this.m_CurrentRepository.GetUpdatedWorkingCopy(this.m_User);
-        Folder lastCommitWc = this.m_CurrentRepository.getActiveBranch().getCurrentCommit().getRootFolder();
+        if (this.m_CurrentRepository.getActiveBranch().getPointedCommit() == null)
+            throw new Exception("Before show status, you need to commit first!");
+
+        Folder lastCommitWc = this.m_CurrentRepository.getActiveBranch().getPointedCommit().getRootFolder();
 
         if (!wc.getSHA1().equals(lastCommitWc.getSHA1()))
             differences = Folder.FinedDifferences(wc, lastCommitWc);
@@ -145,9 +148,9 @@ public class Engine
         //1. set active branch to selectd branch
         this.m_CurrentRepository.replaceActiveBranch(i_BranchName);
         //2. remove previous  files and folders
-        Folder.RemoveFilesAndFoldersWithoutMagit(this.m_CurrentRepository.getActiveBranch().getCurrentCommit().getRootFolder().GetPath());
+        Folder.RemoveFilesAndFoldersWithoutMagit(this.m_CurrentRepository.getActiveBranch().getPointedCommit().getRootFolder().GetPath());
         //3. span rootFolder in WC
-        Folder.SpanDirectory(this.m_CurrentRepository.getActiveBranch().getCurrentCommit().getRootFolder());
+        Folder.SpanDirectory(this.m_CurrentRepository.getActiveBranch().getPointedCommit().getRootFolder());
 
     }
 
@@ -197,7 +200,7 @@ public class Engine
 
     public String ShowAllCurrentCommitData()
     {
-        return this.m_CurrentRepository.getActiveBranch().getCurrentCommit().getAllFolderAndBlobsData();
+        return this.m_CurrentRepository.getActiveBranch().getPointedCommit().getAllFolderAndBlobsData();
     }
 
     public void CreateNewBranchToSystem(String i_NameOfNewBranch/*, String i_SHA1OfCommit*/) throws Exception
@@ -211,7 +214,7 @@ public class Engine
             throw new Exception("Error!" + System.lineSeparator() + "Branch doesn't exist." + System.lineSeparator());
 
 
-        if (m_CurrentRepository.getActiveBranch().getCurrentCommit() != null)
+        if (m_CurrentRepository.getActiveBranch().getPointedCommit() != null)
         {
             m_CurrentRepository.AddingNewBranchInRepository(i_NameOfNewBranch/*, i_SHA1OfCommit*/);
         } else
@@ -267,7 +270,7 @@ public class Engine
     public boolean CheckIfRootFolderChanged() throws Exception
     {
         //1. get sha1 of root folder of last commit
-        Folder rootFolderOfCommit = this.m_CurrentRepository.getActiveBranch().getCurrentCommit().getRootFolder();
+        Folder rootFolderOfCommit = this.m_CurrentRepository.getActiveBranch().getPointedCommit().getRootFolder();
         //2. get working copy
         Folder wc = this.m_CurrentRepository.GetUpdatedWorkingCopy(this.m_User);
         //3. compare both Sha1 - if equal then there are no changes
@@ -331,7 +334,7 @@ public class Engine
     {
         if (!Commit.IsSha1ValidForCommit(i_Sha1OfCommit, GetCurrentRepository().getBranchesFolderPath()))
         {
-          throw new Exception("Error!"+ System.lineSeparator() + "Commit doesn't exist." + System.lineSeparator());
+            throw new Exception("Error!" + System.lineSeparator() + "Commit doesn't exist." + System.lineSeparator());
         }
     }
 }

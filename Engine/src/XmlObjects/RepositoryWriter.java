@@ -65,13 +65,12 @@ public class RepositoryWriter
 
         for (Branch currentBranch : m_RepositoryToWrite.getAllBranches())
         {
-            Commit currentCommit = currentBranch.getCurrentCommit();
+            Commit currentCommit = currentBranch.getPointedCommit();
 
             if (!m_CommitsThatHaveBeenWritten.contains(currentCommit))
                 writeCommitAndAllPrevCommits(currentCommit);
 
             String pathForWritingBranch = m_RepositoryToWrite.getRepositoryPath().toString() + sf_PathForBranches;
-
 
             checkIfCurrentBranchIsHeadAndUpdateIfItDoes(currentBranch.getBranchName(), i_NameHeadBranch,
                     pathForWritingBranch);
@@ -79,7 +78,7 @@ public class RepositoryWriter
             WritingFileByPath(pathForWritingBranch + sf_Slash + currentBranch.getBranchName()
                     + Repository.sf_txtExtension, currentCommit.getSHA1());
         }
-        Folder.SpanDirectory(m_RepositoryToWrite.getActiveBranch().getCurrentCommit().getRootFolder());
+        Folder.SpanDirectory(m_RepositoryToWrite.getActiveBranch().getPointedCommit().getRootFolder());
     }
 
     private void checkIfCurrentBranchIsHeadAndUpdateIfItDoes(String i_CurrentBranchName, String i_NameHeadBranch,
@@ -92,12 +91,24 @@ public class RepositoryWriter
 
     private void writeCommitAndAllPrevCommits(Commit i_CurrentCommit) throws ParseException, IOException
     {
-        String SHA1OfPrevCommit = i_CurrentCommit.getPrevCommitSha1();
-        Commit prevCommit = m_MapSHA1ToCommit.get(SHA1OfPrevCommit);
+        Commit prevCommit = i_CurrentCommit.GetPrevCommit();
+        if (prevCommit != null)
+        /*String SHA1OfPrevCommit = i_CurrentCommit.GetPrevCommit().getSHA1();
+        Commit prevCommit = m_MapSHA1ToCommit.get(SHA1OfPrevCommit);*/
+        {
+            if ((!m_CommitsThatHaveBeenWritten.contains(i_CurrentCommit)))
+                writeCommitAndAllPrevCommits(prevCommit);
+        }
 
-        if ((!m_CommitsThatHaveBeenWritten.contains(i_CurrentCommit)) && prevCommit != null)
-            writeCommitAndAllPrevCommits(prevCommit);
+       Commit secondPrevCommit = i_CurrentCommit.GetSecondPrevCommit();
 
+        if (secondPrevCommit != null)
+        /*String SHA1OfPrevCommit = i_CurrentCommit.GetPrevCommit().getSHA1();
+        Commit prevCommit = m_MapSHA1ToCommit.get(SHA1OfPrevCommit);*/
+        {
+            if ((!m_CommitsThatHaveBeenWritten.contains(i_CurrentCommit)))
+                writeCommitAndAllPrevCommits(secondPrevCommit);
+        }
         putCommitInObjectsFile(i_CurrentCommit);
 
         m_CommitsThatHaveBeenWritten.add(i_CurrentCommit);

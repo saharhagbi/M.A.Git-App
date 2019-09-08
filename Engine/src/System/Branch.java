@@ -1,7 +1,6 @@
 package System;
 
 import Objects.Commit;
-import Objects.Folder;
 import Objects.Item;
 
 import java.io.File;
@@ -9,21 +8,19 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
 public class Branch
 {
     private String m_BranchName;
-    private Commit m_CurrentCommit;
-    private Commit m_PrevCommit;
+    private Commit m_PointedCommit;
+
 
     public Branch(String i_BranchName, Commit i_CurrentCommit)
     {
-        m_CurrentCommit = i_CurrentCommit;
+        m_PointedCommit = i_CurrentCommit;
         m_BranchName = i_BranchName;
     }
 
@@ -33,15 +30,15 @@ public class Branch
         StringBuilder commitHistoryBuilder = new StringBuilder();
         String headline = "Commits details:\n";
         commitHistoryBuilder.append(headline);
-        commitHistoryBuilder.append(Commit.GetInformation(i_Branch.getCurrentCommit()));
-        if (i_Branch.getCurrentCommit().GetPrevCommit().getSHA1() != null)
+        commitHistoryBuilder.append(Commit.GetInformation(i_Branch.getPointedCommit()));
+        if (i_Branch.getPointedCommit().GetPrevCommit().getSHA1() != null)
         {
-            if (!i_Branch.getCurrentCommit().GetPrevCommit().getSHA1().equals("null"))
+            if (!i_Branch.getPointedCommit().GetPrevCommit().getSHA1().equals("null"))
             {
                 commitHistoryBuilder.append("Previous Commit:\n");
-                Path prevCommitTextFileZipped = Paths.get(i_ObjectsFolder.toString() + "\\" + i_Branch.m_CurrentCommit.GetPrevCommit().getSHA1());
+                Path prevCommitTextFileZipped = Paths.get(i_ObjectsFolder.toString() + "\\" + i_Branch.m_PointedCommit.GetPrevCommit().getSHA1());
                 Path PrevCommitTextFileUnzipped = Item.UnzipFile(prevCommitTextFileZipped, Paths.get(i_ObjectsFolder.getParent().toString() + "\\Temp"));
-                String prevCommitsDetails = Commit.GetInformationFromCommitTextFile(i_Branch.m_CurrentCommit.GetPrevCommit().getSHA1(), PrevCommitTextFileUnzipped, i_ObjectsFolder);
+                String prevCommitsDetails = Commit.GetInformationFromCommitTextFile(i_Branch.m_PointedCommit.GetPrevCommit().getSHA1(), PrevCommitTextFileUnzipped, i_ObjectsFolder);
                 commitHistoryBuilder.append(prevCommitsDetails);
             }
         }
@@ -114,24 +111,14 @@ public class Branch
         return m_BranchName;
     }
 
-    public Commit getCurrentCommit()
+    public Commit getPointedCommit()
     {
-        return m_CurrentCommit;
-    }
-
-    public Commit getPrevCommit()
-    {
-        return this.m_PrevCommit;
-    }
-
-    public void SetPrevCommit(Commit i_Commit)
-    {
-        m_PrevCommit = i_Commit;
+        return m_PointedCommit;
     }
 
     public void SetCurrentCommit(Commit i_Commit)
     {
-        m_CurrentCommit = i_Commit;
+        m_PointedCommit = i_Commit;
     }
 }
 
