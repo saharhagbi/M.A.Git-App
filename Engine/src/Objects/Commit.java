@@ -16,16 +16,17 @@ public class Commit
 {
     private Folder m_RootFolder;
     private String m_SHA1;
-    private String m_PrevCommitSha1;
+    private Commit m_PrevFirstCommit;
+    private Commit m_SecondPrevCommit;
     private String m_CommitMessage;
     private User m_UserCreated;
     private Date m_Date;
 
-    public Commit(String i_CommitsSha1, Folder i_RootFolder, String i_SHA1PrevCommit, String i_CommitMessage, User i_UserCreated, Date i_Date)
+    public Commit(String i_CommitsSha1, Folder i_RootFolder, Commit i_SHA1PrevCommit, String i_CommitMessage, User i_UserCreated, Date i_Date)
     {
         this.m_SHA1 = i_CommitsSha1;
         this.m_RootFolder = i_RootFolder;
-        this.m_PrevCommitSha1 = i_SHA1PrevCommit;
+        this.m_PrevFirstCommit = i_SHA1PrevCommit;
         this.m_CommitMessage = i_CommitMessage;
         this.m_UserCreated = i_UserCreated;
         this.m_Date = i_Date;
@@ -148,7 +149,7 @@ public class Commit
 
         //example: 123,50087888a7c34344416ec0fd600f394dadf3d9d8,FOLDER,Administrator,06.39.2019-06:39:27:027
         StringBuilder contentOfCommitTextFile = new StringBuilder(rootFolderStringBuilder);//[0]rootFolder line of details name,sha1,type,user,date
-        contentOfCommitTextFile.append(m_PrevCommitSha1 + '\n');//[1]prevCommit sha1
+      //  contentOfCommitTextFile.append(m_PrevCommitSha1 + '\n');//[1]prevCommit sha1
         contentOfCommitTextFile.append(m_CommitMessage + '\n');//[2]message
         contentOfCommitTextFile.append(dateFormat.format(m_Date) + "\n");//[3]date
         contentOfCommitTextFile.append(m_UserCreated.getUserName());//[4]user

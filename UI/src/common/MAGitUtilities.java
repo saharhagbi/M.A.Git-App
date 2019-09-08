@@ -29,7 +29,6 @@ public class MAGitUtilities
         return repositoryName.get();
     }
 
-
     public static String GetUserChoice(String i_Title, String i_HeaderText, String i_DefaultChoice, String[] i_UserChoices)
     {
         ChoiceDialog<String> dialog = new ChoiceDialog(i_DefaultChoice, i_UserChoices);
@@ -41,12 +40,10 @@ public class MAGitUtilities
         return dialog.getSelectedItem();
     }
 
-
     public static Stage GetStage(Control i_Control)
     {
         return (Stage) i_Control.getScene().getWindow();
     }
-
 
     public static void InformUserPopUpMessage(Alert.AlertType i_AlertType, String i_Title, String i_HeaderText, String i_ContextText)
     {
@@ -86,7 +83,7 @@ public class MAGitUtilities
 
     public static void HighlightText(Text i_Txt)
     {
-        i_Txt.setStyle("-fx-font-weight: bold; -fx-stroke: #2638ff");
+        i_Txt.setStyle("-fx-font-weight: bold; -fx-stroke: #5b72ff");
     }
 
     public static void UnhighlightText(Text i_Txt)

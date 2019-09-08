@@ -65,13 +65,13 @@ public class MAGitController
 
         i_PrimaryStage.setScene(scene);
 
-        setComponentsInCaseRepositoryScene(i_PrimaryStage, isRepositoryScene);
+        setComponentsIfRepositoryScene(i_PrimaryStage, isRepositoryScene);
 
         i_PrimaryStage.show();
 
     }
 
-    private void setComponentsInCaseRepositoryScene(Stage i_PrimaryStage, boolean isRepositoryScene)
+    private void setComponentsIfRepositoryScene(Stage i_PrimaryStage, boolean isRepositoryScene)
     {
         if (isRepositoryScene)
             m_RepositoryController.initAllComponents();
@@ -114,11 +114,6 @@ public class MAGitController
     {
         return m_PrimaryController.ShowStatus();
     }
-
-   /* public Commit GetCurrentCommit()
-    {
-    return    m_PrimaryController.GetCurrentCommit();
-    }*/
 
     public Repository GetCurrentRepository()
     {

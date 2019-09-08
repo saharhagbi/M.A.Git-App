@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class XMLParser
 {
@@ -56,7 +57,7 @@ public class XMLParser
 
         for (MagitSingleBranch magitSingleBranch : listOfMSB)
         {
-            MagitSingleCommit currentPointedMSC = findComitByID(magitSingleBranch.pointedCommit.id);
+            MagitSingleCommit currentPointedMSC = findCommitByID(magitSingleBranch.pointedCommit.id);
 
             Commit currentCommit;
             if (!isIDOfMSCExistInMap(currentPointedMSC))
@@ -71,6 +72,8 @@ public class XMLParser
             listRepositoryBranches.add(currentBranch);
         }
 
+        Map<String, Commit> sha1ToCommitMap = createMapSha1ForCommit();
+
         repoToCreate = new Repository(m_ActiveBranch, Paths.get(m_MagitRepository.location),
                 m_MagitRepository.name, listRepositoryBranches);
 
@@ -80,26 +83,44 @@ public class XMLParser
         return repoToCreate;
     }
 
+    private Map<String, Commit> createMapSha1ForCommit()
+    {
+        Map<String, Commit> sha1ToCommitMap = new HashMap<String, Commit>();
+        m_AllCommitsIDToCommit
+                .values()
+                .stream()
+                .collect(Collectors.toMap(commit -> commit.getSHA1(),
+                        commit -> commit));
+
+        return sha1ToCommitMap;
+    }
+
     private void checkIfCurrentBranchIsHEAD(MagitSingleBranch magitSingleBranch, Branch currentBranch)
     {
         if (magitSingleBranch.name.equals(m_MagitBranches.head))
         {
             m_ActiveBranch = currentBranch;
-
-            //TODO:
-            // See if needed, because c'tor of repository doesn't get Commit type(also parameter)
-            /*m_CurrentCommit = currentCommit;*/
         }
     }
 
     private Commit createCurrentCommitAndItsAllPrevCommits(MagitSingleCommit i_CurrentPointedMSC) throws ParseException
     {
-        String precedingCommitID = getPrecedingCommitID(i_CurrentPointedMSC);
+        List<String> precedingCommitsID = getPrecedingCommitsID(i_CurrentPointedMSC);
 
-        if ((precedingCommitID != null) && (!isIDOfMSCExistInMap(i_CurrentPointedMSC)))
-            createCurrentCommitAndItsAllPrevCommits(findComitByID(precedingCommitID));
+        if ((precedingCommitsID != null) && (!isIDOfMSCExistInMap(i_CurrentPointedMSC)))
+        {
+            for (String precedingCommitID : precedingCommitsID)
+            {
+                createCurrentCommitAndItsAllPrevCommits(findCommitByID(precedingCommitID));
+            }
+        }
 
-        Commit currentCommit = createCommit(i_CurrentPointedMSC);
+        Commit currentCommit;
+
+        if (m_AllCommitsIDToCommit.containsKey(i_CurrentPointedMSC.id))
+            currentCommit = m_AllCommitsIDToCommit.get(i_CurrentPointedMSC.id);
+        else
+            currentCommit = createCommit(i_CurrentPointedMSC);
 
         m_AllCommitsIDToCommit.put(i_CurrentPointedMSC.id, currentCommit);
 
@@ -110,8 +131,8 @@ public class XMLParser
     {
         User userCreated;
         Date dateOfCreation;
-        String SHA1OfPrevCommit = null;
-        Commit prevCommit;
+        Commit PrevCommit = null;
+        Commit SecondPrevCommit = null;
         Folder folderToCreate;
 
         MagitSingleFolder rootMSFOfCommit = findFolderByID(i_CurrentPointedMSC.rootFolder.id);
@@ -123,22 +144,31 @@ public class XMLParser
 
         if (thereIsPrecedingCommit(i_CurrentPointedMSC))
         {
-            prevCommit = m_AllCommitsIDToCommit.get(getPrecedingCommitID(i_CurrentPointedMSC));
-            SHA1OfPrevCommit = prevCommit.getSHA1();
+            List<String> precedingCommitsID = getPrecedingCommitsID(i_CurrentPointedMSC);
+            PrevCommit = m_AllCommitsIDToCommit.get(precedingCommitsID.get(0));
+
+            if (precedingCommitsID.size() == 2)
+            {
+                SecondPrevCommit = m_AllCommitsIDToCommit.get(precedingCommitsID.get(1));
+            }
         }
 
         dateOfCreation = XMLDateFormatter.FormatStringToDateType(i_CurrentPointedMSC.dateOfCreation);
         String CommitSha1;
-        CommitSha1 = Commit.createSha1ForCommit(folderToCreate, SHA1OfPrevCommit, i_CurrentPointedMSC.message,
+
+        /*CommitSha1 = Commit.createSha1ForCommit(folderToCreate, PrevCommit, SecondPrevCommit i_CurrentPointedMSC.message,
                 userCreated, dateOfCreation);
         Commit commitToReturn = new Commit(CommitSha1,
                 folderToCreate,
-                SHA1OfPrevCommit,
+                PrevCommit,
+                SecondPrevCommit,
                 i_CurrentPointedMSC.message,
-                userCreated, dateOfCreation);
+                userCreated, dateOfCreation);*/
 
-        return commitToReturn;
+        return null;
+//        return commitToReturn;
     }
+
 
     private Folder createFolder(MagitSingleFolder i_RootMSFOfCommit, String i_CurrentLocation) throws ParseException
     {
@@ -181,19 +211,20 @@ public class XMLParser
         i_AllItemInCurrentFolder.add(blobToCreate);
     }
 
-    private String getPrecedingCommitID(MagitSingleCommit i_CurrentPointedMSC)
+    private List<String> getPrecedingCommitsID(MagitSingleCommit i_CurrentPointedMSC)
     {
         if ((i_CurrentPointedMSC.precedingCommits == null) ||
                 (i_CurrentPointedMSC.precedingCommits.precedingCommit == null))
             return null;
 
-        return i_CurrentPointedMSC.precedingCommits.precedingCommit.get(0).id;
-
-        /*int amountOfPrecedingCommit = i_CurrentPointedMSC.precedingCommits.getPrecedingCommit().size();
-        return i_CurrentPointedMSC.precedingCommits.getPrecedingCommit().get(amountOfPrecedingCommit - 1).id;*/
+        return i_CurrentPointedMSC.precedingCommits.precedingCommit
+                .stream()
+                .map(PrecedingCommits.PrecedingCommit::getId)
+                .collect(Collectors.toList());
+//        return i_CurrentPointedMSC.precedingCommits.precedingCommit.get(0).id;
     }
 
-    private MagitSingleCommit findComitByID(String i_Id)
+    private MagitSingleCommit findCommitByID(String i_Id)
     {
         MagitSingleCommit magitSingleCommitToFind = null;
 
