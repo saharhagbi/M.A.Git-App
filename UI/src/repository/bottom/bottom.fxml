@@ -5,13 +5,14 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="143.0" prefWidth="555.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="repository.bottom.BottomController">
+<AnchorPane maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="143.0" prefWidth="704.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="repository.bottom.BottomController">
    <children>
       <HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="188.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
@@ -30,19 +31,57 @@
                         <ProgressBar fx:id="m_ProgressBar" layoutX="88.0" layoutY="8.0" prefHeight="21.0" prefWidth="315.0" progress="0.0" />
                      </children>
                   </AnchorPane>
-                  <ScrollPane GridPane.hgrow="ALWAYS">
-                     <content>
-                        <TabPane maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="560.0" tabClosingPolicy="UNAVAILABLE">
-                           <tabs>
-                              <Tab text="Untitled Tab">
-                                <content>
-                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="161.0" prefWidth="435.0" />
-                                </content>
-                              </Tab>
-                           </tabs>
-                        </TabPane>
-                     </content>
-                  </ScrollPane>
+                  <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                     <children>
+                        <ScrollPane maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <content>
+                              <TabPane maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="1225.0" tabClosingPolicy="UNAVAILABLE">
+                                 <tabs>
+                                    <Tab fx:id="m_InfoTab" text="Info ">
+                                      <content>
+                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="161.0" prefWidth="435.0">
+                                             <children>
+                                                <GridPane fx:id="m_InfoGridPane" prefHeight="204.0" prefWidth="543.0" AnchorPane.bottomAnchor="-43.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="682.0" AnchorPane.topAnchor="0.0">
+                                                  <columnConstraints>
+                                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="267.0" minWidth="10.0" prefWidth="168.0" />
+                                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="442.0" minWidth="10.0" prefWidth="375.0" />
+                                                  </columnConstraints>
+                                                  <rowConstraints>
+                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                  </rowConstraints>
+                                                   <children>
+                                                      <Label text="Message:" />
+                                                      <Label text="SHA1:" GridPane.rowIndex="1" />
+                                                      <Label text="Author:" GridPane.rowIndex="2" />
+                                                      <Label text="Date:" GridPane.rowIndex="3" />
+                                                      <Label text="Prev Commits SHA1:" GridPane.rowIndex="4" />
+                                                      <Label text="Second Prev Commit SHA1:" GridPane.rowIndex="5" />
+                                                   </children>
+                                                </GridPane>
+                                             </children>
+                                          </AnchorPane>
+                                      </content>
+                                    </Tab>
+                                    <Tab fx:id="m_FileTreeTab" text="FileTree">
+                                       <content>
+                                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="161.0" prefWidth="435.0">
+                                             <children>
+                                                <TreeView fx:id="m_FileTreeView" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="-0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                             </children>
+                                          </AnchorPane>
+                                       </content>
+                                    </Tab>
+                                 </tabs>
+                              </TabPane>
+                           </content>
+                        </ScrollPane>
+                     </children>
+                  </AnchorPane>
                </children>
             </GridPane>
          </children>

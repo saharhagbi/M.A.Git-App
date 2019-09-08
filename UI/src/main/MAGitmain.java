@@ -1,13 +1,12 @@
 package main;
 
 import common.MAGitResourceConstants;
-import common.StringConstants;
+import common.constants.StringConstants;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import repository.RepositoryController;
 import starting.StartingController;
 
 import java.net.URL;

@@ -95,24 +95,21 @@ public class Repository
         String TempPath = (i_RepositoryPath.toString() + sf_PathForTempFolder);
         m_TempFolderPath = Paths.get(TempPath);
     }
-
-    public Commit createNewInstanceCommit(User i_User, String i_SHA1PrevCommit, Folder i_RootFolder, String i_CommitMessage)
-    {
+    //this method is used when creating a new commit that hasnt been created before - aka "commit changes"
+    public Commit createNewInstanceCommit(User i_User, String i_PrevCommitSha1,String i_SecondPrevCommitSha1, Folder i_RootFolder, String i_CommitMessage) throws Exception {
         Date date = new Date();
-        String CommitSha1 = Commit.createSha1ForCommit(i_RootFolder, i_SHA1PrevCommit, i_CommitMessage, i_User, date);
-        Commit theNewCommit = new Commit(CommitSha1, i_RootFolder, i_SHA1PrevCommit, i_CommitMessage, i_User, date);
+        String CommitSha1 = Commit.createSha1ForCommit(i_RootFolder,i_PrevCommitSha1,i_SecondPrevCommitSha1,i_CommitMessage,i_User,date);
+        Commit theNewCommit = new Commit(CommitSha1,i_RootFolder,i_PrevCommitSha1,i_SecondPrevCommitSha1,i_CommitMessage,i_User,date);
         return theNewCommit;
     }
 
-    public FolderDifferences CreateNewCommitAndUpdateActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
+    public FolderDifferences CreateNewCommitAndUpdateActiveBranch(Commit i_currentCommit,User i_CurrentUser, String i_CommitMessage) throws Exception
     {
         FolderDifferences differencesBetweenLastAndCurrentCommit =null;
         if (Folder.isDirEmpty(m_RepositoryPath))
         {
-            //TODO: Throw Exception
-            //return String.format("The root folder is Empty - nothing to commit");
+            throw new Exception("Can not creat new branch - there are no commits yet!");
         }
-        //else - the root folder contains some files
 
         if (ThereAreNoCmmitsYet())
         {
@@ -120,7 +117,8 @@ public class Repository
             updateActiveBranchInFileSystemToPointToLatestCommit();
         } else
         {
-            CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, this.m_ActiveBranch.getCurrentCommit().getSHA1());
+            //CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, this.m_ActiveBranch.getCurrentCommit().getSHA1());
+            CreateANewCommitInActiveBranch(i_CurrentUser,i_CommitMessage,i_currentCommit.GetPrevCommit().getSHA1(),i_currentCommit.GetSecondPrevCommit().getSHA1());
             if (this.m_ActiveBranch.getPrevCommit() != null)
             {//it means there is no new commit because there were no changes
                 differencesBetweenLastAndCurrentCommit = Commit.findDifferences(m_ActiveBranch.getCurrentCommit(), m_ActiveBranch.getPrevCommit());
@@ -163,7 +161,7 @@ public class Repository
         return this.m_ActiveBranch.getCurrentCommit();
     }
 
-    private void CreateANewCommitInActiveBranch(User i_CurrentUser, String i_CommitMessage, String i_SHA1PrevCommit) throws Exception
+    private void CreateANewCommitInActiveBranch(User i_CurrentUser, String i_CommitMessage, String i_PrevCommitSha1,String i_SecondPrevCommitSha1) throws Exception
     {
         Map<Path, Item> itemsMapWithPaths = new HashMap<>();
         // 1. create the root folder - current working copy
@@ -175,9 +173,7 @@ public class Repository
 
             Path pathForWritingWC = WC.WritingFolderAsATextFile();
             zipAndPutInObjectsFolder(pathForWritingWC.toFile(), WC.getSHA1());
-
-            Commit newCommit = createNewInstanceCommit(i_CurrentUser, i_SHA1PrevCommit, WC, i_CommitMessage);
-
+            Commit newCommit = createNewInstanceCommit(i_CurrentUser,i_PrevCommitSha1,i_SecondPrevCommitSha1,WC,i_CommitMessage);
 
             //putting Commit in objects
             String contentOfCommit = newCommit.CreatingContentOfCommit();
@@ -189,8 +185,6 @@ public class Repository
 
         } else
         {
-            //todo:
-            // check if needed to remove code
             throw new Exception("There is nothing to commit in repository!");
         }
     }
@@ -208,7 +202,7 @@ public class Repository
     // this method creats recursivly the working copy as textFiles zipped inside objects as their names are their sha1
     private void createFirstCommitInActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
     {
-        CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, null);
+        CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, null,null);
     }
 
     //this method takes a Folder object and turns it in to a String -
@@ -346,7 +340,7 @@ public class Repository
                 found = true;
         }
         String commitSha1 = getSha1FromBranchFile(allBranches[i]);
-        String[] commitsMembersFromFile = getCommitsMembers(commitSha1); // 0 = rootFolder line 1= last commit sha1 2 = messege 3 = DATE 4 = userName
+        String[] commitsMembersFromFile = getCommitsMembers(commitSha1); // 0 = rootFolder line, 1= last commit sha1, 2 = SecondPrevCommitSha1, 3 = messege ,4 = DATE, 5 = userName
         String[] rootFolderDetails = Item.GetItemsDetails(commitsMembersFromFile[0]);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:SSS");
@@ -361,16 +355,13 @@ public class Repository
                 new User(rootFolderDetails[3]),
                 rootFoldeDate, m_ObjectsFolderPath);
 
-        Commit brnachCommit = createNewInstanceCommit(new User(rootFolderDetails[3]),
-                commitsMembersFromFile[1],
-                rootFolder,
-                rootFolderDetails[2]);
+        Commit brnachCommit = createNewInstanceCommit(new User(rootFolderDetails[3]),commitsMembersFromFile[1],commitsMembersFromFile[2],rootFolder,rootFolderDetails[2]);
         setActiveBranch(new Branch(i_NameOfBranch, brnachCommit));
     }
 
     private String[] getCommitsMembers(String commitSha1)
     {
-        String[] commitsMembers = new String[5];
+        String[] commitsMembers = new String[6];
         File commitTextFile = getObjectFromObjectsFolder(commitSha1);
         try (BufferedReader br = new BufferedReader(new FileReader(commitTextFile)))
         {

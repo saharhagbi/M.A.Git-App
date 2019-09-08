@@ -16,18 +16,24 @@ public class Commit
 {
     private Folder m_RootFolder;
     private String m_SHA1;
-    private String m_PrevCommitSHA1;
-    private String m_SecondPrevCommitSHA1;
+    private Commit m_PrevCommit = null;
+    private Commit m_SecondPrevCommit=null;
     private String m_CommitMessage;
     private User m_UserCreated;
     private Date m_Date;
 
-    public Commit(String i_CommitsSha1, Folder i_RootFolder, String i_SHA1PrevCommit, String i_SecondPrevCommitSHA1, String i_CommitMessage, User i_UserCreated, Date i_Date)
-    {
+    public Commit(String i_CommitsSha1, Folder i_RootFolder, String i_SHA1PrevCommit,String i_SHA1SecondPrevCommit, String i_CommitMessage, User i_UserCreated, Date i_Date) throws Exception {
+        Path objectsFolderPath =null;
         this.m_SHA1 = i_CommitsSha1;
         this.m_RootFolder = i_RootFolder;
-        this.m_PrevCommitSHA1 = i_SHA1PrevCommit;
-        this.m_SecondPrevCommitSHA1 = i_SecondPrevCommitSHA1;
+        if(!i_SHA1PrevCommit.equals("null"))
+        {
+            objectsFolderPath = Paths.get(m_RootFolder.GetPath().toString()+"\\.magit\\Objects");
+            m_PrevCommit = CreateCommitFromSha1(i_SHA1PrevCommit,objectsFolderPath);
+        }
+        if(!i_SHA1SecondPrevCommit.equals("null")){
+            m_SecondPrevCommit = CreateCommitFromSha1(i_SHA1SecondPrevCommit,objectsFolderPath);
+        }
         this.m_CommitMessage = i_CommitMessage;
         this.m_UserCreated = i_UserCreated;
         this.m_Date = i_Date;
@@ -37,7 +43,7 @@ public class Commit
     public static String[] GetCommitFieldsFromCommitTextFile(Path i_CommitTextFilePath) throws IOException
     {
         Scanner lineScanner = new Scanner(i_CommitTextFilePath);
-        String[] commitTextFileFields = new String[5];
+        String[] commitTextFileFields = new String[6];
         int i = 0;
         while (lineScanner.hasNext())
         {
@@ -151,17 +157,13 @@ public class Commit
 
         //example: 123,50087888a7c34344416ec0fd600f394dadf3d9d8,FOLDER,Administrator,06.39.2019-06:39:27:027
         StringBuilder contentOfCommitTextFile = new StringBuilder(rootFolderStringBuilder);//[0]rootFolder line of details name,sha1,type,user,date
-        contentOfCommitTextFile.append(m_PrevCommitSHA1 + '\n');//[1]prevCommit sha1
-        contentOfCommitTextFile.append(m_CommitMessage + '\n');//[2]message
-        contentOfCommitTextFile.append(dateFormat.format(m_Date) + "\n");//[3]date
-        contentOfCommitTextFile.append(m_UserCreated.getUserName());//[4]user
+        contentOfCommitTextFile.append(m_PrevCommit.m_SHA1 + '\n');//[1]prevCommit sha1
+        contentOfCommitTextFile.append(m_SecondPrevCommit.m_SHA1 + '\n');//[2]prevCommit sha1
+        contentOfCommitTextFile.append(m_CommitMessage + '\n');//[3]message
+        contentOfCommitTextFile.append(dateFormat.format(m_Date) + "\n");//[4]date
+        contentOfCommitTextFile.append(m_UserCreated.getUserName());//[5]user
 
         return contentOfCommitTextFile.toString();
-    }
-
-    public String GetPrevSha1()
-    {
-        return this.m_PrevCommitSHA1;
     }
 
     public String getAllFolderAndBlobsData()
@@ -181,10 +183,6 @@ public class Commit
         return m_UserCreated;
     }
 
-    public String getPrevCommitSha1()
-    {
-        return m_PrevCommitSHA1;
-    }
 
     public static Commit CreateCommitFromSha1(String i_CommitSha1,Path i_ObjectsFolder) throws Exception {
         Commit newCommit =null;
@@ -196,19 +194,28 @@ public class Commit
             String[] CommitsFields = Commit.GetCommitFieldsFromCommitTextFile(tempUnzippedCommitTextPath);
             String[] rootFolderDetails = Item.GetItemsDetails(CommitsFields[0]);
             String rootFolderSha1 = rootFolderDetails[1];
-            String sha1OfLastCommit = CommitsFields[1];
-            String message = CommitsFields[2];
+            String prevCommitSha1 = CommitsFields[1];
+            String secondPrevCommitSha1 = CommitsFields[2];
+            String message = CommitsFields[3];
             User rootFolderUser = new User(rootFolderDetails[3]);
-            User commitUser = new User(CommitsFields[4]);
+            User commitUser = new User(CommitsFields[5]);
 
-            Date commitsDate = Item.ParseDateWithFormat(CommitsFields[3]);
+            Date commitsDate = Item.ParseDateWithFormat(CommitsFields[4]);
             Path WCTextFileZipped = Paths.get(i_ObjectsFolder.toString() + "\\" + rootFolderSha1);
             Path WCTextFileUnzippedPath = Item.UnzipFile(WCTextFileZipped, tempFolderPath);
             Path workingCopyPath = Paths.get(i_ObjectsFolder.getParent().toString());
             Folder commitsRootFolder = Folder.CreateFolderFromTextFolder(WCTextFileUnzippedPath.toFile(), workingCopyPath, rootFolderSha1, rootFolderUser, commitsDate, i_ObjectsFolder);
-            newCommit = new Commit(i_CommitSha1, commitsRootFolder, sha1OfLastCommit, message, commitUser, commitsDate);
+            newCommit = new Commit(i_CommitSha1,commitsRootFolder,prevCommitSha1,secondPrevCommitSha1,message,commitUser,commitsDate);
 
         }
         return newCommit;
     }
+
+    public Commit GetPrevCommit() {
+        return m_PrevCommit;
+    }
+    public Commit GetSecondPrevCommit() {
+        return m_SecondPrevCommit;
+    }
+
 }

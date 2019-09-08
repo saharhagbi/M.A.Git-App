@@ -5,7 +5,7 @@ import System.FolderDifferences;
 import System.Repository;
 import common.MAGitResourceConstants;
 import common.MAGitUtilities;
-import common.StringConstants;
+import common.constants.StringConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
