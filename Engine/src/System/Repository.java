@@ -140,7 +140,6 @@ public class Repository
     {
         Path branchPath = Paths.get(this.m_RepositoryPath.toString() + "\\.magit\\Branches\\" + this.m_ActiveBranch.getBranchName() + ".txt");
         writeToFileEraseTheOldOne(this.m_ActiveBranch.getCurrentCommit().getSHA1(), branchPath);
-
     }
 
     //this method deletes the old file if there is one and write the new one
@@ -319,7 +318,7 @@ public class Repository
     }
 
     //maybe needed to be deleted - depends on loadBranch function
-   /* void ChangeBranch(String i_NameOfBranch)
+   /* void ChangeBranch(St  ring i_NameOfBranch)
     {
         // check if this branch already exists - if so - change to it
         Boolean DoesntExist = false;
