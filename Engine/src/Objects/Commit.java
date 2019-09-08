@@ -182,4 +182,30 @@ public class Commit
     {
         return m_PrevCommitSha1;
     }
+
+    public static Commit CreateCommitFromSha1(String i_CommitSha1,Path i_ObjectsFolder) throws Exception {
+        Commit newCommit =null;
+        if(IsSha1ValidForCommit(i_CommitSha1,i_ObjectsFolder)){
+            Path unzippedCommitFile = Paths.get(i_ObjectsFolder.toString()+"\\"+i_CommitSha1);
+            Path tempFolderPath = Paths.get(i_ObjectsFolder.getParent().toString()+"\\Temp");
+            Path tempUnzippedCommitTextPath = Item.UnzipFile(unzippedCommitFile, tempFolderPath);
+
+            String[] CommitsFields = Commit.GetCommitFieldsFromCommitTextFile(tempUnzippedCommitTextPath);
+            String[] rootFolderDetails = Item.GetItemsDetails(CommitsFields[0]);
+            String rootFolderSha1 = rootFolderDetails[1];
+            String sha1OfLastCommit = CommitsFields[1];
+            String message = CommitsFields[2];
+            User rootFolderUser = new User(rootFolderDetails[3]);
+            User commitUser = new User(CommitsFields[4]);
+
+            Date commitsDate = Item.ParseDateWithFormat(CommitsFields[3]);
+            Path WCTextFileZipped = Paths.get(i_ObjectsFolder.toString() + "\\" + rootFolderSha1);
+            Path WCTextFileUnzippedPath = Item.UnzipFile(WCTextFileZipped, tempFolderPath);
+            Path workingCopyPath = Paths.get(i_ObjectsFolder.getParent().toString());
+            Folder commitsRootFolder = Folder.CreateFolderFromTextFolder(WCTextFileUnzippedPath.toFile(), workingCopyPath, rootFolderSha1, rootFolderUser, commitsDate, i_ObjectsFolder);
+            newCommit = new Commit(i_CommitSha1, commitsRootFolder, sha1OfLastCommit, message, commitUser, commitsDate);
+
+        }
+        return newCommit;
+    }
 }
