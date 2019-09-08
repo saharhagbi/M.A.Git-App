@@ -127,7 +127,7 @@ public class XMLParser
         return currentCommit;
     }
 
-    private Commit createCommit(MagitSingleCommit i_CurrentPointedMSC) throws ParseException
+    private Commit createCommit(MagitSingleCommit i_CurrentPointedMSC) throws Exception
     {
         User userCreated;
         Date dateOfCreation;

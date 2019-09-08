@@ -54,16 +54,13 @@ public class BottomController
 
     }
 
-    public void ShowCommitInfoAndCreateFileTree(Commit i_CommitToShow)
+    public void ShowCommitInfo(Commit i_CommitToShow)
     {
-        showInfo();
-        createFileTree(i_CommitToShow.getRootFolder());
-    }
 
-    private void showInfo()
-    {
-        //adding all strings data to second column
+
 //            m_InfoGridPane.add(node, indexRow, indexCol)
+
+        createFileTree(i_CommitToShow.getRootFolder());
     }
 
     private void createFileTree(Folder i_Folder)

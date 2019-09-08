@@ -78,10 +78,9 @@ public class Engine
         }
     }
 
-    public void CommitInCurrentRepository(String i_CommitMessage) throws Exception
+    public void CommitInCurrentRepository(String i_CommitMessage,Commit i_CurrentCommit) throws Exception
     {
-
-        m_CurrentRepository.CreateNewCommitAndUpdateActiveBranch(m_User, i_CommitMessage);
+        m_CurrentRepository.CreateNewCommitAndUpdateActiveBranch(i_CurrentCommit,m_User,i_CommitMessage);
     }
 
     public void CreateNewLocalRepository(Path i_PathToRootFolderOfRepository, String i_RepositoryName) throws Exception

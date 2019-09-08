@@ -153,6 +153,6 @@ public class RepositoryController
 
     public void newCommitSelectedOnCenterTableView(Commit i_CommitToShow, String i_CommitSHA1)
     {
-        m_BottomController.ShowCommitInfoAndCreateFileTree(i_CommitToShow);
+        m_BottomController.ShowCommitInfo(i_CommitToShow);
     }
 }

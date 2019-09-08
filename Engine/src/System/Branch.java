@@ -29,18 +29,19 @@ public class Branch
 
     public static String GetCommitHistory(Branch i_Branch, Path i_ObjectsFolder) throws IOException
     {
+        //TODO: apply for second prev commit
         StringBuilder commitHistoryBuilder = new StringBuilder();
         String headline = "Commits details:\n";
         commitHistoryBuilder.append(headline);
         commitHistoryBuilder.append(Commit.GetInformation(i_Branch.getCurrentCommit()));
-        if (i_Branch.getCurrentCommit().GetPrevSha1() != null)
+        if (i_Branch.getCurrentCommit().GetPrevCommit().getSHA1() != null)
         {
-            if (!i_Branch.getCurrentCommit().GetPrevSha1().equals("null"))
+            if (!i_Branch.getCurrentCommit().GetPrevCommit().getSHA1().equals("null"))
             {
                 commitHistoryBuilder.append("Previous Commit:\n");
-                Path prevCommitTextFileZipped = Paths.get(i_ObjectsFolder.toString() + "\\" + i_Branch.m_CurrentCommit.GetPrevSha1());
+                Path prevCommitTextFileZipped = Paths.get(i_ObjectsFolder.toString() + "\\" + i_Branch.m_CurrentCommit.GetPrevCommit().getSHA1());
                 Path PrevCommitTextFileUnzipped = Item.UnzipFile(prevCommitTextFileZipped, Paths.get(i_ObjectsFolder.getParent().toString() + "\\Temp"));
-                String prevCommitsDetails = Commit.GetInformationFromCommitTextFile(i_Branch.m_CurrentCommit.GetPrevSha1(), PrevCommitTextFileUnzipped, i_ObjectsFolder);
+                String prevCommitsDetails = Commit.GetInformationFromCommitTextFile(i_Branch.m_CurrentCommit.GetPrevCommit().getSHA1(), PrevCommitTextFileUnzipped, i_ObjectsFolder);
                 commitHistoryBuilder.append(prevCommitsDetails);
             }
         }
@@ -65,7 +66,6 @@ public class Branch
     {
         String branchName;
         Path realPathToBranch = i_BranchesPath;
-        Path workingCopyPath = i_BranchesPath.getParent().getParent().getParent();
         // 1. get branch name
         // if the path is to the HEAD Branch then we want to extract the real branch name
         if (realPathToBranch.getFileName().getFileName().toString().equals("HEAD.txt"))
@@ -80,29 +80,7 @@ public class Branch
 
         String branchCommitsSha1 = Branch.getCommitSha1FromBranchFile(realPathToBranch);
         Path ObjectsFolderPath = Paths.get(realPathToBranch.getParent().getParent().toString() + "\\Objects");
-        Path commitsPath = Paths.get(ObjectsFolderPath.toString() + "\\" + branchCommitsSha1);
-
-        //get tempFolder path
-        Path tempFolderPath = Paths.get(i_BranchesPath.getParent().getParent().toString() + "\\Temp");
-        if (!tempFolderPath.toFile().exists())
-        {
-            tempFolderPath.toFile().mkdir();
-        }
-        Path tempUnzippedCommitTextPath = Item.UnzipFile(commitsPath, tempFolderPath);
-        String[] CommitsFields = Commit.GetCommitFieldsFromCommitTextFile(tempUnzippedCommitTextPath);
-
-        String[] rootFolderDetails = Item.GetItemsDetails(CommitsFields[0]);
-        String rootFolderSha1 = rootFolderDetails[1];
-        String sha1OfLastCommit = CommitsFields[1];
-        String message = CommitsFields[2];
-        User rootFolderUser = new User(rootFolderDetails[3]);
-        User commitUser = new User(CommitsFields[4]);
-        //TODO: fix parsing - currently thorwsException
-        Date commitsDate = Item.ParseDateWithFormat(CommitsFields[3]);
-        Path WCTextFileZipped = Paths.get(ObjectsFolderPath.toString() + "\\" + rootFolderSha1);
-        Path WCTextFileUnzippedPath = Item.UnzipFile(WCTextFileZipped, tempFolderPath);
-        Folder commitsRootFolder = Folder.CreateFolderFromTextFolder(WCTextFileUnzippedPath.toFile(), workingCopyPath, rootFolderSha1, rootFolderUser, commitsDate, ObjectsFolderPath);
-        Commit branchCommit = new Commit(branchCommitsSha1, commitsRootFolder, sha1OfLastCommit, message, commitUser, commitsDate);
+        Commit branchCommit = Commit.CreateCommitFromSha1(branchCommitsSha1,ObjectsFolderPath);
 
         return new Branch(branchName, branchCommit);
     }
