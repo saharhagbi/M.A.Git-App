@@ -66,6 +66,8 @@ public class RepositoryController
         m_CurrentRepository = m_MagitController.GetCurrentRepository();
         m_TopController.InitAllComponentsInTop(m_CurrentRepository);
         m_LeftController.InitAllComponentsInLeft();
+        m_RightController.InitAllComponentsInRight();
+//        m_CenterController.InitAllComponentsInCenter(m_CurrentRepository);
     }
 
     public void SetMagitController(MAGitController i_MagitController)
@@ -147,5 +149,10 @@ public class RepositoryController
     public void UpdateProgress()
     {
         m_BottomController.UpdateProgress();
+    }
+
+    public void newCommitSelectedOnCenterTableView(Commit i_CommitToShow, String i_CommitSHA1)
+    {
+        m_BottomController.ShowCommitInfo(i_CommitToShow);
     }
 }

@@ -2,7 +2,7 @@ package starting;
 
 import common.MAGitResourceConstants;
 import common.MAGitUtilities;
-import common.StringConstants;
+import common.constants.StringConstants;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;

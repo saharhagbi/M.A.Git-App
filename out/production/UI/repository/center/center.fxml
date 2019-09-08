@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 
-<SplitPane prefHeight="400.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="repository.center.CenterController">
+<SplitPane prefHeight="400.0" prefWidth="740.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="repository.center.CenterController">
    <items>
-      <TreeTableView prefHeight="398.0" prefWidth="966.0" />
+      <TableView fx:id="m_TableView" prefHeight="200.0" prefWidth="200.0">
+         <columns>
+            <TableColumn fx:id="m_MessageColumn" prefWidth="152.0" text="Message" />
+            <TableColumn fx:id="m_SHA1Column" prefWidth="142.0" text="SHA1" />
+            <TableColumn fx:id="m_DateColumn" prefWidth="176.0" text="Date" />
+            <TableColumn fx:id="m_AuthorColumn" prefWidth="268.0" text="Author" />
+         </columns>
+      </TableView>
    </items>
 </SplitPane>
