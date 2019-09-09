@@ -36,7 +36,9 @@ public class Branch
             if (!i_Branch.getPointedCommit().GetPrevCommit().getSHA1().equals("null"))
             {
                 commitHistoryBuilder.append("Previous Commit:\n");
-                Path prevCommitTextFileZipped = Paths.get(i_ObjectsFolder.toString() + "\\" + i_Branch.m_PointedCommit.GetPrevCommit().getSHA1());
+                Path prevCommitTextFileZipped = Paths.get(i_ObjectsFolder.toString() + "\\" + i_Branch.m_PointedCommit.
+
+                        GetPrevCommit().getSHA1());
                 Path PrevCommitTextFileUnzipped = Item.UnzipFile(prevCommitTextFileZipped, Paths.get(i_ObjectsFolder.getParent().toString() + "\\Temp"));
                 String prevCommitsDetails = Commit.GetInformationFromCommitTextFile(i_Branch.m_PointedCommit.GetPrevCommit().getSHA1(), PrevCommitTextFileUnzipped, i_ObjectsFolder);
                 commitHistoryBuilder.append(prevCommitsDetails);
