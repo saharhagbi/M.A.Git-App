@@ -87,7 +87,7 @@ public class PrimaryController
 
     public void CreateNewBranch(String i_NewBranch, String i_SHA1Commit) throws Exception
     {
-        m_Engine.CreateNewBranchToSystem(i_NewBranch/*, i_SHA1Commit*/);
+        m_Engine.CreateNewBranchToSystem(i_NewBranch, i_SHA1Commit);
     }
 
     public void DeleteBranch(String i_BranchNameToErase) throws Exception

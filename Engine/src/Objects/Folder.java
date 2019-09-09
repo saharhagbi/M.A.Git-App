@@ -1,6 +1,6 @@
 package Objects;
 
-import System.CompareItems;
+import common.CompareItems;
 import System.User;
 import System.FolderDifferences;
 import XmlObjects.RepositoryWriter;

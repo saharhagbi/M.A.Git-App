@@ -44,7 +44,7 @@ public class RepositoryController
     private LeftController m_LeftController;
     private MAGitController m_MagitController;
 
-    private Repository m_CurrentRepository;
+//    private Repository m_CurrentRepository;
 
     @FXML
     public void initialize()
@@ -58,16 +58,16 @@ public class RepositoryController
 
     public Repository GetCurrentRepository()
     {
-        return m_CurrentRepository;
+        return m_MagitController.GetCurrentRepository();
     }
 
     public void initAllComponents()
     {
-        m_CurrentRepository = m_MagitController.GetCurrentRepository();
-        m_TopController.InitAllComponentsInTop(m_CurrentRepository);
+//        m_CurrentRepository = m_MagitController.GetCurrentRepository();
+        m_TopController.InitAllComponentsInTop();
         m_LeftController.InitAllComponentsInLeft();
         m_RightController.InitAllComponentsInRight();
-//        m_CenterController.InitAllComponentsInCenter(m_CurrentRepository);
+        m_CenterController.InitAllComponentsInCenter();
     }
 
     public void SetMagitController(MAGitController i_MagitController)
@@ -95,10 +95,10 @@ public class RepositoryController
         return m_MagitController.ShowStatus();
     }
 
-    public Commit GetCurrentCommit()
+    /*public Commit GetCurrentCommit()
     {
         return m_CurrentRepository.getActiveBranch().getPointedCommit();
-    }
+    }*/
 
     public ProgressBar GetProgressBar()
     {
@@ -111,7 +111,6 @@ public class RepositoryController
     }
 
     public void CreateNewBranch(String i_NewBranch, String i_SHA1Commit) throws Exception
-
     {
         m_MagitController.CreateNewBranch(i_NewBranch, i_SHA1Commit);
     }
@@ -151,7 +150,7 @@ public class RepositoryController
         m_BottomController.UpdateProgress();
     }
 
-    public void newCommitSelectedOnCenterTableView(Commit i_CommitToShow, String i_CommitSHA1)
+    public void newCommitSelectedOnCenterTableView(Commit i_CommitToShow)
     {
         m_BottomController.ShowCommitInfo(i_CommitToShow);
     }

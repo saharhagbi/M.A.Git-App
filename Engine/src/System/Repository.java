@@ -56,8 +56,10 @@ public class Repository
 
     }
 
-    public Repository(Branch i_ActiveBranch, Path i_RepositoryPath, String i_RepositoryName, List<Branch> i_AllBranches)
+    public Repository(Branch i_ActiveBranch, Path i_RepositoryPath, String i_RepositoryName, List<Branch> i_AllBranches,
+                      Map<String, Commit> i_AllCommitsRepository)
     {
+        this.m_AllCommitsSHA1ToCommit = i_AllCommitsRepository;
         this.m_ActiveBranch = i_ActiveBranch;
         this.m_RepositoryPath = i_RepositoryPath;
         this.m_RepositoryName = i_RepositoryName;
@@ -81,6 +83,11 @@ public class Repository
             return null;
         }
 
+    }
+
+    public Map<String, Commit> GetAllCommitsSHA1ToCommit()
+    {
+        return m_AllCommitsSHA1ToCommit;
     }
 
     private void settingAllPathsInRepository(Path i_RepositoryPath)
@@ -473,10 +480,9 @@ public class Repository
     }
 
 
-    public void AddingNewBranchInRepository(String i_nameOfNewBranch/*, String i_SHA1OfCommit*/) throws IOException
+    public void AddingNewBranchInRepository(String i_nameOfNewBranch, String i_SHA1OfCommit) throws IOException
     {
-        //Commit commitOfSHA1 = function...
-        Branch newBranchToAdd = new Branch(i_nameOfNewBranch, m_ActiveBranch.getPointedCommit()/*commitOfSHA1*/);
+        Branch newBranchToAdd = new Branch(i_nameOfNewBranch, m_AllCommitsSHA1ToCommit.get(i_SHA1OfCommit));
 
         m_Branches.add(newBranchToAdd);
         RepositoryWriter.WritingFileByPath(

@@ -47,6 +47,22 @@ public class Commit
         this.m_Date = i_Date;
     }
 
+    public Date GetDate()
+    {
+        return m_Date;
+    }
+
+    public Commit(Folder i_RootFolder, String i_SHA1, Commit i_PrevCommit, Commit i_SecondPrevCommit, String i_CommitMessage, User i_UserCreated, Date i_Date)
+    {
+        this.m_RootFolder = i_RootFolder;
+        this.m_SHA1 = i_SHA1;
+        this.m_PrevCommit = i_PrevCommit;
+        this.m_SecondPrevCommit = i_SecondPrevCommit;
+        this.m_CommitMessage = i_CommitMessage;
+        this.m_UserCreated = i_UserCreated;
+        this.m_Date = i_Date;
+    }
+
 
     public static String[] GetCommitFieldsFromCommitTextFile(Path i_CommitTextFilePath) throws IOException
     {

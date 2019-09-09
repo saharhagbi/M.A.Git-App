@@ -75,7 +75,7 @@ public class XMLParser
         Map<String, Commit> sha1ToCommitMap = createMapSha1ForCommit();
 
         repoToCreate = new Repository(m_ActiveBranch, Paths.get(m_MagitRepository.location),
-                m_MagitRepository.name, listRepositoryBranches);
+                m_MagitRepository.name, listRepositoryBranches, sha1ToCommitMap);
 
         RepositoryWriter writer = new RepositoryWriter(repoToCreate, m_AllCommitsIDToCommit);
         writer.WriteRepositoryToFileSystem(m_ActiveBranch.getBranchName());
@@ -85,14 +85,11 @@ public class XMLParser
 
     private Map<String, Commit> createMapSha1ForCommit()
     {
-        Map<String, Commit> sha1ToCommitMap = new HashMap<String, Commit>();
-        m_AllCommitsIDToCommit
+        return m_AllCommitsIDToCommit
                 .values()
                 .stream()
                 .collect(Collectors.toMap(commit -> commit.getSHA1(),
                         commit -> commit));
-
-        return sha1ToCommitMap;
     }
 
     private void checkIfCurrentBranchIsHEAD(MagitSingleBranch magitSingleBranch, Branch currentBranch)
@@ -134,6 +131,7 @@ public class XMLParser
         Commit PrevCommit = null;
         Commit SecondPrevCommit = null;
         Folder folderToCreate;
+        String sha1OfFirstCommit = null, sha1OfSecondCommit = null;
 
         MagitSingleFolder rootMSFOfCommit = findFolderByID(i_CurrentPointedMSC.rootFolder.id);
 
@@ -146,28 +144,29 @@ public class XMLParser
         {
             List<String> precedingCommitsID = getPrecedingCommitsID(i_CurrentPointedMSC);
             PrevCommit = m_AllCommitsIDToCommit.get(precedingCommitsID.get(0));
+            sha1OfFirstCommit = PrevCommit.getSHA1();
 
             if (precedingCommitsID.size() == 2)
             {
                 SecondPrevCommit = m_AllCommitsIDToCommit.get(precedingCommitsID.get(1));
+                sha1OfSecondCommit = SecondPrevCommit.getSHA1();
             }
         }
 
         dateOfCreation = XMLDateFormatter.FormatStringToDateType(i_CurrentPointedMSC.dateOfCreation);
         String CommitSha1;
 
-        CommitSha1 = Commit.createSha1ForCommit(folderToCreate, PrevCommit.getSHA1(), SecondPrevCommit.getSHA1(), i_CurrentPointedMSC.message,
+        CommitSha1 = Commit.createSha1ForCommit(folderToCreate, sha1OfFirstCommit, sha1OfSecondCommit, i_CurrentPointedMSC.message,
                 userCreated, dateOfCreation);
 
-        Commit commitToReturn = new Commit(CommitSha1,
-                folderToCreate,
-                PrevCommit.getSHA1(),
-                SecondPrevCommit.getSHA1(),
+        Commit commitToReturn = new Commit(folderToCreate,
+                CommitSha1,
+                PrevCommit,
+                SecondPrevCommit,
                 i_CurrentPointedMSC.message,
                 userCreated, dateOfCreation);
 
-        return null;
-//        return commitToReturn;
+        return commitToReturn;
     }
 
 

@@ -17,7 +17,7 @@ public class RightController
 
     public void InitAllComponentsInRight()
     {
-        if (m_RepositoryController.GetCurrentCommit() != null)
+//        if (m_RepositoryController.GetCurrentCommit() != null)
             createCommitTree();
     }
 
