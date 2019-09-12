@@ -1,21 +1,21 @@
 package repository.center;
 
 import Objects.Commit;
-import System.User;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import repository.RepositoryController;
 
-import java.io.IOException;
-import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class CenterController
 {
@@ -27,29 +27,57 @@ public class CenterController
     @FXML
     private TableColumn<Commit, String> m_SHA1Column;
     @FXML
-    private TableColumn<Commit, Date> m_DateColumn;
+    private TableColumn<Commit, String> m_DateColumn;
     @FXML
-    private TableColumn<Commit, User> m_AuthorColumn;
+    private TableColumn<Commit, String> m_AuthorColumn;
+
+    private ObservableList<Commit> m_CommitsObservableList = FXCollections.observableArrayList();
 
     public void SetRepositoryController(RepositoryController i_RepositoryController)
     {
         this.m_RepositoryController = i_RepositoryController;
     }
 
-    @FXML
-    public void initialize()
+    public void InitAllComponentsInCenter()
     {
         m_TableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         preventColumnReordering(m_TableView);
 
-        m_MessageColumn.setCellValueFactory(new PropertyValueFactory("Message"));
-        m_AuthorColumn.setCellValueFactory(new PropertyValueFactory("Author"));
-        m_DateColumn.setCellValueFactory(new PropertyValueFactory("Date"));
-        m_SHA1Column.setCellValueFactory(new PropertyValueFactory("SHA1"));
+        m_MessageColumn.setCellValueFactory(commit ->
+                new SimpleStringProperty(commit.getValue().getCommitMessage()));
 
-//        bindSelectedCommitChangedToMainController();
+        m_AuthorColumn.setCellValueFactory(commit ->
+                new SimpleStringProperty(commit.getValue().getUserCreated().getUserName()));
 
+        m_DateColumn.setCellValueFactory(commit ->
+        {
+            SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:SSS");
+
+            return new SimpleStringProperty(format.format(commit.getValue().GetDate()));
+        });
+
+        m_SHA1Column.setCellValueFactory(commit ->
+                new SimpleStringProperty(commit.getValue().getSHA1()));
+
+        initObservCommitList();
+        loadCommitsInTableView();
+
+        bindSelectedCommitChangedToMainController();
+    }
+
+    private void loadCommitsInTableView()
+    {
+        m_TableView.setItems(m_CommitsObservableList);
+    }
+
+    private void initObservCommitList()
+    {
+        m_RepositoryController.GetCurrentRepository().GetAllCommitsSHA1ToCommit()
+                .values()
+                .stream()
+                .sorted((commit1, commit2) -> commit2.GetDate().compareTo(commit1.GetDate()))
+                .forEach(commit -> m_CommitsObservableList.add(commit));
     }
 
     private void bindSelectedCommitChangedToMainController()
@@ -64,7 +92,7 @@ public class CenterController
                     String commitSHA1 = m_SHA1Column.getCellData(m_TableView.getSelectionModel().getSelectedIndex());
                     /*try
                     {*/
-                        m_RepositoryController.newCommitSelectedOnCenterTableView(newValue, commitSHA1);
+                    m_RepositoryController.newCommitSelectedOnCenterTableView(newValue);
                     /*}
                     catch (IOException e)
                     {
@@ -75,6 +103,7 @@ public class CenterController
             }
         });
     }
+
     private <T> void preventColumnReordering(TableView<T> tableView)
     {
         Platform.runLater(() ->

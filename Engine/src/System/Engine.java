@@ -4,6 +4,7 @@ import Objects.Commit;
 import Objects.Folder;
 import XmlObjects.MagitRepository;
 import XmlObjects.XMLMain;
+import common.MagitFileUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -14,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 public class Engine
 {
@@ -147,11 +149,16 @@ public class Engine
     {
         //1. set active branch to selectd branch
         this.m_CurrentRepository.replaceActiveBranch(i_BranchName);
+
+        removeFilesFromWCAndSpanNewCommitInActiveBranch();
+    }
+
+    private void removeFilesFromWCAndSpanNewCommitInActiveBranch() throws IOException
+    {
         //2. remove previous  files and folders
         Folder.RemoveFilesAndFoldersWithoutMagit(this.m_CurrentRepository.getActiveBranch().getPointedCommit().getRootFolder().GetPath());
         //3. span rootFolder in WC
         Folder.SpanDirectory(this.m_CurrentRepository.getActiveBranch().getPointedCommit().getRootFolder());
-
     }
 
     public void GetCommitHistoryInActiveBranch() throws IOException
@@ -188,14 +195,17 @@ public class Engine
         Path HEAD = Paths.get(branchFolderPath.toString() + "\\HEAD.txt");
         String activeBranchName = Engine.ReadLineByLine(HEAD.toFile());
         Path activeBranchPath = Paths.get(branchFolderPath.toString() + "\\" + activeBranchName + ".txt");
-
         activeBranch = Branch.createBranchInstanceFromExistBranch(activeBranchPath);
 
-
+        //TODO: implement GetMapOfCommits()
+        Path objectsFolder = Paths.get(repositoryPath.toString()+"\\.magit\\Objects");
+        Map<String,Commit> allCommitsInRepositoryMap = Commit.GetMapOfCommits(objectsFolder);
         List<Branch> allBranches = Branch.GetAllBranches(branchFolderPath);
-        repository = new Repository(activeBranch, repositoryPath, i_NameOfRepository, allBranches);
-
+        //repository = new Repository(activeBranch, repositoryPath, i_NameOfRepository, allBranches);-
+        repository = new Repository(activeBranch,repositoryPath,i_NameOfRepository,allBranches,allCommitsInRepositoryMap);
         this.m_CurrentRepository = repository;
+        GetCurrentRepository().setActiveBranch(activeBranch);
+
     }
 
     public String ShowAllCurrentCommitData()
@@ -203,30 +213,33 @@ public class Engine
         return this.m_CurrentRepository.getActiveBranch().getPointedCommit().getAllFolderAndBlobsData();
     }
 
-    public void CreateNewBranchToSystem(String i_NameOfNewBranch/*, String i_SHA1OfCommit*/) throws Exception
+    public void CreateNewBranchToSystem(String i_NameOfNewBranch, String i_SHA1OfCommit) throws Exception
     {
-        /*if (!Commit.IsSha1ValidForCommit(i_SHA1Commit, GetCurrentRepository().getBranchesFolderPath()))
-        {
-          throw new Exception("Error!"+ System.lineSeparator() + "Commit doesn't exist." + System.lineSeparator());
-        }*/
-
-        if (!isBranchExist(i_NameOfNewBranch))
-            throw new Exception("Error!" + System.lineSeparator() + "Branch doesn't exist." + System.lineSeparator());
-
+        //check if commit exist
+        checkIfSHA1CommitExist(i_SHA1OfCommit);
+        //check if branch name already exist
+        if (isBranchExist(i_NameOfNewBranch))
+            throw new Exception("Error!" + System.lineSeparator() + "Branch name already exist." + System.lineSeparator());
 
         if (m_CurrentRepository.getActiveBranch().getPointedCommit() != null)
         {
-            m_CurrentRepository.AddingNewBranchInRepository(i_NameOfNewBranch/*, i_SHA1OfCommit*/);
+            m_CurrentRepository.AddingNewBranchInRepository(i_NameOfNewBranch, i_SHA1OfCommit);
         } else
             throw new Exception("Error!" + System.lineSeparator() + "There are no commits yet" + System.lineSeparator());
 
+    }
+
+    private boolean isaCommitExistBySHA1(String i_SHA1OfCommit)
+    {
+        return m_CurrentRepository.GetAllCommitsSHA1ToCommit().containsKey(i_SHA1OfCommit);
     }
 
     private boolean isBranchExist(String i_NameOfNewBranch)
     {
         return m_CurrentRepository.getAllBranches()
                 .stream()
-                .anyMatch(branch -> branch.getBranchName().equals(i_NameOfNewBranch));
+                .anyMatch(branch ->
+                        branch.getBranchName().equals(i_NameOfNewBranch));
     }
 
     public void DeleteBranchFromSystem(String i_BranchNameToErase) throws Exception
@@ -321,18 +334,25 @@ public class Engine
     {
         checkIfSHA1CommitExist(i_Sha1OfCommit);
 
-        //Commit commitOfSHA1 = function... (creating commit from SHA1)
-        //Commit prevCommitOfSHA1 = function...(creating prevCommit from SHA1)
+        Commit commitRequested = m_CurrentRepository.GetAllCommitsSHA1ToCommit().get(i_Sha1OfCommit);
 
-        //m_CurrentRepository.getActiveBranch().SetCurrentCommit(commitOfSHA1);
-        //m_CurrentRepository.getActiveBranch().SetPrevCommit(prevCommitOfSHA1);
+        String branchFilePath = m_CurrentRepository.getBranchesFolderPath().toString()
+                + Repository.sf_Slash
+                + m_CurrentRepository.getActiveBranch().getBranchName()
+                + Repository.sf_txtExtension;
 
-        CheckOut(m_CurrentRepository.getActiveBranch().getBranchName());
+        MagitFileUtils.OverwriteContentInFile(commitRequested.getSHA1(), branchFilePath);
+
+        m_CurrentRepository.getActiveBranch().SetCurrentCommit(commitRequested);
+
+        removeFilesFromWCAndSpanNewCommitInActiveBranch();
+
+//        CheckOut(m_CurrentRepository.getActiveBranch().getBranchName());
     }
 
     private void checkIfSHA1CommitExist(String i_Sha1OfCommit) throws Exception
     {
-        if (!Commit.IsSha1ValidForCommit(i_Sha1OfCommit, GetCurrentRepository().getBranchesFolderPath()))
+        if (!isaCommitExistBySHA1(i_Sha1OfCommit))
         {
             throw new Exception("Error!" + System.lineSeparator() + "Commit doesn't exist." + System.lineSeparator());
         }

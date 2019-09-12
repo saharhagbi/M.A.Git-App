@@ -122,6 +122,14 @@ public class Branch
     {
         m_PointedCommit = i_Commit;
     }
+
+    private static Branch mergeBranches(Branch i_PullingBranch,Branch i_PushingBranch) throws Exception {
+        Branch mergedBranch = null;
+        Commit mergedCommit = Commit.MergeCommits(i_PullingBranch.getPointedCommit(),i_PushingBranch.getPointedCommit());
+        mergedBranch = new Branch(i_PullingBranch.m_BranchName,mergedCommit);
+
+        return mergedBranch;
+    }
 }
 
 

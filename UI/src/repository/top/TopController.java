@@ -58,9 +58,6 @@ public class TopController
     public void SetRepositoryController(RepositoryController i_RepositoryController)
     {
         this.m_RepositoryController = i_RepositoryController;
-
-
-//        ChoiceBox<>
     }
 
     @FXML
@@ -160,11 +157,11 @@ public class TopController
         }
     }
 
-    public void InitAllComponentsInTop(Repository i_CurrentRepository)
+    public void InitAllComponentsInTop()
     {
-        initPathAndUserName(i_CurrentRepository.getRepositoryPath());
+        initPathAndUserName(m_RepositoryController.GetCurrentRepository().getRepositoryPath());
 
-        m_AllBranches = m_RepositoryController.GetCurrentRepository().getAllBranches();
+//        m_AllBranches = m_RepositoryController.GetCurrentRepository().getAllBranches();
         initBranchesInComboBox();
         initBranchesInMenuBar();
     }
@@ -176,7 +173,7 @@ public class TopController
                 .map(branch -> new MenuItem(branch.getBranchName()))
                 .collect(Collectors.toList()));
 */
-        m_AllBranches
+        m_RepositoryController.GetCurrentRepository().getAllBranches()
                 .stream()
                 .forEach(branchItem -> addBranchToMenuBar(branchItem.getBranchName()));
     }
@@ -212,7 +209,10 @@ public class TopController
         }
     }
 
-    // see if can avoid duplicate
+    //todo:
+    // see if can avoid duplicate,
+    // can avoid duplicate! sending branch nametoerase and collection as param
+    //one is m_DeletsBranchMenu.getItems(), and second m_BranchesListComboBox
     private void deleteBranchFromMenuBar(String i_BranchNameToErase)
     {
         m_DeletsBranchMenu.getItems().removeIf(branch -> branch.getText().equals(i_BranchNameToErase));
@@ -225,7 +225,7 @@ public class TopController
 
     private void initBranchesInComboBox()
     {
-        m_BranchesListComboBox = FXCollections.observableList(m_AllBranches
+        m_BranchesListComboBox = FXCollections.observableList(m_RepositoryController.GetCurrentRepository().getAllBranches()
                 .stream()
                 .map(branch ->
                 {
@@ -318,8 +318,6 @@ public class TopController
             SHA1Commit = MAGitUtilities.GetString("Enter the SHA1 of the commit you want the branch will point",
                     "SHA1:", "Commit SHA1");
 
-            //Todo:
-            // thomas function of creating new commit needed
             m_RepositoryController.CreateNewBranch(newBranch, SHA1Commit);
             addBranchToComboBox(new Text(newBranch));
             addBranchToMenuBar(newBranch);
@@ -432,11 +430,14 @@ public class TopController
                     StringConstants.COMMIT + " SHA1");
 
             m_RepositoryController.ResetHeadBranch(SHA1OfCommit);
-            m_RepositoryController.UpdateProgress();
 
         } catch (Exception e)
         {
             e.printStackTrace();
+        }
+        finally
+        {
+            m_RepositoryController.UpdateProgress();
         }
     }
 

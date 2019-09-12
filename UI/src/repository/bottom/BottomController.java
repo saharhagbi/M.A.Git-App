@@ -6,6 +6,7 @@ import Objects.Item;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import repository.RepositoryController;
 
 public class BottomController
@@ -56,16 +57,42 @@ public class BottomController
 
     public void ShowCommitInfo(Commit i_CommitToShow)
     {
+        clearOldInfo();
 
-
-//            m_InfoGridPane.add(node, indexRow, indexCol)
+        showCommitDetails(i_CommitToShow);
 
         createFileTree(i_CommitToShow.getRootFolder());
     }
 
+    private void clearOldInfo()
+    {
+        m_InfoGridPane
+                .getChildren()
+                .removeIf(node ->
+                        node.getClass() == Text.class);
+    }
+
+    private void showCommitDetails(Commit i_CommitToShow)
+    {
+        m_InfoGridPane.add(new Text(i_CommitToShow.getCommitMessage()), 1, 0);
+        m_InfoGridPane.add(new Text(i_CommitToShow.getSHA1()), 1, 1);
+        m_InfoGridPane.add(new Text(i_CommitToShow.getUserCreated().getUserName()), 1, 2);
+        m_InfoGridPane.add(new Text(Item.getDateStringByFormat(i_CommitToShow.GetDate())), 1, 3);
+        setPrevCommitSHA1InTableView(i_CommitToShow.GetPrevCommit(), 4);
+        setPrevCommitSHA1InTableView(i_CommitToShow.GetSecondPrevCommit(), 5);
+    }
+
+    private void setPrevCommitSHA1InTableView(Commit i_CommitPrevCommit, int indexRow)
+    {
+        if (i_CommitPrevCommit != null)
+            m_InfoGridPane.add(new Text(i_CommitPrevCommit.getSHA1()), 1, indexRow);
+    }
+
     private void createFileTree(Folder i_Folder)
     {
-        TreeItem<String> rootFolder = new TreeItem<>(i_Folder.getName());
+        String fileName = m_RepositoryController.GetCurrentRepository().getRepositoryPath().getFileName().toString();
+
+        TreeItem<String> rootFolder = new TreeItem<String>(fileName);
         m_FileTreeView.setRoot(rootFolder);
 
         createFileTreeHelper(rootFolder, i_Folder);
@@ -80,7 +107,7 @@ public class BottomController
                 i_RootFolder.getChildren().add(new TreeItem<String>(item.getName()));
             } else//is folder
             {
-                TreeItem<String> folderItem = new TreeItem<>();
+                TreeItem<String> folderItem = new TreeItem<>(item.getName());
                 Folder innerFolder = (Folder) item;
                 createFileTreeHelper(folderItem, innerFolder);
                 i_RootFolder.getChildren().add(folderItem);
