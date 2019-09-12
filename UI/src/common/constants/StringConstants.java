@@ -11,5 +11,6 @@ public class StringConstants
     public static final String YES = "Yes";
     public static final String NO = "No";
     public static final String PROGRESS = "Progress: ";
+    public static final String ARROW = "→";
 
 }

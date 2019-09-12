@@ -85,7 +85,7 @@ public class Repository
 
     }
 
-    public Map<String, Commit> GetAllCommitsSHA1ToCommit()
+    public Map<String, Commit> getAllCommitsSHA1ToCommit()
     {
         return m_AllCommitsSHA1ToCommit;
     }

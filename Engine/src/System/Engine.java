@@ -5,6 +5,7 @@ import Objects.Folder;
 import XmlObjects.MagitRepository;
 import XmlObjects.XMLMain;
 import common.MagitFileUtils;
+import common.NumConstants;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -23,7 +24,6 @@ public class Engine
     private User m_User = new User("Administrator");
     private XMLMain m_XMLMain = new XMLMain();
 
-
     /*private void loadRepositoryFromXML(i_UserPath) throws Exception
     {
         boolean isXMLRepoExist;
@@ -37,8 +37,6 @@ public class Engine
         else
             handleCurrentRepositoryAlreadyExist(m_XMLMain.GetXmlRepository());
     }*/
-
-
     public static void CreateRepositoryDirectories(Path i_rootFolderPath)
     {
         Path objectsFolderPath, branchesFolderPath, tempFolderPath;
@@ -86,14 +84,12 @@ public class Engine
 
     public void CreateNewLocalRepository(Path i_PathToRootFolderOfRepository, String i_RepositoryName) throws Exception
     {
-
         Boolean exists = false;
         Path magitFolderPath = Paths.get(i_PathToRootFolderOfRepository.toString() + "\\" + ".magit");
         //check if the repository already exists
         if (magitFolderPath.toFile().exists())
         {
-            String existsMessage = "The Repository path you gave already exists" + System.lineSeparator() +
-                    "Please choose a different path or select option number 4 with this path";
+            String existsMessage = "The Repository in the path you gave already exists" + System.lineSeparator();
             throw new Exception(existsMessage);
         } else// making this folder a repository
         {
@@ -227,7 +223,7 @@ public class Engine
 
     private boolean isaCommitExistBySHA1(String i_SHA1OfCommit)
     {
-        return m_CurrentRepository.GetAllCommitsSHA1ToCommit().containsKey(i_SHA1OfCommit);
+        return m_CurrentRepository.getAllCommitsSHA1ToCommit().containsKey(i_SHA1OfCommit);
     }
 
     private boolean isBranchExist(String i_NameOfNewBranch)
@@ -330,7 +326,7 @@ public class Engine
     {
         checkIfSHA1CommitExist(i_Sha1OfCommit);
 
-        Commit commitRequested = m_CurrentRepository.GetAllCommitsSHA1ToCommit().get(i_Sha1OfCommit);
+        Commit commitRequested = m_CurrentRepository.getAllCommitsSHA1ToCommit().get(i_Sha1OfCommit);
 
         String branchFilePath = m_CurrentRepository.getBranchesFolderPath().toString()
                 + Repository.sf_Slash
@@ -352,6 +348,17 @@ public class Engine
         {
             throw new Exception("Error!" + System.lineSeparator() + "Commit doesn't exist." + System.lineSeparator());
         }
+    }
+
+    public FolderDifferences ShowDeltaCommits(Commit i_Commit)
+    {
+        Commit prevCommit = null;
+        if (i_Commit.ThereIsPrevCommit(NumConstants.FIRST))
+            prevCommit = m_CurrentRepository.getAllCommitsSHA1ToCommit().get(i_Commit.GetPrevCommit().getSHA1());
+        else
+            return null;
+
+        return Folder.FinedDifferences(prevCommit.getRootFolder(), i_Commit.getRootFolder());
     }
 }
 

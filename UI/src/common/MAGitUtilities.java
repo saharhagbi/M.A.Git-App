@@ -1,9 +1,12 @@
 package common;
 
+import common.constants.StringConstants;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Control;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -25,6 +28,9 @@ public class MAGitUtilities
         dialog.setHeaderText(i_Prompt);
         dialog.setContentText(i_Label);
         Optional<String> repositoryName = dialog.showAndWait();
+
+        if (repositoryName == null)
+            throw new Exception("you didn't enter anything!" + System.lineSeparator() + "Please try again");
 
         return repositoryName.get();
     }
@@ -89,5 +95,13 @@ public class MAGitUtilities
     public static void UnhighlightText(Text i_Txt)
     {
         i_Txt.setStyle(null);
+    }
+
+    public static Text Arrow()
+    {
+        Text arrow = new Text(StringConstants.ARROW);
+        arrow.setFont(Font.font(null, FontWeight.BOLD, 20));
+
+        return arrow;
     }
 }

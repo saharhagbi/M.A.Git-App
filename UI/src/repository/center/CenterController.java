@@ -1,6 +1,7 @@
 package repository.center;
 
 import Objects.Commit;
+import Objects.Item;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -14,8 +15,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 import repository.RepositoryController;
-
-import java.text.SimpleDateFormat;
 
 public class CenterController
 {
@@ -51,11 +50,7 @@ public class CenterController
                 new SimpleStringProperty(commit.getValue().getUserCreated().getUserName()));
 
         m_DateColumn.setCellValueFactory(commit ->
-        {
-            SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:SSS");
-
-            return new SimpleStringProperty(format.format(commit.getValue().GetDate()));
-        });
+                new SimpleStringProperty(Item.getDateStringByFormat(commit.getValue().GetDate())));
 
         m_SHA1Column.setCellValueFactory(commit ->
                 new SimpleStringProperty(commit.getValue().getSHA1()));
@@ -73,7 +68,7 @@ public class CenterController
 
     private void initObservCommitList()
     {
-        m_RepositoryController.GetCurrentRepository().GetAllCommitsSHA1ToCommit()
+        m_RepositoryController.getCurrentRepository().getAllCommitsSHA1ToCommit()
                 .values()
                 .stream()
                 .sorted((commit1, commit2) -> commit2.GetDate().compareTo(commit1.GetDate()))
@@ -115,4 +110,9 @@ public class CenterController
         });
     }
 
+    public void AddCommitToObservList(Commit i_NewLastCommit)
+    {
+        m_CommitsObservableList.add(0,i_NewLastCommit);
+        loadCommitsInTableView();
+    }
 }

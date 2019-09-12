@@ -2,6 +2,7 @@ package Objects;
 
 import System.FolderDifferences;
 import System.User;
+import common.NumConstants;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.IOException;
@@ -47,11 +48,6 @@ public class Commit
         this.m_Date = i_Date;
     }
 
-    public Date GetDate()
-    {
-        return m_Date;
-    }
-
     public Commit(Folder i_RootFolder, String i_SHA1, Commit i_PrevCommit, Commit i_SecondPrevCommit, String i_CommitMessage, User i_UserCreated, Date i_Date)
     {
         this.m_RootFolder = i_RootFolder;
@@ -62,7 +58,6 @@ public class Commit
         this.m_UserCreated = i_UserCreated;
         this.m_Date = i_Date;
     }
-
 
     public static String[] GetCommitFieldsFromCommitTextFile(Path i_CommitTextFilePath) throws IOException
     {
@@ -87,7 +82,6 @@ public class Commit
         commitInfo.append("User: " + i_Commit.m_UserCreated.getUserName() + "\n");
         return commitInfo.toString();
     }
-
 
     public static String GetInformationFromCommitTextFile(String i_commitsSha1, Path i_commitTextFileUnzipped, Path i_ObjectsFolderPath) throws IOException
     {
@@ -182,6 +176,11 @@ public class Commit
         return newCommit;
     }
 
+    public Date GetDate()
+    {
+        return m_Date;
+    }
+
     public Folder getRootFolder()
     {
         return m_RootFolder;
@@ -258,6 +257,24 @@ public class Commit
     public Commit GetSecondPrevCommit()
     {
         return m_SecondPrevCommit;
+    }
+
+    public boolean ThereIsPrevCommit(int i_NumOfPrev)
+    {
+        boolean isExist = false;
+
+        switch (i_NumOfPrev)
+        {
+            case NumConstants.FIRST:
+                isExist = m_PrevCommit != null;
+                break;
+
+            case NumConstants.SECOND:
+                isExist = m_SecondPrevCommit != null;
+                break;
+        }
+
+        return isExist;
     }
 
 }

@@ -3,6 +3,7 @@ package repository.right.node;
 import com.fxgraph.cells.AbstractCell;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.IEdge;
+import common.constants.StringConstants;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -12,23 +13,31 @@ import javafx.scene.layout.Region;
 import java.io.IOException;
 import java.net.URL;
 
-public class CommitNode extends AbstractCell {
-
+public class CommitNode extends AbstractCell
+{
     private String timestamp;
     private String committer;
     private String message;
+    private String branchName;
     private CommitNodeController commitNodeController;
 
-    public CommitNode(String timestamp, String committer, String message) {
+    public CommitNode(String timestamp, String committer, String message)
+    {
         this.timestamp = timestamp;
         this.committer = committer;
         this.message = message;
     }
 
-    @Override
-    public Region getGraphic(Graph graph) {
+  /*  public String getBranchName()
+    {
+        return branchName;
+    }*/
 
-        try {
+    @Override
+    public Region getGraphic(Graph graph)
+    {
+        try
+        {
 
             FXMLLoader fxmlLoader = new FXMLLoader();
             URL url = getClass().getResource("commitNode.fxml");
@@ -39,21 +48,35 @@ public class CommitNode extends AbstractCell {
             commitNodeController.setCommitMessage(message);
             commitNodeController.setCommitter(committer);
             commitNodeController.setCommitTimeStamp(timestamp);
+            commitNodeController.setBranchName(branchName);
 
             return root;
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             return new Label("Error when tried to create graphic node !");
         }
     }
 
-    @Override
-    public DoubleBinding getXAnchor(Graph graph, IEdge edge) {
-        final Region graphic = graph.getGraphic(this);
-        return graphic.layoutXProperty().add(commitNodeController.getCircleRadius());
+    public void SetBranchName(String i_BranchesString)
+    {
+        this.branchName = appendArrowTobranch(i_BranchesString);
+    }
+
+    private String appendArrowTobranch(String i_BranchesString)
+    {
+        return i_BranchesString + "  " + StringConstants.ARROW;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public DoubleBinding getXAnchor(Graph graph, IEdge edge)
+    {
+        final Region graphic = graph.getGraphic(this);
+        return graphic.layoutXProperty().add(commitNodeController.getMessageLabel());
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -63,7 +86,8 @@ public class CommitNode extends AbstractCell {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return timestamp != null ? timestamp.hashCode() : 0;
     }
 }

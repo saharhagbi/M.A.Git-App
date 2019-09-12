@@ -38,17 +38,13 @@ public class StartingController
                     "Repository Name");
             m_MagitController.CreateNewRepositry(repositoryName, selectedDir.toPath());
             moveToRepositoryScene();
-        } catch (Exception e)
+        } catch (Exception exception)
         {
             //Todo:
             // handle exception in UI, pop up window
             // handle in case that repository already exist in location!! (popup window> need to move to repository stage?)
-            MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", "Repository already exist",
-                    "repository already exist in this location please choose another option");
-            e.printStackTrace();
+            MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", null, exception.getMessage());
         }
-
-
     }
 
     @FXML
@@ -56,7 +52,6 @@ public class StartingController
     {
 
         File selectedFile = MAGitUtilities.GetFile(MAGitUtilities.GetStage(m_LoadRepoFromXMLBtn));
-        //String pathToXML = MAGitUtilities.GetString("Enter yout path to XML file", "Path:", "XML file");
 
         m_MagitController.loadRepositoryFromXML(selectedFile.getAbsolutePath());
 
@@ -72,11 +67,11 @@ public class StartingController
             File selecredDir = MAGitUtilities.GetDirectory(MAGitUtilities.GetStage(m_LoadExistingRepositoryBtn));
             //String RepositoryPath = MAGitUtilities.GetString("Enter your existing repository path", "Path:", "Repository Path");
             m_MagitController.PullAnExistingRepository(RepositoryName, selecredDir.getAbsolutePath());
-        } catch (Exception e)
+        } catch (Exception exception)
         {
             //TODO:
             // handling exception by proper message to user
-            e.printStackTrace();
+            MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", null, exception.getMessage());
         }
 
         moveToRepositoryScene();
@@ -88,6 +83,7 @@ public class StartingController
 
         try
         {
+
             m_MagitController.SwitchScenes(MAGitResourceConstants.REPOSITORY_SCENE, currentStage);
         } catch (IOException e)
         {

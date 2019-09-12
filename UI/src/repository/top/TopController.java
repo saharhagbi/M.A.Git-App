@@ -2,7 +2,6 @@ package repository.top;
 
 import System.Branch;
 import System.FolderDifferences;
-import System.Repository;
 import common.MAGitResourceConstants;
 import common.MAGitUtilities;
 import common.constants.StringConstants;
@@ -31,8 +30,6 @@ public class TopController
     @FXML
     private MenuItem m_SwitchRepoMenuItem;
     @FXML
-    private MenuItem m_ExportToXmlMenuItem;
-    @FXML
     private MenuItem m_SetUserNameMenuItem;
     @FXML
     private MenuItem m_ShowBranches;
@@ -48,6 +45,8 @@ public class TopController
     private Control m_CommitBtn;
     @FXML
     private MenuItem m_CheckoutMenuItem;
+    @FXML
+    private MenuItem m_ResetBtn;
     private RepositoryController m_RepositoryController;
     // see if needed this property
     private List<Branch> m_AllBranches;
@@ -110,14 +109,14 @@ public class TopController
         };
 
         bindTaskComponentsToUI(m_RepositoryController.GetLabelBar(), m_RepositoryController.GetProgressBar(), commitTask);
-        new Thread(commitTask).start();
+        commitTask.
+                setOnSucceeded(event ->
+                {
+                    m_RepositoryController.UpdateTableColumnAccordingToLastCommit();
+                    m_RepositoryController.AddNodeCommitToTree();
+                });
 
-        // todo: finish update components when commit is added
-      /*  commitTask.
-                setOnSucceeded(() ->
-                        m_RepositoryController.UpdateTableColumnAccordingToLastCommit(),
-                m_RepositoryController.AddNodeCommitToTree());*/
-        //function below if needed to execute to one function
+        new Thread(commitTask).start();
     }
 
     //check if needed to do it in generic method in repository controller
@@ -159,11 +158,18 @@ public class TopController
 
     public void InitAllComponentsInTop()
     {
-        initPathAndUserName(m_RepositoryController.GetCurrentRepository().getRepositoryPath());
+        initPathAndUserName(m_RepositoryController.getCurrentRepository().getRepositoryPath());
 
 //        m_AllBranches = m_RepositoryController.GetCurrentRepository().getAllBranches();
         initBranchesInComboBox();
         initBranchesInMenuBar();
+
+        //   initEventListeners();
+    }
+
+    private void initEventListeners()
+    {
+
     }
 
     private void initBranchesInMenuBar()
@@ -173,7 +179,7 @@ public class TopController
                 .map(branch -> new MenuItem(branch.getBranchName()))
                 .collect(Collectors.toList()));
 */
-        m_RepositoryController.GetCurrentRepository().getAllBranches()
+        m_RepositoryController.getCurrentRepository().getAllBranches()
                 .stream()
                 .forEach(branchItem -> addBranchToMenuBar(branchItem.getBranchName()));
     }
@@ -225,7 +231,7 @@ public class TopController
 
     private void initBranchesInComboBox()
     {
-        m_BranchesListComboBox = FXCollections.observableList(m_RepositoryController.GetCurrentRepository().getAllBranches()
+        m_BranchesListComboBox = FXCollections.observableList(m_RepositoryController.getCurrentRepository().getAllBranches()
                 .stream()
                 .map(branch ->
                 {
@@ -244,7 +250,7 @@ public class TopController
     {
         m_BranchesListComboBox
                 .filtered(txt ->
-                        txt.getText().equals(m_RepositoryController.GetCurrentRepository().getActiveBranch().getBranchName()))
+                        txt.getText().equals(m_RepositoryController.getCurrentRepository().getActiveBranch().getBranchName()))
                 .forEach(txt ->
                 {
                     if (i_Highlight)
@@ -260,7 +266,7 @@ public class TopController
 
     private boolean isHeadBranch(String i_BranchName)
     {
-        return i_BranchName.equals(m_RepositoryController.GetCurrentRepository().getActiveBranch().getBranchName());
+        return i_BranchName.equals(m_RepositoryController.getCurrentRepository().getActiveBranch().getBranchName());
     }
 
     private void addBranchToComboBox(Text i_BranchName)
@@ -277,7 +283,7 @@ public class TopController
     @FXML
     void ShowBracnhes_OnClick(ActionEvent event) throws IOException
     {
-        List<Branch> allBranches = m_RepositoryController.GetCurrentRepository().getAllBranches();
+        List<Branch> allBranches = m_RepositoryController.getCurrentRepository().getAllBranches();
         StringBuilder allBranchesInfo = new StringBuilder();
 
         allBranches
@@ -431,11 +437,11 @@ public class TopController
 
             m_RepositoryController.ResetHeadBranch(SHA1OfCommit);
 
+
         } catch (Exception e)
         {
             e.printStackTrace();
-        }
-        finally
+        } finally
         {
             m_RepositoryController.UpdateProgress();
         }
