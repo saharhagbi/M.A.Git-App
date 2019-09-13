@@ -56,7 +56,7 @@ public class RepositoryController
         m_RightController.SetRepositoryController(this);
     }
 
-    public Repository GetCurrentRepository()
+    public Repository getCurrentRepository()
     {
         return m_MagitController.GetCurrentRepository();
     }
@@ -99,7 +99,6 @@ public class RepositoryController
     {
         return m_CurrentRepository.getActiveBranch().getPointedCommit();
     }*/
-
     public ProgressBar GetProgressBar()
     {
         return m_BottomController.GetProgressBar();
@@ -133,6 +132,8 @@ public class RepositoryController
     public void ResetHeadBranch(String i_Sha1OfCommit) throws Exception
     {
         m_MagitController.ResetHeadBranch(i_Sha1OfCommit);
+
+        m_RightController.ResetCommitsTree();
     }
 
     public void ShowDifferencesFiles(FolderDifferences i_FolderDifferences)
@@ -153,5 +154,28 @@ public class RepositoryController
     public void newCommitSelectedOnCenterTableView(Commit i_CommitToShow)
     {
         m_BottomController.ShowCommitInfo(i_CommitToShow);
+    }
+
+    public void ShowDeltaCommits(Commit i_Commit)
+    {
+        FolderDifferences folderDifferences = m_MagitController.ShowDeltaCommits(i_Commit);
+
+        if (folderDifferences != null)
+            m_LeftController.ShowDifferencesFiles(folderDifferences);
+
+        else
+            m_LeftController.ClearTableView();
+
+    }
+
+    public void UpdateTableColumnAccordingToLastCommit()
+    {
+        Commit newLastCommit = getCurrentRepository().getActiveBranch().getPointedCommit();
+        m_CenterController.AddCommitToObservList(newLastCommit);
+    }
+
+    public void AddNodeCommitToTree()
+    {
+        m_RightController.ResetCommitsTree();
     }
 }

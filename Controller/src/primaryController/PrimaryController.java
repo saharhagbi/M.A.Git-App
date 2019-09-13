@@ -5,7 +5,7 @@ import System.Engine;
 import System.FolderDifferences;
 import System.Repository;
 import XmlObjects.XMLMain;
-import common.constants.NumConstants;
+import common.NumConstants;
 import common.constants.StringConstants;
 import main.MAGitController;
 
@@ -66,7 +66,7 @@ public class PrimaryController
     public void CommitChanges(String i_CommitMessage) throws Exception
     {
         //m_Engine.CommitInCurrentRepository(i_CommitMessage);
-       // Commit currentCommit = m_Engine.GetCurrentRepository().getActiveBranch().getCurrentCommit();
+        // Commit currentCommit = m_Engine.GetCurrentRepository().getActiveBranch().getCurrentCommit();
         m_Engine.CommitInCurrentRepository(i_CommitMessage);
     }
 
@@ -108,5 +108,15 @@ public class PrimaryController
     public void ResetHeadBranch(String i_Sha1OfCommit) throws Exception
     {
         m_Engine.ResetHeadBranch(i_Sha1OfCommit);
+    }
+
+    public FolderDifferences ShowDeltaCommits(Commit i_Commit)
+    {
+        FolderDifferences folderDifferences = m_Engine.ShowDeltaCommits(i_Commit);
+
+        if (folderDifferences == null)
+            return null;
+
+        return folderDifferences;
     }
 }

@@ -90,7 +90,7 @@ public class BottomController
 
     private void createFileTree(Folder i_Folder)
     {
-        String fileName = m_RepositoryController.GetCurrentRepository().getRepositoryPath().getFileName().toString();
+        String fileName = m_RepositoryController.getCurrentRepository().getRepositoryPath().getFileName().toString();
 
         TreeItem<String> rootFolder = new TreeItem<String>(fileName);
         m_FileTreeView.setRoot(rootFolder);

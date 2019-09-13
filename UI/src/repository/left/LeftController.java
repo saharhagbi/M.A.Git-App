@@ -2,7 +2,7 @@ package repository.left;
 
 import Objects.Item;
 import System.FolderDifferences;
-import common.constants.NumConstants;
+import common.NumConstants;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -63,7 +63,7 @@ public class LeftController
 
     public void ShowDifferencesFiles(FolderDifferences i_FolderDifferences)
     {
-        clearTableView();
+        ClearTableView();
 
         if (i_FolderDifferences.GetAddedItemList().size() != NumConstants.ZERO)
             addListToTreeItem(i_FolderDifferences.GetAddedItemList(), m_NewFiles);
@@ -75,7 +75,7 @@ public class LeftController
             addListToTreeItem(i_FolderDifferences.GetRemovedItemList(), m_DeletedFiles);
     }
 
-    private void clearTableView()
+    public void ClearTableView()
     {
         removeTreeItemDescendants(m_NewFiles);
         removeTreeItemDescendants(m_DeletedFiles);

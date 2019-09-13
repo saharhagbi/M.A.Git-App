@@ -1,9 +1,6 @@
 <component name="libraryTable">
   <library name="fxgraph-0.0.3">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../CommitTreePrototype/lib/fxgraph-0.0.3.jar!/" />
-      <root url="jar://$PROJECT_DIR$/Engine/fxgraph-0.0.3.jar!/" />
-    </CLASSES>
+    <CLASSES />
     <JAVADOC />
     <SOURCES />
   </library>

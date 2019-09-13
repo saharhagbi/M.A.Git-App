@@ -1,5 +1,6 @@
 package main;
 
+import Objects.Commit;
 import System.Repository;
 import System.FolderDifferences;
 
@@ -143,5 +144,10 @@ public class MAGitController
     public void ResetHeadBranch(String i_Sha1OfCommit) throws Exception
     {
         m_PrimaryController.ResetHeadBranch(i_Sha1OfCommit);
+    }
+
+    public FolderDifferences ShowDeltaCommits(Commit i_Commit)
+    {
+        return m_PrimaryController.ShowDeltaCommits(i_Commit);
     }
 }

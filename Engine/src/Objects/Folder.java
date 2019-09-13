@@ -409,5 +409,4 @@ public class Folder extends Item
 
         return resultString.toString();
     }
-
 }

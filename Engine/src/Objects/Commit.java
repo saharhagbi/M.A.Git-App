@@ -259,4 +259,8 @@ public class Commit {
         return m_SecondPrevCommit;
     }
 
+    public boolean ThereIsPrevCommit(int i_first) {
+        // TODO: get hagbis version
+        return true;
+    }
 }
