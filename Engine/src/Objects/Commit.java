@@ -2,6 +2,7 @@ package Objects;
 
 import System.FolderDifferences;
 import System.User;
+import common.NumConstants;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.File;
@@ -259,8 +260,21 @@ public class Commit {
         return m_SecondPrevCommit;
     }
 
-    public boolean ThereIsPrevCommit(int i_first) {
-        // TODO: get hagbis version
-        return true;
+    public boolean ThereIsPrevCommit(int i_NumOfPrev)
+    {
+        boolean isExist = false;
+
+        switch (i_NumOfPrev)
+        {
+            case NumConstants.FIRST:
+                isExist = m_PrevCommit != null;
+                break;
+
+            case NumConstants.SECOND:
+                isExist = m_SecondPrevCommit != null;
+                break;
+        }
+
+        return isExist;
     }
 }
