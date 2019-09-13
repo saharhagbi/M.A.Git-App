@@ -119,6 +119,8 @@ public class Repository
     public FolderDifferences CreateNewCommitAndUpdateActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
     {
         Commit currentCommit = m_ActiveBranch.getPointedCommit();
+        String prevCommitSha1 = null;
+        String secondPrevCommitSha1 = null;
         FolderDifferences differencesBetweenLastAndCurrentCommit = null;
         if (Folder.isDirEmpty(m_RepositoryPath))
         {
@@ -132,7 +134,11 @@ public class Repository
         } else
         {
             //CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, this.m_ActiveBranch.getCurrentCommit().getSHA1());
-            CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, currentCommit.GetPrevCommit().getSHA1(), currentCommit.GetSecondPrevCommit().getSHA1());
+            if(currentCommit.GetPrevCommit()!=null)
+                prevCommitSha1 = currentCommit.GetPrevCommit().getSHA1();
+            if(currentCommit.GetSecondPrevCommit()!=null)
+                secondPrevCommitSha1 = currentCommit.GetSecondPrevCommit().getSHA1();
+            CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, prevCommitSha1, secondPrevCommitSha1);
             if (this.m_ActiveBranch.getPointedCommit().GetPrevCommit() != null)
             {//it means there is no new commit because there were no changes
                 differencesBetweenLastAndCurrentCommit = Commit.findDifferences(m_ActiveBranch.getPointedCommit(), m_ActiveBranch.getPointedCommit().GetPrevCommit());

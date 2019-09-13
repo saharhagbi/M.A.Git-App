@@ -36,7 +36,9 @@ public class Branch
             if (!i_Branch.getPointedCommit().GetPrevCommit().getSHA1().equals("null"))
             {
                 commitHistoryBuilder.append("Previous Commit:\n");
-                Path prevCommitTextFileZipped = Paths.get(i_ObjectsFolder.toString() + "\\" + i_Branch.m_PointedCommit.GetPrevCommit().getSHA1());
+                Path prevCommitTextFileZipped = Paths.get(i_ObjectsFolder.toString() + "\\" + i_Branch.m_PointedCommit.
+
+                        GetPrevCommit().getSHA1());
                 Path PrevCommitTextFileUnzipped = Item.UnzipFile(prevCommitTextFileZipped, Paths.get(i_ObjectsFolder.getParent().toString() + "\\Temp"));
                 String prevCommitsDetails = Commit.GetInformationFromCommitTextFile(i_Branch.m_PointedCommit.GetPrevCommit().getSHA1(), PrevCommitTextFileUnzipped, i_ObjectsFolder);
                 commitHistoryBuilder.append(prevCommitsDetails);
@@ -119,6 +121,14 @@ public class Branch
     public void SetCurrentCommit(Commit i_Commit)
     {
         m_PointedCommit = i_Commit;
+    }
+
+    private static Branch mergeBranches(Branch i_PullingBranch,Branch i_PushingBranch) throws Exception {
+        Branch mergedBranch = null;
+        Commit mergedCommit = Commit.MergeCommits(i_PullingBranch.getPointedCommit(),i_PushingBranch.getPointedCommit());
+        mergedBranch = new Branch(i_PullingBranch.m_BranchName,mergedCommit);
+
+        return mergedBranch;
     }
 }
 

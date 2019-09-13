@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 public class Engine
 {
@@ -190,14 +191,17 @@ public class Engine
         Path HEAD = Paths.get(branchFolderPath.toString() + "\\HEAD.txt");
         String activeBranchName = Engine.ReadLineByLine(HEAD.toFile());
         Path activeBranchPath = Paths.get(branchFolderPath.toString() + "\\" + activeBranchName + ".txt");
-
         activeBranch = Branch.createBranchInstanceFromExistBranch(activeBranchPath);
 
-
+        //TODO: implement GetMapOfCommits()
+        Path objectsFolder = Paths.get(repositoryPath.toString()+"\\.magit\\Objects");
+        Map<String,Commit> allCommitsInRepositoryMap = Commit.GetMapOfCommits(objectsFolder);
         List<Branch> allBranches = Branch.GetAllBranches(branchFolderPath);
-        //  repository = new Repository(activeBranch, repositoryPath, i_NameOfRepository, allBranches);
+        //repository = new Repository(activeBranch, repositoryPath, i_NameOfRepository, allBranches);-
+        repository = new Repository(activeBranch,repositoryPath,i_NameOfRepository,allBranches,allCommitsInRepositoryMap);
+        this.m_CurrentRepository = repository;
+        GetCurrentRepository().setActiveBranch(activeBranch);
 
-        //  this.m_CurrentRepository = repository;
     }
 
     public String ShowAllCurrentCommitData()
