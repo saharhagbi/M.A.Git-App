@@ -60,7 +60,7 @@ public class PrimaryController
 
     public boolean IsFirstCommit()
     {
-        return m_Engine.GetCurrentRepository().ThereAreNoCmmitsYet();
+        return m_Engine.getCurrentRepository().ThereAreNoCmmitsYet();
     }
 
     public void CommitChanges(String i_CommitMessage) throws Exception
@@ -82,7 +82,7 @@ public class PrimaryController
 
     public Repository GetCurrentRepository()
     {
-        return m_Engine.GetCurrentRepository();
+        return m_Engine.getCurrentRepository();
     }
 
     public void CreateNewBranch(String i_NewBranch, String i_SHA1Commit) throws Exception

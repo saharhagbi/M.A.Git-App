@@ -2,7 +2,7 @@ package repository.right;
 
 import Objects.Commit;
 import Objects.Item;
-import System.Branch;
+import Objects.branches.Branch;
 import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;
@@ -74,22 +74,27 @@ public class RightController
                 .forEach(commit -> addEdgesToCommit(commit, i_Model));
     }
 
+
+    //code duplicate.. wrap to one function
     private void addEdgesToCommit(Commit i_Commit, Model i_Model)
     {
-        if (thereIsPrevCommit(i_Commit.GetPrevCommit()))
+        if (i_Commit.ThereIsPrevCommit(NumConstants.ONE))
         {
-            final Edge edge = new Edge(m_MapCommitToIcell.get(i_Commit), m_MapCommitToIcell.get(i_Commit.GetPrevCommit()));
-            i_Model.addEdge(edge);
+            final Edge edgeFirstPrev = new Edge(m_MapCommitToIcell.get(i_Commit), m_MapCommitToIcell.get(i_Commit.GetPrevCommit()));
+            i_Model.addEdge(edgeFirstPrev);
         }
 
-        if (thereIsPrevCommit(i_Commit.GetSecondPrevCommit()))
-            i_Model.addEdge(new Edge(m_MapCommitToIcell.get(i_Commit), m_MapCommitToIcell.get(i_Commit.GetSecondPrevCommit())));
+        if (i_Commit.ThereIsPrevCommit(NumConstants.SECOND))
+        {
+            final Edge edgeSecondPrev = new Edge(m_MapCommitToIcell.get(i_Commit), m_MapCommitToIcell.get(i_Commit.GetSecondPrevCommit()));
+            i_Model.addEdge(edgeSecondPrev);
+        }
     }
 
-    private boolean thereIsPrevCommit(Commit i_GetPrevCommit)
+    /*private boolean thereIsPrevCommit(Commit i_GetPrevCommit)
     {
         return i_GetPrevCommit != null;
-    }
+    }*/
 
     private void createCommits()
     {
@@ -110,11 +115,10 @@ public class RightController
                         commitNode.SetBranchName(branchesString);
                     }
 
-                    //todo:
-                    // get an event of pressed on gridpane??
-                    /*commitNode.getGraphic(m_TreeGraph).lookup("CommitCircle")
-                            .setOnMouseClicked(event -> m_RepositoryController.ShowDeltaCommits(commit));*/
-                    m_TreeGraph.getGraphic(commitNode).setOnMouseClicked(event -> m_RepositoryController.ShowDeltaCommits(commit));
+                    m_TreeGraph.getGraphic(commitNode).setOnMouseClicked(event ->
+                            m_RepositoryController.UpdateCommitDetailsInBotoomAfterNodeClicked(commit));
+
+
 
                     //     commitNode.getGraphic(tree).lookup("");
                     m_TreeGraph.getModel().addCell(commitNode);

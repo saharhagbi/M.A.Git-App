@@ -5,7 +5,7 @@ import Objects.Blob;
 import Objects.Commit;
 import Objects.Folder;
 import Objects.Item;
-import System.Branch;
+import Objects.branches.Branch;
 import System.Repository;
 import System.User;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -77,7 +77,7 @@ public class XMLParser
         repoToCreate = new Repository(m_ActiveBranch, Paths.get(m_MagitRepository.location),
                 m_MagitRepository.name, listRepositoryBranches, sha1ToCommitMap);
 
-        RepositoryWriter writer = new RepositoryWriter(repoToCreate, m_AllCommitsIDToCommit);
+        RepositoryWriter writer = new RepositoryWriter(repoToCreate);
         writer.WriteRepositoryToFileSystem(m_ActiveBranch.getBranchName());
 
         return repoToCreate;

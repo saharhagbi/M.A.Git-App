@@ -4,8 +4,8 @@ import Objects.Blob;
 import Objects.Commit;
 import Objects.Folder;
 import Objects.Item;
-import XmlObjects.RepositoryWriter;
-import org.apache.commons.io.FileUtils;
+import Objects.branches.Branch;
+import common.MagitFileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -110,6 +110,7 @@ public class Repository
     {
         Date date = new Date();
         String CommitSha1 = Commit.createSha1ForCommit(i_RootFolder, i_PrevCommitSha1, i_SecondPrevCommitSha1, i_CommitMessage, i_User, date);
+
         Commit theNewCommit = new Commit(CommitSha1, i_RootFolder, i_PrevCommitSha1, i_SecondPrevCommitSha1, i_CommitMessage, i_User, date);
 
         m_AllCommitsSHA1ToCommit.put(CommitSha1, theNewCommit);
@@ -202,7 +203,7 @@ public class Repository
             zipAndPutInObjectsFolder(pathForWritingCommit.toFile(), newCommit.getSHA1());
 
             // assign the new commit to be the current commit in the repository
-            m_ActiveBranch.SetCurrentCommit(newCommit);
+            m_ActiveBranch.setPointedCommit(newCommit);
         } else
         {
             throw new Exception("There is nothing to commit in repository!");
@@ -437,7 +438,7 @@ public class Repository
 
         //3. insert to HEAD.txt (in Branches folder) the name of the branch
         File HEADFile = Paths.get(m_BranchesFolderPath.toString() + "\\HEAD.txt").toFile();
-        FileUtils.writeStringToFile(HEADFile, i_branchName, "UTF-8", false);
+        org.apache.commons.io.FileUtils.writeStringToFile(HEADFile, i_branchName, "UTF-8", false);
 
     }
 
@@ -491,7 +492,7 @@ public class Repository
         Branch newBranchToAdd = new Branch(i_nameOfNewBranch, m_AllCommitsSHA1ToCommit.get(i_SHA1OfCommit));
 
         m_Branches.add(newBranchToAdd);
-        RepositoryWriter.WritingFileByPath(
+        MagitFileUtils.WritingFileByPath(
                 m_BranchesFolderPath + sf_Slash + i_nameOfNewBranch + sf_txtExtension, /*commitOfSHA1.getSHA1*/
                 m_ActiveBranch.getPointedCommit().getSHA1()
         );

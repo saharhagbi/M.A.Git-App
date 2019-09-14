@@ -87,7 +87,7 @@ public class CenterController
                     String commitSHA1 = m_SHA1Column.getCellData(m_TableView.getSelectionModel().getSelectedIndex());
                     /*try
                     {*/
-                    m_RepositoryController.newCommitSelectedOnCenterTableView(newValue);
+                    m_RepositoryController.NewCommitSelectedOnCenterTableView(newValue);
                     /*}
                     catch (IOException e)
                     {
