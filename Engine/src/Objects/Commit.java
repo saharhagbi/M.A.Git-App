@@ -23,7 +23,7 @@ public class Commit
     private User m_UserCreated;
     private Date m_Date;
 
-    public Commit(String i_CommitsSha1, Folder i_RootFolder, String i_SHA1PrevCommit, String i_SHA1SecondPrevCommit, String i_CommitMessage, User i_UserCreated, Date i_Date) throws Exception
+    /*public Commit(String i_CommitsSha1, Folder i_RootFolder, String i_SHA1PrevCommit, String i_SHA1SecondPrevCommit, String i_CommitMessage, User i_UserCreated, Date i_Date) throws Exception
     {
         Path objectsFolderPath = null;
         this.m_SHA1 = i_CommitsSha1;
@@ -46,7 +46,7 @@ public class Commit
         this.m_CommitMessage = i_CommitMessage;
         this.m_UserCreated = i_UserCreated;
         this.m_Date = i_Date;
-    }
+    }*/
 
     public Commit(Folder i_RootFolder, String i_SHA1, Commit i_PrevCommit, Commit i_SecondPrevCommit, String i_CommitMessage, User i_UserCreated, Date i_Date)
     {
@@ -187,6 +187,8 @@ public class Commit
     public static Commit CreateCommitFromSha1(String i_CommitSha1, Path i_ObjectsFolder) throws Exception
     {
         Commit newCommit = null;
+        Commit prevCommit = null;
+        Commit secondPrevCommit = null;
         if (IsSha1ValidForCommit(i_CommitSha1, i_ObjectsFolder))
         {
             Path unzippedCommitFile = Paths.get(i_ObjectsFolder.toString() + "\\" + i_CommitSha1);
@@ -207,7 +209,12 @@ public class Commit
             Path WCTextFileUnzippedPath = Item.UnzipFile(WCTextFileZipped, tempFolderPath);
             Path workingCopyPath = Paths.get(i_ObjectsFolder.getParent().toString());
             Folder commitsRootFolder = Folder.CreateFolderFromTextFolder(WCTextFileUnzippedPath.toFile(), workingCopyPath, rootFolderSha1, rootFolderUser, commitsDate, i_ObjectsFolder);
-            newCommit = new Commit(i_CommitSha1, commitsRootFolder, prevCommitSha1, secondPrevCommitSha1, message, commitUser, commitsDate);
+            if(!prevCommitSha1.toUpperCase().equals("NULL"))
+                prevCommit = CreateCommitFromSha1(prevCommitSha1,i_ObjectsFolder);
+            if(!secondPrevCommitSha1.toUpperCase().equals("NULL"))
+                secondPrevCommit= CreateCommitFromSha1(secondPrevCommitSha1,i_ObjectsFolder);
+            newCommit = new Commit(commitsRootFolder,i_CommitSha1,prevCommit,secondPrevCommit,message,commitUser,commitsDate);
+            //newCommit = new Commit(i_CommitSha1, commitsRootFolder, prevCommit, secondPrevCommit, message, commitUser, commitsDate);
 
         }
         return newCommit;
