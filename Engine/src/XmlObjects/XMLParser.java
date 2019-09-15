@@ -1,13 +1,11 @@
 package XmlObjects;
 
-
-import Objects.Blob;
-import Objects.Commit;
-import Objects.Folder;
+import Objects.*;
+//import Objects.Branch;
 import Objects.Item;
-import Objects.branches.Branch;
 import System.Repository;
 import System.User;
+import collaboration.RemoteTrackingBranch;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.nio.file.Path;
@@ -57,13 +55,7 @@ public class XMLParser
 
         for (MagitSingleBranch magitSingleBranch : listOfMSB)
         {
-            MagitSingleCommit currentPointedMSC = findCommitByID(magitSingleBranch.pointedCommit.id);
-
-            Commit currentCommit;
-            if (!isIDOfMSCExistInMap(currentPointedMSC))
-                currentCommit = createCurrentCommitAndItsAllPrevCommits(currentPointedMSC);
-            else
-                currentCommit = m_AllCommitsIDToCommit.get(currentPointedMSC.id);
+            Commit currentCommit = createCommitPointed(magitSingleBranch);
 
             Branch currentBranch = new Branch(magitSingleBranch.name, currentCommit);
 
@@ -81,6 +73,18 @@ public class XMLParser
         writer.WriteRepositoryToFileSystem(m_ActiveBranch.getBranchName());
 
         return repoToCreate;
+    }
+
+    private Commit createCommitPointed(MagitSingleBranch i_MagitSingleBranch) throws Exception
+    {
+        MagitSingleCommit currentPointedMSC = findCommitByID(i_MagitSingleBranch.pointedCommit.id);
+
+        Commit currentCommit;
+        if (!isIDOfMSCExistInMap(currentPointedMSC))
+            currentCommit = createCurrentCommitAndItsAllPrevCommits(currentPointedMSC);
+        else
+            currentCommit = m_AllCommitsIDToCommit.get(currentPointedMSC.id);
+        return currentCommit;
     }
 
     private Map<String, Commit> createMapSha1ForCommit()

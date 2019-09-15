@@ -2,7 +2,7 @@ package XmlObjects;
 
 import Objects.Commit;
 import Objects.Folder;
-import Objects.branches.Branch;
+import Objects.Branch;
 import System.Engine;
 import System.Repository;
 import common.MagitFileUtils;
@@ -30,8 +30,6 @@ public class RepositoryWriter
         this.m_RepositoryToWrite = i_RepositoryToWrite;
         this.m_CommitsThatHaveBeenWritten = new ArrayList<Commit>();
     }
-
-
 
     public void WriteRepositoryToFileSystem(String i_NameHeadBranch) throws IOException, ParseException
     {

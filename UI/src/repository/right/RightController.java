@@ -2,13 +2,13 @@ package repository.right;
 
 import Objects.Commit;
 import Objects.Item;
-import Objects.branches.Branch;
+import Objects.Branch;
 import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;
 import com.fxgraph.graph.Model;
 import com.fxgraph.graph.PannableCanvas;
-import common.NumConstants;
+import common.constants.NumConstants;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import repository.RepositoryController;

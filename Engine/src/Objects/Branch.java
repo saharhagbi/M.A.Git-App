@@ -1,7 +1,6 @@
-package Objects.branches;
+package Objects;
 
-import Objects.Commit;
-import Objects.Item;
+import collaboration.RemoteBranch;
 
 import java.io.File;
 import java.io.FileNotFoundException;

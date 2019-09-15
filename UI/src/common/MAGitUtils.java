@@ -16,7 +16,7 @@ import javafx.stage.Window;
 import java.io.File;
 import java.util.Optional;
 
-public class MAGitUtilities
+public class MAGitUtils
 {
     public static String GetString(String i_Prompt, String i_Label, String i_Title) throws Exception
     {

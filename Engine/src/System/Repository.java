@@ -4,7 +4,7 @@ import Objects.Blob;
 import Objects.Commit;
 import Objects.Folder;
 import Objects.Item;
-import Objects.branches.Branch;
+import Objects.Branch;
 import common.MagitFileUtils;
 
 import java.io.*;

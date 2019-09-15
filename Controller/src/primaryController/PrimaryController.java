@@ -5,7 +5,7 @@ import System.Engine;
 import System.FolderDifferences;
 import System.Repository;
 import XmlObjects.XMLMain;
-import common.NumConstants;
+import common.constants.NumConstants;
 import common.constants.StringConstants;
 import main.MAGitController;
 

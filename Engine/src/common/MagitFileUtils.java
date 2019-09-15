@@ -41,4 +41,9 @@ public class MagitFileUtils
         org.apache.commons.io.FileUtils.writeStringToFile(fixedPathFile.toFile(), i_ContentTWrite, "UTF-8");
     }
 
+    public static boolean IsMagitFolder(File file)
+    {
+        return file.getName().equals(".magit");
+    }
+
 }

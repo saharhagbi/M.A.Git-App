@@ -18,6 +18,7 @@ import java.util.*;
 import static Objects.Item.TypeOfFile.BLOB;
 import static Objects.Item.TypeOfFile.FOLDER;
 import static System.Repository.WritingStringInAFile;
+import static common.MagitFileUtils.IsMagitFolder;
 
 
 public class Folder extends Item
@@ -306,11 +307,6 @@ public class Folder extends Item
 
         return currentFolder;
 
-    }
-
-    public static boolean IsMagitFolder(File file)
-    {
-        return file.getName().equals(".magit");
     }
 
     public static String CreateSHA1ForFolderFile(List<Item> i_AllItems)

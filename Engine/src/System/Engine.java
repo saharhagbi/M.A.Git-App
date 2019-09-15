@@ -2,11 +2,11 @@ package System;
 
 import Objects.Commit;
 import Objects.Folder;
-import Objects.branches.Branch;
+import Objects.Branch;
 import XmlObjects.MagitRepository;
 import XmlObjects.XMLMain;
 import common.MagitFileUtils;
-import common.NumConstants;
+import common.constants.NumConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -191,11 +191,11 @@ public class Engine
         Path HEAD = Paths.get(branchFolderPath.toString() + "\\HEAD.txt");
         String activeBranchName = Engine.ReadLineByLine(HEAD.toFile());
         Path activeBranchPath = Paths.get(branchFolderPath.toString() + "\\" + activeBranchName + ".txt");
+        Path objectsFolder = Paths.get(repositoryPath.toString()+"\\.magit\\Objects");
+        Map<String,Commit> allCommitsInRepositoryMap = Commit.GetMapOfCommits(objectsFolder);
         activeBranch = Branch.createBranchInstanceFromExistBranch(activeBranchPath);
 
         //TODO: implement GetMapOfCommits()
-        Path objectsFolder = Paths.get(repositoryPath.toString()+"\\.magit\\Objects");
-        Map<String,Commit> allCommitsInRepositoryMap = Commit.GetMapOfCommits(objectsFolder);
         List<Branch> allBranches = Branch.GetAllBranches(branchFolderPath);
         //repository = new Repository(activeBranch, repositoryPath, i_NameOfRepository, allBranches);-
         repository = new Repository(activeBranch,repositoryPath,i_NameOfRepository,allBranches,allCommitsInRepositoryMap);

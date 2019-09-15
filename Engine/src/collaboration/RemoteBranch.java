@@ -1,4 +1,4 @@
-package Objects.branches;
+package collaboration;
 
 import Objects.Commit;
 

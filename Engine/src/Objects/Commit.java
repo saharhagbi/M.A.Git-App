@@ -2,7 +2,7 @@ package Objects;
 
 import System.FolderDifferences;
 import System.User;
-import common.NumConstants;
+import common.constants.NumConstants;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.File;
