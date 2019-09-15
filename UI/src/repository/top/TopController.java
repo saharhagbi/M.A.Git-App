@@ -1,6 +1,6 @@
 package repository.top;
 
-import System.Branch;
+import Objects.branches.Branch;
 import System.FolderDifferences;
 import common.MAGitResourceConstants;
 import common.MAGitUtilities;
@@ -113,7 +113,7 @@ public class TopController
                 setOnSucceeded(event ->
                 {
                     m_RepositoryController.UpdateTableColumnAccordingToLastCommit();
-                    m_RepositoryController.AddNodeCommitToTree();
+                    m_RepositoryController.UpdateCommitTree();
                 });
 
         new Thread(commitTask).start();
@@ -138,6 +138,8 @@ public class TopController
 
         //commitMessage = MAGitUtilities.GetString("Enter your commit message please", "Message:", StringConstants.COMMIT);
         m_RepositoryController.CommitChanges(commitMessage);
+
+        System.out.println("got here");
     }
 
     @FXML
@@ -197,9 +199,13 @@ public class TopController
         {
             if (!isHeadBranch(i_BranchNameToErase))
             {
+                m_RepositoryController.InitProgress("Deleting Branch...");
+
                 m_RepositoryController.DeleteBranch(i_BranchNameToErase);
-                deleteBranchFromComboBox(i_BranchNameToErase);
-                deleteBranchFromMenuBar(i_BranchNameToErase);
+                updateBoardAfterDeletingBranch(i_BranchNameToErase);
+
+                m_RepositoryController.UpdateProgress();
+
                 MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Deleting Branch", "Deleting Branch",
                         "Branch was deleted Successfully!");
             } else
@@ -213,6 +219,13 @@ public class TopController
             // handle exception proper message!
             e.printStackTrace();
         }
+    }
+
+    private void updateBoardAfterDeletingBranch(String i_BranchNameToErase)
+    {
+        deleteBranchFromComboBox(i_BranchNameToErase);
+        deleteBranchFromMenuBar(i_BranchNameToErase);
+        m_RepositoryController.UpdateCommitTree();
     }
 
     //todo:
@@ -320,19 +333,30 @@ public class TopController
         String SHA1Commit;
         try
         {
+           m_RepositoryController.InitProgress("Creationg Branch...");
+
             newBranch = MAGitUtilities.GetString("Enter the name of the new Branch", "Name", "New Branch");
             SHA1Commit = MAGitUtilities.GetString("Enter the SHA1 of the commit you want the branch will point",
                     "SHA1:", "Commit SHA1");
 
             m_RepositoryController.CreateNewBranch(newBranch, SHA1Commit);
-            addBranchToComboBox(new Text(newBranch));
-            addBranchToMenuBar(newBranch);
+            updateBoardAfterCreatingNewBranch(newBranch);
+
+            m_RepositoryController.UpdateProgress();
         } catch (Exception e)
         {
             //Todo:
             // handle exception, inside get string or proper to each case proper message
             e.printStackTrace();
         }
+    }
+
+    private void updateBoardAfterCreatingNewBranch(String newBranch)
+    {
+        addBranchToComboBox(new Text(newBranch));
+        addBranchToMenuBar(newBranch);
+
+        m_RepositoryController.UpdateCommitTree();
     }
 
     @FXML

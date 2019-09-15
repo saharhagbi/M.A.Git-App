@@ -4,8 +4,8 @@ import Objects.Blob;
 import Objects.Commit;
 import Objects.Folder;
 import Objects.Item;
-import XmlObjects.RepositoryWriter;
-import org.apache.commons.io.FileUtils;
+import Objects.branches.Branch;
+import common.MagitFileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -106,12 +106,14 @@ public class Repository
     }
 
     //this method is used when creating a new commit that hasnt been created before - aka "commit changes"
-    public Commit createNewInstanceCommit(User i_User, String i_PrevCommitSha1, String i_SecondPrevCommitSha1, Folder i_RootFolder, String i_CommitMessage) throws Exception
+    public Commit createNewInstanceCommit(User i_User, Folder i_RootFolder, String i_CommitMessage) throws Exception
     {
         Date date = new Date();
-        String CommitSha1 = Commit.createSha1ForCommit(i_RootFolder, i_PrevCommitSha1, i_SecondPrevCommitSha1, i_CommitMessage, i_User, date);
-        Commit theNewCommit = new Commit(CommitSha1, i_RootFolder, i_PrevCommitSha1, i_SecondPrevCommitSha1, i_CommitMessage, i_User, date);
-
+        String prevCommitSha1 = null;
+        if(this.m_ActiveBranch.getPointedCommit()!=null) // if its the first time commiting then there is no pointed commit yet
+            prevCommitSha1 = this.m_ActiveBranch.getPointedCommit().getSHA1();
+        String CommitSha1 = Commit.createSha1ForCommit(i_RootFolder,prevCommitSha1,"null", i_CommitMessage, i_User, date);
+        Commit theNewCommit = new Commit(i_RootFolder,CommitSha1,this.m_ActiveBranch.getPointedCommit(),null,i_CommitMessage,i_User,date);
         m_AllCommitsSHA1ToCommit.put(CommitSha1, theNewCommit);
         return theNewCommit;
     }
@@ -134,11 +136,12 @@ public class Repository
         } else
         {
             //CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, this.m_ActiveBranch.getCurrentCommit().getSHA1());
-            if(currentCommit.GetPrevCommit()!=null)
+           /* if(currentCommit.GetPrevCommit()!=null)
                 prevCommitSha1 = currentCommit.GetPrevCommit().getSHA1();
             if(currentCommit.GetSecondPrevCommit()!=null)
-                secondPrevCommitSha1 = currentCommit.GetSecondPrevCommit().getSHA1();
-            CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, prevCommitSha1, secondPrevCommitSha1);
+                secondPrevCommitSha1 = currentCommit.GetSecondPrevCommit().getSHA1();*/
+            //CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, currentCommit);
+            CreateANewCommitInActiveBranch(i_CurrentUser,i_CommitMessage);
             if (this.m_ActiveBranch.getPointedCommit().GetPrevCommit() != null)
             {//it means there is no new commit because there were no changes
                 differencesBetweenLastAndCurrentCommit = Commit.findDifferences(m_ActiveBranch.getPointedCommit(), m_ActiveBranch.getPointedCommit().GetPrevCommit());
@@ -182,7 +185,7 @@ public class Repository
         return this.m_ActiveBranch.getPointedCommit();
     }
 
-    private void CreateANewCommitInActiveBranch(User i_CurrentUser, String i_CommitMessage, String i_PrevCommitSha1, String i_SecondPrevCommitSha1) throws Exception
+    private void CreateANewCommitInActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
     {
         Map<Path, Item> itemsMapWithPaths = new HashMap<>();
         // 1. create the root folder - current working copy
@@ -194,7 +197,7 @@ public class Repository
 
             Path pathForWritingWC = WC.WritingFolderAsATextFile();
             zipAndPutInObjectsFolder(pathForWritingWC.toFile(), WC.getSHA1());
-            Commit newCommit = createNewInstanceCommit(i_CurrentUser, i_PrevCommitSha1, i_SecondPrevCommitSha1, WC, i_CommitMessage);
+            Commit newCommit = createNewInstanceCommit(i_CurrentUser,WC,i_CommitMessage);
 
             //putting Commit in objects
             String contentOfCommit = newCommit.CreatingContentOfCommit();
@@ -202,7 +205,7 @@ public class Repository
             zipAndPutInObjectsFolder(pathForWritingCommit.toFile(), newCommit.getSHA1());
 
             // assign the new commit to be the current commit in the repository
-            m_ActiveBranch.SetCurrentCommit(newCommit);
+            m_ActiveBranch.setPointedCommit(newCommit);
         } else
         {
             throw new Exception("There is nothing to commit in repository!");
@@ -212,7 +215,7 @@ public class Repository
     // this method creats recursivly the working copy as textFiles zipped inside objects as their names are their sha1
     private void createFirstCommitInActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
     {
-        CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, null, null);
+        CreateANewCommitInActiveBranch(i_CurrentUser,i_CommitMessage);
     }
 
     //this method takes a Folder object and turns it in to a String -
@@ -365,7 +368,8 @@ public class Repository
                 new User(rootFolderDetails[3]),
                 rootFoldeDate, m_ObjectsFolderPath);
 
-        Commit brnachCommit = createNewInstanceCommit(new User(rootFolderDetails[3]), commitsMembersFromFile[1], commitsMembersFromFile[2], rootFolder, rootFolderDetails[2]);
+        //Commit brnachCommit = createNewInstanceCommit(new User(rootFolderDetails[3]), commitsMembersFromFile[1], commitsMembersFromFile[2], rootFolder, rootFolderDetails[2]);
+        Commit brnachCommit = createNewInstanceCommit(new User(rootFolderDetails[3]),rootFolder,commitsMembersFromFile[3]);
         setActiveBranch(new Branch(i_NameOfBranch, brnachCommit));
     }
 
@@ -437,7 +441,7 @@ public class Repository
 
         //3. insert to HEAD.txt (in Branches folder) the name of the branch
         File HEADFile = Paths.get(m_BranchesFolderPath.toString() + "\\HEAD.txt").toFile();
-        FileUtils.writeStringToFile(HEADFile, i_branchName, "UTF-8", false);
+        org.apache.commons.io.FileUtils.writeStringToFile(HEADFile, i_branchName, "UTF-8", false);
 
     }
 
@@ -491,7 +495,7 @@ public class Repository
         Branch newBranchToAdd = new Branch(i_nameOfNewBranch, m_AllCommitsSHA1ToCommit.get(i_SHA1OfCommit));
 
         m_Branches.add(newBranchToAdd);
-        RepositoryWriter.WritingFileByPath(
+        MagitFileUtils.WritingFileByPath(
                 m_BranchesFolderPath + sf_Slash + i_nameOfNewBranch + sf_txtExtension, /*commitOfSHA1.getSHA1*/
                 m_ActiveBranch.getPointedCommit().getSHA1()
         );

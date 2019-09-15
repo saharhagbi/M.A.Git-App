@@ -151,12 +151,12 @@ public class RepositoryController
         m_BottomController.UpdateProgress();
     }
 
-    public void newCommitSelectedOnCenterTableView(Commit i_CommitToShow)
+    public void NewCommitSelectedOnCenterTableView(Commit i_CommitToShow)
     {
         m_BottomController.ShowCommitInfo(i_CommitToShow);
     }
 
-    public void ShowDeltaCommits(Commit i_Commit)
+    public void showDeltaCommits(Commit i_Commit)
     {
         FolderDifferences folderDifferences = m_MagitController.ShowDeltaCommits(i_Commit);
 
@@ -165,7 +165,6 @@ public class RepositoryController
 
         else
             m_LeftController.ClearTableView();
-
     }
 
     public void UpdateTableColumnAccordingToLastCommit()
@@ -174,8 +173,14 @@ public class RepositoryController
         m_CenterController.AddCommitToObservList(newLastCommit);
     }
 
-    public void AddNodeCommitToTree()
+    public void UpdateCommitTree()
     {
         m_RightController.ResetCommitsTree();
+    }
+
+    public void UpdateCommitDetailsInBotoomAfterNodeClicked(Commit i_Commit)
+    {
+        showDeltaCommits(i_Commit);
+        m_BottomController.ShowCommitInfo(i_Commit);
     }
 }

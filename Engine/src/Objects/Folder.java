@@ -3,9 +3,8 @@ package Objects;
 import common.CompareItems;
 import System.User;
 import System.FolderDifferences;
-import XmlObjects.RepositoryWriter;
+import common.MagitFileUtils;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -178,7 +177,7 @@ public class Folder extends Item
             } else
             {
                 Blob currentBlob = (Blob) folderItem;
-                RepositoryWriter.WritingFileByPath(currentBlob.GetPath().toString(), currentBlob.getContent());
+                MagitFileUtils.WritingFileByPath(currentBlob.GetPath().toString(), currentBlob.getContent());
             }
         }
     }
@@ -193,7 +192,7 @@ public class Folder extends Item
             {
                 if (currentFile.isDirectory() == true)
                 {
-                    FileUtils.deleteDirectory(currentFile);
+                    org.apache.commons.io.FileUtils.deleteDirectory(currentFile);
                 } else
                 {
                     currentFile.delete();
@@ -347,7 +346,7 @@ public class Folder extends Item
     public static void DeleteDirectory(String i_LocationOfFolderToDelete) throws IOException
     {
         Path pathOfFolderToDelete = Paths.get(i_LocationOfFolderToDelete);
-        FileUtils.deleteDirectory(pathOfFolderToDelete.toFile());
+        org.apache.commons.io.FileUtils.deleteDirectory(pathOfFolderToDelete.toFile());
     }
 
     public static boolean IsFileExist(String i_LocationOfFile)

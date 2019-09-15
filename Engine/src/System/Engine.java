@@ -2,11 +2,11 @@ package System;
 
 import Objects.Commit;
 import Objects.Folder;
+import Objects.branches.Branch;
 import XmlObjects.MagitRepository;
 import XmlObjects.XMLMain;
 import common.MagitFileUtils;
 import common.NumConstants;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -121,7 +121,7 @@ public class Engine
     {
         Path HEADFilePath = Paths.get(i_BranchFolderPath.toString() + "\\HEAD.txt");
         Files.createFile(HEADFilePath);
-        FileUtils.writeStringToFile(HEADFilePath.toFile(), "Master", "UTF-8", false);
+        org.apache.commons.io.FileUtils.writeStringToFile(HEADFilePath.toFile(), "Master", "UTF-8", false);
     }
 
     public FolderDifferences ShowStatus() throws Exception
@@ -164,7 +164,7 @@ public class Engine
         System.out.println(commitHistoryOfActiveBranch);
     }
 
-    public Repository GetCurrentRepository()
+    public Repository getCurrentRepository()
     {
         return m_CurrentRepository;
     }
@@ -200,7 +200,7 @@ public class Engine
         //repository = new Repository(activeBranch, repositoryPath, i_NameOfRepository, allBranches);-
         repository = new Repository(activeBranch,repositoryPath,i_NameOfRepository,allBranches,allCommitsInRepositoryMap);
         this.m_CurrentRepository = repository;
-        GetCurrentRepository().setActiveBranch(activeBranch);
+        this.getCurrentRepository().setActiveBranch(activeBranch);
 
     }
 
@@ -272,7 +272,7 @@ public class Engine
         Path tempFolder = this.m_CurrentRepository.GetTempFolderPath();
         if (tempFolder.toFile().exists())
         {
-            FileUtils.deleteDirectory(tempFolder.toFile());
+            org.apache.commons.io.FileUtils.deleteDirectory(tempFolder.toFile());
         }
     }
 
@@ -339,7 +339,7 @@ public class Engine
 
         MagitFileUtils.OverwriteContentInFile(commitRequested.getSHA1(), branchFilePath);
 
-        m_CurrentRepository.getActiveBranch().SetCurrentCommit(commitRequested);
+        m_CurrentRepository.getActiveBranch().setPointedCommit(commitRequested);
 
         removeFilesFromWCAndSpanNewCommitInActiveBranch();
 
