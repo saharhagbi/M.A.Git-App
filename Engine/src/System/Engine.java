@@ -194,9 +194,9 @@ public class Engine
         activeBranch = Branch.createBranchInstanceFromExistBranch(activeBranchPath);
 
         //TODO: implement GetMapOfCommits()
-        Path objectsFolder = Paths.get(repositoryPath.toString()+"\\.magit\\Objects");
-        Map<String,Commit> allCommitsInRepositoryMap = Commit.GetMapOfCommits(objectsFolder);
+        //Path objectsFolder = Paths.get(repositoryPath.toString()+"\\.magit\\Objects");
         List<Branch> allBranches = Branch.GetAllBranches(branchFolderPath);
+        Map<String,Commit> allCommitsInRepositoryMap = Commit.GetMapOfCommits(allBranches);
         //repository = new Repository(activeBranch, repositoryPath, i_NameOfRepository, allBranches);-
         repository = new Repository(activeBranch,repositoryPath,i_NameOfRepository,allBranches,allCommitsInRepositoryMap);
         this.m_CurrentRepository = repository;
