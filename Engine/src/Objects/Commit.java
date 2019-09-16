@@ -209,11 +209,11 @@ public class Commit
             Path WCTextFileUnzippedPath = Item.UnzipFile(WCTextFileZipped, tempFolderPath);
             Path workingCopyPath = Paths.get(i_ObjectsFolder.getParent().toString());
             Folder commitsRootFolder = Folder.CreateFolderFromTextFolder(WCTextFileUnzippedPath.toFile(), workingCopyPath, rootFolderSha1, rootFolderUser, commitsDate, i_ObjectsFolder);
-            if(!prevCommitSha1.toUpperCase().equals("NULL"))
-                prevCommit = CreateCommitFromSha1(prevCommitSha1,i_ObjectsFolder);
-            if(!secondPrevCommitSha1.toUpperCase().equals("NULL"))
-                secondPrevCommit= CreateCommitFromSha1(secondPrevCommitSha1,i_ObjectsFolder);
-            newCommit = new Commit(commitsRootFolder,i_CommitSha1,prevCommit,secondPrevCommit,message,commitUser,commitsDate);
+            if (!prevCommitSha1.toUpperCase().equals("NULL"))
+                prevCommit = CreateCommitFromSha1(prevCommitSha1, i_ObjectsFolder);
+            if (!secondPrevCommitSha1.toUpperCase().equals("NULL"))
+                secondPrevCommit = CreateCommitFromSha1(secondPrevCommitSha1, i_ObjectsFolder);
+            newCommit = new Commit(commitsRootFolder, i_CommitSha1, prevCommit, secondPrevCommit, message, commitUser, commitsDate);
             //newCommit = new Commit(i_CommitSha1, commitsRootFolder, prevCommit, secondPrevCommit, message, commitUser, commitsDate);
 
         }

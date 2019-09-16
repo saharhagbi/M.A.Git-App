@@ -1,10 +1,14 @@
 package XmlObjects;
 
-import Objects.*;
-//import Objects.Branch;
 import Objects.Item;
+import Objects.*;
 import System.Repository;
 import System.User;
+import XmlObjects.repositoryWriters.LocalRepositoryWriter;
+import XmlObjects.repositoryWriters.RepositoryWriter;
+import collaboration.LocalRepository;
+import collaboration.RemoteBranch;
+import collaboration.RemoteRepositoryRef;
 import collaboration.RemoteTrackingBranch;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -14,10 +18,12 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+//import Objects.Branch;
+
 public class XMLParser
 {
     public static final String sf_Slash = "\\";
-    private Commit m_CurrentCommit;
+    //    private Commit m_CurrentCommit;
     private Branch m_ActiveBranch;
     private MagitRepository m_MagitRepository;
     private MagitBranches m_MagitBranches;
@@ -46,7 +52,97 @@ public class XMLParser
         m_PathToObjectsDir = Paths.get(i_MagitRepository.location + Repository.sf_PathForObjects);
     }
 
-    public Repository parseRepositoryFromXmlFile() throws Exception
+    public Repository ParseLocalRepositoryFromXmlFile() throws Exception
+    {
+        LocalRepository repoToCreate;
+        List<MagitSingleBranch> listOfMSB = m_MagitBranches.getMagitSingleBranch();
+
+        List<Branch> branches = new ArrayList<Branch>();
+        List<RemoteTrackingBranch> remoteTrackingBranches = new ArrayList<RemoteTrackingBranch>();
+        List<RemoteBranch> remoteBranches = new ArrayList<RemoteBranch>();
+
+        for (MagitSingleBranch magitSingleBranch : listOfMSB)
+        {
+            Commit currentCommit = createCommitPointed(magitSingleBranch);
+//            Branch currentBranch = new Branch(magitSingleBranch.name, currentCommit);
+
+//            createBranchInBranchFactory(magitSingleBranch, remoteBranches, branches, remoteTrackingBranches);
+            createBranchInBranchFactory(branches, remoteTrackingBranches, remoteBranches, magitSingleBranch, currentCommit);
+        }
+        Map<String, Commit> sha1ToCommitMap = createMapSha1ForCommit();
+
+        repoToCreate = new LocalRepository(m_ActiveBranch, Paths.get(m_MagitRepository.location),
+                m_MagitRepository.name,
+                branches, sha1ToCommitMap, remoteTrackingBranches, remoteBranches,
+                new RemoteRepositoryRef(m_MagitRepository.magitRemoteReference.name,
+                        Paths.get(m_MagitRepository.magitRemoteReference.location)));
+
+        
+        LocalRepositoryWriter writer = new LocalRepositoryWriter(repoToCreate);
+        writer.WriteRepositoryToFileSystem(m_ActiveBranch.getBranchName());
+
+        return repoToCreate;
+    }
+
+    private void createBranchInBranchFactory(List<Branch> branches, List<RemoteTrackingBranch> remoteTrackingBranches, List<RemoteBranch> remoteBranches, MagitSingleBranch magitSingleBranch, Commit currentCommit)
+    {
+        BranchType type = analyzeBranchType(magitSingleBranch);
+        Branch currentBranch;
+
+        switch (type)
+        {
+            case REMOTE_BRANCH:
+                remoteBranches.add(new RemoteBranch(magitSingleBranch.name, currentCommit));
+                break;
+
+            case REMOTE_TRACKING_BRANCH:
+                currentBranch = new RemoteTrackingBranch(magitSingleBranch.name, currentCommit);
+                remoteTrackingBranches.add((RemoteTrackingBranch) currentBranch);
+                checkIfCurrentBranchIsHEAD(magitSingleBranch, currentBranch);
+                break;
+
+            case BRANCH:
+                currentBranch = new Branch(magitSingleBranch.name, currentCommit);
+                branches.add(currentBranch);
+                checkIfCurrentBranchIsHEAD(magitSingleBranch, currentBranch);
+                break;
+        }
+        /*if (type == BranchType.BRANCH)
+            branches.add(new RemoteBranch(magitSingleBranch.name, currentCommit));
+
+
+        Branch currentBranch;
+        if (type == BranchType.REMOTE_TRACKING_BRANCH)
+        {
+            currentBranch = new RemoteTrackingBranch(magitSingleBranch.name, currentCommit);
+            remoteTrackingBranches.add((RemoteTrackingBranch) currentBranch);
+        } else
+        {
+            currentBranch = new Branch(magitSingleBranch.name, currentCommit);
+            branches.add(currentBranch);
+        }
+
+        checkIfCurrentBranchIsHEAD(magitSingleBranch, currentBranch);*/
+    }
+
+   /* private void createBranchInBranchFactory(MagitSingleBranch magitSingleBranch, List<RemoteBranch> remoteBranches, List<Branch> branches,
+                                             List<RemoteTrackingBranch> remoteTrackingBranches)
+    {
+    }*/
+
+    private BranchType analyzeBranchType(MagitSingleBranch i_MagitSingleBranch)
+    {
+        if (i_MagitSingleBranch.isRemote != null)
+        {
+            return BranchType.REMOTE_BRANCH;
+        }
+
+        return i_MagitSingleBranch.tracking != null ?
+                BranchType.REMOTE_TRACKING_BRANCH :
+                BranchType.BRANCH;
+    }
+
+    public Repository ParseRepositoryFromXmlFile() throws Exception
     {
         Repository repoToCreate;
 
@@ -279,4 +375,10 @@ public class XMLParser
 
         return i_currentPointedMSC.precedingCommits.precedingCommit != null;
     }
+
+    public enum BranchType
+    {
+        REMOTE_BRANCH, REMOTE_TRACKING_BRANCH, BRANCH
+    }
+
 }

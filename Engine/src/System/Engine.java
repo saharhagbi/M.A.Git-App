@@ -41,6 +41,7 @@ public class Engine
     public static void CreateRepositoryDirectories(Path i_rootFolderPath)
     {
         Path objectsFolderPath, branchesFolderPath, tempFolderPath;
+
         Path magitFolderPath = Paths.get(i_rootFolderPath.toString() + "\\.magit");
         magitFolderPath.toFile().mkdir();
 

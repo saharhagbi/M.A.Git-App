@@ -1,23 +1,12 @@
 package collaboration;
 
+import Objects.Branch;
 import Objects.Commit;
 
-public class RemoteBranch
+public class RemoteBranch extends Branch
 {
-    protected Commit m_PointedCommit;
-
-    public RemoteBranch(Commit m_PointedCommit)
+    public RemoteBranch(String i_BranchName, Commit i_CurrentCommit)
     {
-        this.m_PointedCommit = m_PointedCommit;
-    }
-
-    public Commit getPointedCommit()
-    {
-        return m_PointedCommit;
-    }
-
-    public void setPointedCommit(Commit m_PointedCommit)
-    {
-        this.m_PointedCommit = m_PointedCommit;
+        super(i_BranchName, i_CurrentCommit);
     }
 }

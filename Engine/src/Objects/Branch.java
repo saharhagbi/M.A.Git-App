@@ -11,16 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Branch extends RemoteBranch
+public class Branch
 {
     private String m_BranchName;
-  //  private Commit m_PointedCommit;
+    private Commit m_PointedCommit;
 
 
     public Branch(String i_BranchName, Commit i_CurrentCommit)
     {
-        super(i_CurrentCommit);
-        //m_PointedCommit = i_CurrentCommit;
+//        super(i_CurrentCommit);
+        m_PointedCommit = i_CurrentCommit;
         m_BranchName = i_BranchName;
     }
 
@@ -113,15 +113,15 @@ public class Branch extends RemoteBranch
         return m_BranchName;
     }
 
-    /*public Commit getPointedCommit()
+    public Commit getPointedCommit()
     {
         return m_PointedCommit;
-    }*/
+    }
 
-    /*public void setPointedCommit(Commit i_Commit)
+    public void setPointedCommit(Commit i_Commit)
     {
         m_PointedCommit = i_Commit;
-    }*/
+    }
 
     private static Branch mergeBranches(Branch i_PullingBranch,Branch i_PushingBranch) throws Exception {
         Branch mergedBranch=null;

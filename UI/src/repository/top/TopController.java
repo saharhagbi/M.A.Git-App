@@ -400,6 +400,9 @@ public class TopController
         bindTaskComponentsToUI(m_RepositoryController.GetLabelBar(), m_RepositoryController.GetProgressBar(), checkoutTask);
         new Thread(checkoutTask).start();
 
+        //todo:
+        // implement setOnSucceeded
+
         /*  checkoutTask.
                 setOnSucceeded(() ->
                         m_RepositoryController.UpdateTableColumnAccordingToLastCommit(),

@@ -8,7 +8,6 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-
 <BorderPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="starting.StartingController">
    <bottom>
       <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="232.0" prefWidth="211.0" BorderPane.alignment="CENTER">
@@ -25,15 +24,15 @@
             <Button fx:id="m_NewRepositoryBtn" mnemonicParsing="false" onAction="#CreateNewRepositry_OnClick" prefHeight="118.0" prefWidth="755.0" text="New Repository" />
             <Button fx:id="m_LoadRepoFromXMLBtn" mnemonicParsing="false" onAction="#LoadRepositoryFromXML_OnClick" prefHeight="390.0" prefWidth="1245.0" text="Load Repository From XML" GridPane.rowIndex="1" />
             <Button fx:id="m_LoadExistingRepositoryBtn" mnemonicParsing="false" onAction="#LoadExistingRepository_OnClick" prefHeight="193.0" prefWidth="677.0" text="Load Existing Repositoty" GridPane.rowIndex="2" />
-            <Button fx:id="m_NewRepositoryBtn1" mnemonicParsing="false" onAction="#CreateNewRepositry_OnClick" prefHeight="424.0" prefWidth="1147.0" text="Clone Repository" GridPane.rowIndex="3" />
+            <Button fx:id="m_CloneBtn" mnemonicParsing="false" onAction="#Clone_OnClick" prefHeight="424.0" prefWidth="1147.0" text="Clone Repository" GridPane.rowIndex="3" />
          </children>
       </GridPane>
    </bottom>
-   <center>
+   <top>
       <Label alignment="CENTER" prefHeight="263.0" prefWidth="420.0" text="Welcome to M.A.Git" textAlignment="CENTER" textFill="#300bd3" textOverrun="CLIP" BorderPane.alignment="CENTER">
          <font>
             <Font size="36.0" />
          </font>
       </Label>
-   </center>
+   </top>
 </BorderPane>

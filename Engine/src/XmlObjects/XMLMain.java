@@ -63,13 +63,25 @@ public class XMLMain
     {
         m_XmlParser.setAllObjects(i_MagitRepository);
 
-        /*if(!isLocalRepository)
-        {*/
-        // only if it is valid we continue to create an Repository Object
-        m_ParsedRepository = m_XmlParser.parseRepositoryFromXmlFile();
+        boolean isLocalRepository = isLocalRepository(i_MagitRepository.getMagitBranches());
 
+        if (isLocalRepository)
+            // only if it is valid we continue to create an Repository Object
+            m_ParsedRepository = m_XmlParser.ParseLocalRepositoryFromXmlFile();
+        else
+            m_ParsedRepository = m_XmlParser.ParseRepositoryFromXmlFile();
 
         return m_ParsedRepository;
+    }
+
+    private boolean isLocalRepository(MagitBranches i_MagitBranches)
+    {
+        return i_MagitBranches.magitSingleBranch.stream().anyMatch(magitSingleBranch ->
+                (magitSingleBranch.tracking == true));
+        /*for (MagitSingleBranch magitSingleBranch : i_MagitBranches.magitSingleBranch)
+        {
+
+        }*/
     }
 
 

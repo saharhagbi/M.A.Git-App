@@ -25,7 +25,6 @@ public class RightController
     private RepositoryController m_RepositoryController;
     private Map<Commit, ICell> m_MapCommitToIcell = new HashMap<>();
     private Graph m_TreeGraph;
-    //  private Map<String, Branch> m_MapSHA1CommitToBranch = new HashMap<>();
 
     @FXML
     private ScrollPane m_TreeScrollPane;
