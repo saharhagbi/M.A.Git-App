@@ -212,7 +212,7 @@ public class Commit {
             Date commitsDate = Item.ParseDateWithFormat(CommitsFields.get(4));
             Path WCTextFileZipped = Paths.get(i_ObjectsFolder.toString() + "\\" + rootFolderSha1);
             Path WCTextFileUnzippedPath = Item.UnzipFile(WCTextFileZipped, tempFolderPath);
-            Path workingCopyPath = Paths.get(i_ObjectsFolder.getParent().toString());
+            Path workingCopyPath = Paths.get(i_ObjectsFolder.getParent().getParent().toString());
             Folder commitsRootFolder = Folder.CreateFolderFromTextFolder(WCTextFileUnzippedPath.toFile(), workingCopyPath, rootFolderSha1, rootFolderUser, commitsDate, i_ObjectsFolder);
             if (!prevCommitSha1.toUpperCase().equals("NULL"))
                 prevCommit = CreateCommitFromSha1(prevCommitSha1, i_ObjectsFolder);
