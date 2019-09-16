@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Engine
 {
@@ -177,7 +178,7 @@ public class Engine
     public void PullAnExistingRepository(String i_repositoryPathAsString, String i_NameOfRepository) throws Exception
     {
         Repository repository;
-        Branch activeBranch;
+        Optional<Branch> activeBranch;
         Path repositoryPath = Paths.get(i_repositoryPathAsString);
 
         if (!repositoryPath.toFile().exists())
@@ -191,16 +192,16 @@ public class Engine
         Path HEAD = Paths.get(branchFolderPath.toString() + "\\HEAD.txt");
         String activeBranchName = Engine.ReadLineByLine(HEAD.toFile());
         Path activeBranchPath = Paths.get(branchFolderPath.toString() + "\\" + activeBranchName + ".txt");
-        activeBranch = Branch.createBranchInstanceFromExistBranch(activeBranchPath);
 
         //TODO: implement GetMapOfCommits()
         //Path objectsFolder = Paths.get(repositoryPath.toString()+"\\.magit\\Objects");
         List<Branch> allBranches = Branch.GetAllBranches(branchFolderPath);
+        activeBranch = Branch.GetHeadBranch(allBranches,branchFolderPath);
         Map<String,Commit> allCommitsInRepositoryMap = Commit.GetMapOfCommits(allBranches);
         //repository = new Repository(activeBranch, repositoryPath, i_NameOfRepository, allBranches);-
-        repository = new Repository(activeBranch,repositoryPath,i_NameOfRepository,allBranches,allCommitsInRepositoryMap);
+        repository = new Repository(activeBranch.get(),repositoryPath,i_NameOfRepository,allBranches,allCommitsInRepositoryMap);
         this.m_CurrentRepository = repository;
-        this.getCurrentRepository().setActiveBranch(activeBranch);
+        this.getCurrentRepository().setActiveBranch(activeBranch.get());
 
     }
 
