@@ -76,7 +76,7 @@
         </rowConstraints>
          <children>
             <Label alignment="CENTER" prefHeight="69.0" prefWidth="128.0" text="User Name" />
-            <Text fx:id="m_UserNameTxt" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" wrappingWidth="261.6708984375" GridPane.columnIndex="1" />
+            <Text fx:id="m_UserNameTxt" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" wrappingWidth="503.6708984375" GridPane.columnIndex="1" />
          </children>
       </GridPane>
       <GridPane layoutX="10.0" layoutY="72.0" GridPane.rowIndex="3">
@@ -89,7 +89,7 @@
          </rowConstraints>
          <children>
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="69.0" prefWidth="128.0" text="Path:" textAlignment="CENTER" />
-            <Text fx:id="m_PathTxt" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" wrappingWidth="261.6708984375" GridPane.columnIndex="1" />
+            <Text fx:id="m_PathTxt" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" wrappingWidth="502.6708984375" GridPane.columnIndex="1" />
          </children>
       </GridPane>
    </children>

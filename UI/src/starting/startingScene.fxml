@@ -28,11 +28,11 @@
          </children>
       </GridPane>
    </bottom>
-   <top>
+   <center>
       <Label alignment="CENTER" prefHeight="263.0" prefWidth="420.0" text="Welcome to M.A.Git" textAlignment="CENTER" textFill="#300bd3" textOverrun="CLIP" BorderPane.alignment="CENTER">
          <font>
             <Font size="36.0" />
          </font>
       </Label>
-   </top>
+   </center>
 </BorderPane>

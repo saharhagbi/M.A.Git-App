@@ -77,7 +77,6 @@ public class XMLParser
                 new RemoteRepositoryRef(m_MagitRepository.magitRemoteReference.name,
                         Paths.get(m_MagitRepository.magitRemoteReference.location)));
 
-        
         LocalRepositoryWriter writer = new LocalRepositoryWriter(repoToCreate);
         writer.WriteRepositoryToFileSystem(m_ActiveBranch.getBranchName());
 

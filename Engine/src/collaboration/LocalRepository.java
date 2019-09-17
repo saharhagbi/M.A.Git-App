@@ -43,4 +43,9 @@ public class LocalRepository extends Repository
     {
         return m_RemoteRepoRef;
     }
+
+    public void addRemoteBranch(RemoteBranch remoteBranch)
+    {
+        this.m_RemoteBranches.add(remoteBranch);
+    }
 }

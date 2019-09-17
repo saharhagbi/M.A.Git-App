@@ -42,6 +42,9 @@ public class RepositoryWriter
 
     public void WriteAllBranches(String i_NameHeadBranch) throws ParseException, IOException
     {
+        if(m_RepositoryToWrite.getAllBranches() == null)
+            return;
+
         for (Branch currentBranch : m_RepositoryToWrite.getAllBranches())
         {
             Commit currentCommit = currentBranch.getPointedCommit();

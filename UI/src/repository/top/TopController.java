@@ -514,6 +514,17 @@ public class TopController
         bindTaskComponentsToUI(m_RepositoryController.GetLabelBar(), m_RepositoryController.GetProgressBar(), showStatusTask);
         new Thread(showStatusTask).start();
     }
+
+
+    @FXML
+    void Fetch_OnClick(ActionEvent event)
+    {
+        m_RepositoryController.InitProgress("Fetch...");
+
+        m_RepositoryController.Fetch();
+
+        m_RepositoryController.UpdateProgress();
+    }
 }
 
 

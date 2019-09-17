@@ -56,6 +56,16 @@ public class Repository
 
     }
 
+    public String getName()
+    {
+        return m_RepositoryName;
+    }
+
+    public void setBranches(List<Branch> m_Branches)
+    {
+        this.m_Branches = m_Branches;
+    }
+
     public Repository(Branch i_ActiveBranch, Path i_RepositoryPath, String i_RepositoryName, List<Branch> i_AllBranches,
                       Map<String, Commit> i_AllCommitsRepository)
     {

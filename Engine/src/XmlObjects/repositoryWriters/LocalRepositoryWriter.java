@@ -6,6 +6,7 @@ import collaboration.LocalRepository;
 import collaboration.RemoteBranch;
 import collaboration.RemoteTrackingBranch;
 import common.MagitFileUtils;
+import common.constants.ResourceUtils;
 import common.constants.StringConstants;
 
 import java.io.IOException;
@@ -34,9 +35,9 @@ public class LocalRepositoryWriter
     public void WriteRepositoryToFileSystem(String i_BranchName) throws IOException, ParseException
     {
         m_Writer.MakeDirectoriesForRepositories();
-        m_Writer.WriteAllBranches(m_RepositoryToWrite.getActiveBranch().getBranchName());
+        m_Writer.WriteAllBranches(i_BranchName);
 
-        WriteAllRemoteTrackingBranches(m_RepositoryToWrite.getActiveBranch().getBranchName());
+        WriteAllRemoteTrackingBranches(i_BranchName);
 
         String pathForWritingRB = m_RepositoryToWrite.getRepositoryPath().toString()
                 + sf_PathForBranches
@@ -45,6 +46,11 @@ public class LocalRepositoryWriter
         MagitFileUtils.CreateDirectory(pathForWritingRB);
 
         WriteAllRemoteBranches(m_RepositoryToWrite.getActiveBranch().getBranchName()/*, pathForWritingRB*/);
+
+        //writing repository name
+        MagitFileUtils.WritingFileByPath(m_RepositoryToWrite.getRepositoryPath() +
+                        ResourceUtils.AdditinalPathMagit + sf_Slash + StringConstants.REPOSITORY_NAME + sf_txtExtension,
+                m_RepositoryToWrite.getRemoteRepoRef().getName());
 
         Folder.SpanDirectory(m_RepositoryToWrite.getActiveBranch().getPointedCommit().getRootFolder());
     }
@@ -64,6 +70,9 @@ public class LocalRepositoryWriter
 
     private void WriteAllRemoteTrackingBranches(String i_BranchName) throws IOException, ParseException
     {
+        if(m_RepositoryToWrite.getAllBranches() == null)
+            return;
+
         for (RemoteTrackingBranch remoteTrackingBranch : m_RepositoryToWrite.getRemoteTrackingBranches())
         {
             Commit currentCommit = remoteTrackingBranch.getPointedCommit();

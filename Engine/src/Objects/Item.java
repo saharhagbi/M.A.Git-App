@@ -13,14 +13,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
 public class Item
 {
     private final TypeOfFile m_TypeOfFile;
-    private Path m_Path;
+    protected Path m_Path;
     private String m_SHA1;
     private User m_UserName;
     private Date m_DateOfCreation;
-    private String m_ItemName;
+    protected String m_ItemName;
 
     public Item(Path i_Path, String i_SHA1, TypeOfFile i_TypeOfFile, User i_UserName, Date i_DateOfCreation, String i_BlobName)
     {
@@ -31,7 +32,6 @@ public class Item
         this.m_UserName = i_UserName;
         this.m_DateOfCreation = i_DateOfCreation;
     }
-
 
     public static String[] GetItemsDetails(String Line)
     {
@@ -107,6 +107,11 @@ public class Item
         }
 
         return destFile;
+    }
+
+    public void setPath(Path m_Path)
+    {
+        this.m_Path = m_Path;
     }
 
     public String getName()

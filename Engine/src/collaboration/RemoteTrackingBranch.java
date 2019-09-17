@@ -9,4 +9,9 @@ public class RemoteTrackingBranch extends Branch
     {
         super(i_BranchName, i_CurrentCommit);
     }
+
+    public RemoteTrackingBranch(Branch i_ActiveBranch)
+    {
+        super(i_ActiveBranch.getBranchName(), i_ActiveBranch.getPointedCommit());
+    }
 }

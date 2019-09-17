@@ -183,4 +183,9 @@ public class RepositoryController
         showDeltaCommits(i_Commit);
         m_BottomController.ShowCommitInfo(i_Commit);
     }
+
+    public void Fetch()
+    {
+        m_MagitController.Fetch();
+    }
 }

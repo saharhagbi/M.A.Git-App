@@ -9,6 +9,7 @@ import common.constants.NumConstants;
 import common.constants.StringConstants;
 import main.MAGitController;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -118,5 +119,15 @@ public class PrimaryController
             return null;
 
         return folderDifferences;
+    }
+
+    public void Clone(File i_DirToClone, String i_RepositoryName, File i_DirOfRepo) throws Exception
+    {
+        m_Engine.Clone(i_DirToClone, i_RepositoryName, i_DirOfRepo);
+    }
+
+    public void Fetch()
+    {
+        m_Engine.Fetch();
     }
 }

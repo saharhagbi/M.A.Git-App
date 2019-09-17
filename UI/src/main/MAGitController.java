@@ -13,6 +13,7 @@ import primaryController.PrimaryController;
 import repository.RepositoryController;
 import starting.StartingController;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -149,5 +150,15 @@ public class MAGitController
     public FolderDifferences ShowDeltaCommits(Commit i_Commit)
     {
         return m_PrimaryController.ShowDeltaCommits(i_Commit);
+    }
+
+    public void Clone(File i_DirToClone, String i_RepositoryName, File i_DirOfRepo) throws Exception
+    {
+        m_PrimaryController.Clone(i_DirToClone, i_RepositoryName, i_DirOfRepo);
+    }
+
+    public void Fetch()
+    {
+        m_PrimaryController.Fetch();
     }
 }
