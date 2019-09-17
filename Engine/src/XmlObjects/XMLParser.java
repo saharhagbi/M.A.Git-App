@@ -2,6 +2,8 @@ package XmlObjects;
 
 import Objects.Item;
 import Objects.*;
+import Objects.branch.Branch;
+import Objects.branch.BranchFactory;
 import System.Repository;
 import System.User;
 import XmlObjects.repositoryWriters.LocalRepositoryWriter;
@@ -10,6 +12,7 @@ import collaboration.LocalRepository;
 import collaboration.RemoteBranch;
 import collaboration.RemoteRepositoryRef;
 import collaboration.RemoteTrackingBranch;
+import common.Enums;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.nio.file.Path;
@@ -18,7 +21,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-//import Objects.Branch;
+//import Objects.branch.Branch;
 
 public class XMLParser
 {
@@ -64,10 +67,10 @@ public class XMLParser
         for (MagitSingleBranch magitSingleBranch : listOfMSB)
         {
             Commit currentCommit = createCommitPointed(magitSingleBranch);
-//            Branch currentBranch = new Branch(magitSingleBranch.name, currentCommit);
 
-//            createBranchInBranchFactory(magitSingleBranch, remoteBranches, branches, remoteTrackingBranches);
-            createBranchInBranchFactory(branches, remoteTrackingBranches, remoteBranches, magitSingleBranch, currentCommit);
+            Branch currentBranch = BranchFactory.CreateBranchInBranchFactory(branches, remoteTrackingBranches, remoteBranches,
+                    magitSingleBranch.name, currentCommit, analyzeBranchType(magitSingleBranch));
+            checkIfCurrentBranchIsHEAD(magitSingleBranch, currentBranch);
         }
         Map<String, Commit> sha1ToCommitMap = createMapSha1ForCommit();
 
@@ -83,9 +86,9 @@ public class XMLParser
         return repoToCreate;
     }
 
-    private void createBranchInBranchFactory(List<Branch> branches, List<RemoteTrackingBranch> remoteTrackingBranches, List<RemoteBranch> remoteBranches, MagitSingleBranch magitSingleBranch, Commit currentCommit)
+   /* private void createBranchInBranchFactory(List<Branch> branches, List<RemoteTrackingBranch> remoteTrackingBranches, List<RemoteBranch> remoteBranches, MagitSingleBranch magitSingleBranch, Commit currentCommit)
     {
-        BranchType type = analyzeBranchType(magitSingleBranch);
+        Enums type = analyzeBranchType(magitSingleBranch);
         Branch currentBranch;
 
         switch (type)
@@ -106,12 +109,14 @@ public class XMLParser
                 checkIfCurrentBranchIsHEAD(magitSingleBranch, currentBranch);
                 break;
         }
-        /*if (type == BranchType.BRANCH)
+    }
+*/
+        /*if (type == Enums.BRANCH)
             branches.add(new RemoteBranch(magitSingleBranch.name, currentCommit));
 
 
         Branch currentBranch;
-        if (type == BranchType.REMOTE_TRACKING_BRANCH)
+        if (type == Enums.REMOTE_TRACKING_BRANCH)
         {
             currentBranch = new RemoteTrackingBranch(magitSingleBranch.name, currentCommit);
             remoteTrackingBranches.add((RemoteTrackingBranch) currentBranch);
@@ -122,23 +127,23 @@ public class XMLParser
         }
 
         checkIfCurrentBranchIsHEAD(magitSingleBranch, currentBranch);*/
-    }
+
 
    /* private void createBranchInBranchFactory(MagitSingleBranch magitSingleBranch, List<RemoteBranch> remoteBranches, List<Branch> branches,
                                              List<RemoteTrackingBranch> remoteTrackingBranches)
     {
     }*/
 
-    private BranchType analyzeBranchType(MagitSingleBranch i_MagitSingleBranch)
+    private Enums.BranchType analyzeBranchType(MagitSingleBranch i_MagitSingleBranch)
     {
         if (i_MagitSingleBranch.isRemote != null)
         {
-            return BranchType.REMOTE_BRANCH;
+            return Enums.BranchType.REMOTE_BRANCH;
         }
 
         return i_MagitSingleBranch.tracking != null ?
-                BranchType.REMOTE_TRACKING_BRANCH :
-                BranchType.BRANCH;
+                Enums.BranchType.REMOTE_TRACKING_BRANCH :
+                Enums.BranchType.BRANCH;
     }
 
     public Repository ParseRepositoryFromXmlFile() throws Exception
@@ -191,7 +196,7 @@ public class XMLParser
                         commit -> commit));
     }
 
-    private void checkIfCurrentBranchIsHEAD(MagitSingleBranch magitSingleBranch, Branch currentBranch)
+    public void checkIfCurrentBranchIsHEAD(MagitSingleBranch magitSingleBranch, Branch currentBranch)
     {
         if (magitSingleBranch.name.equals(m_MagitBranches.head))
         {
@@ -374,10 +379,4 @@ public class XMLParser
 
         return i_currentPointedMSC.precedingCommits.precedingCommit != null;
     }
-
-    public enum BranchType
-    {
-        REMOTE_BRANCH, REMOTE_TRACKING_BRANCH, BRANCH
-    }
-
 }

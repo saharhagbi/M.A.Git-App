@@ -1,5 +1,7 @@
 package XmlObjects;
 
+import common.MagitFileUtils;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -38,12 +40,12 @@ public class XMLValidate
     }
 */
 
-    public boolean validateXmlRepositoryAndAssign(Path i_PathToXmlRepositoryFile) throws Exception
+    public boolean validateXmlRepositoryAndAssign(Path i_PathToXmlRepositoryFile, XMLMain xmlMain) throws Exception
     {
         // 1) check its extension and existence
         //checkExistencesAndXMLExtension(i_PathToXmlRepositoryFile);
 
-        XMLMain xmlMain = new XMLMain();
+        // XMLMain xmlMain = new XMLMain();
         m_MagitRepository = xmlMain.parseFromXmlFileToXmlMagitRepository(i_PathToXmlRepositoryFile);
         xmlMain.setXmlRepositoryInXMLParser(m_MagitRepository);
 
@@ -72,11 +74,49 @@ public class XMLValidate
         // 9) check that HEAD Points to a name of MagitBranch that is defined
         doesHeadPointsToDefinedNameOfMagitBranch();
 
+        //10 if it is remote repository, check if the repository that pointed by his path exist
+        doesRemoteRepositoryExistInCaseOfLocalRepository(xmlMain);
+
+        //11)check that all that tracking after branches, track after branch that define his remote == true
+        doesAllTrackingBranchesTrackAfterRemoteBranchThatIsRemote();
+
         //if XmlRepositoryToValidate has passed all validations than we assign to m_XmlRepository
         //then return true
 
         return true;
     }
+
+    private void doesAllTrackingBranchesTrackAfterRemoteBranchThatIsRemote() throws Exception
+    {
+        List<MagitSingleBranch> magitSingleBranches = m_MagitRepository.magitBranches.getMagitSingleBranch();
+
+        for (MagitSingleBranch magitSingleBranch : magitSingleBranches)
+        {
+            if (magitSingleBranch.tracking == true)
+            {
+                if (!branchTrackingAfterIsNotRemote(magitSingleBranch, magitSingleBranches))
+                    throw new Exception("Branch" + magitSingleBranch.name + "tracking after branch that is not remote");
+            }
+        }
+    }
+
+    private boolean branchTrackingAfterIsNotRemote(MagitSingleBranch magitSingleBranchTracking, List<MagitSingleBranch> magitSingleBranches)
+    {
+        String trackingAfterName = magitSingleBranchTracking.trackingAfter;
+
+        return magitSingleBranches
+                .stream()
+                .filter(magitSingleBranch -> magitSingleBranch.name.equals(trackingAfterName))
+                .anyMatch(magitSingleBranch -> magitSingleBranch.isRemote == true);
+    }
+
+    private void doesRemoteRepositoryExistInCaseOfLocalRepository(XMLMain xmlMain) throws Exception
+    {
+        if (xmlMain.IsLocalRepository(m_MagitRepository.magitBranches))
+            if (!MagitFileUtils.IsRemoteRepositoryExistInLocation(m_MagitRepository.magitRemoteReference.location))
+                throw new Exception("There are no remote repository pointed in that location!!");
+    }
+
 
     private void checkAllMagitSingleFoldersThatAreNotRoots(List<MagitSingleFolder> i_ListMagitSingleFolderWithNoRoots) throws Exception
     {

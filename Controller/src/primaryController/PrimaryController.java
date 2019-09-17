@@ -5,8 +5,10 @@ import System.Engine;
 import System.FolderDifferences;
 import System.Repository;
 import XmlObjects.XMLMain;
+import common.MAGitUtils;
 import common.constants.NumConstants;
 import common.constants.StringConstants;
+import javafx.scene.control.Alert;
 import main.MAGitController;
 
 import java.io.File;
@@ -126,8 +128,19 @@ public class PrimaryController
         m_Engine.Clone(i_DirToClone, i_RepositoryName, i_DirOfRepo);
     }
 
-    public void Fetch()
+    public void Fetch() throws Exception
     {
         m_Engine.Fetch();
+    }
+
+    public void Pull() throws Exception
+    {
+        if (m_Engine.ShowStatus() == null)
+            m_MagitController.InformUserMessage(Alert.AlertType.ERROR, "Error!", "WC is Dirty",
+                    "Can not execute Pull, there open changes in WC");
+
+        m_Engine.Pull();
+
+//        MAGitUtils.InformUserPopUpMessage();
     }
 }

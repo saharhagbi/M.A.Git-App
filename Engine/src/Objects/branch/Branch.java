@@ -1,6 +1,8 @@
-package Objects;
+package Objects.branch;
 
-import collaboration.RemoteBranch;
+import Objects.Blob;
+import Objects.Commit;
+import Objects.Item;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,13 +11,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Branch
 {
     private String m_BranchName;
     private Commit m_PointedCommit;
-
 
     public Branch(String i_BranchName, Commit i_CurrentCommit)
     {
@@ -129,6 +131,13 @@ public class Branch
         mergedBranch = new Branch(i_PullingBranch.m_BranchName,mergedCommit);
 
         return mergedBranch;
+    }
+
+    public static Optional<Branch> GetHeadBranch(List<Branch> i_AllBranches, Path i_BranchesFolderPath) throws Exception {
+        File HEAD = Paths.get(i_BranchesFolderPath.toString() + "\\HEAD.txt").toFile();
+        String headBranchName = Blob.ReadLineByLine(HEAD);
+        Optional<Branch> headBranch = i_AllBranches.stream().filter(branch -> branch.getBranchName().equals(headBranchName)).findFirst();
+        return headBranch;
     }
 }
 

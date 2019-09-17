@@ -1,7 +1,7 @@
 package collaboration;
 
 
-import Objects.Branch;
+import Objects.branch.Branch;
 import Objects.Commit;
 import System.Repository;
 
@@ -28,6 +28,7 @@ public class LocalRepository extends Repository
     {
         super(i_ActiveBranch, i_RepositoryPath, i_RepositoryName, i_AllBranches, i_AllCommitsRepository);
     }
+
 
     public List<RemoteTrackingBranch> getRemoteTrackingBranches()
     {

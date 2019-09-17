@@ -1,6 +1,6 @@
 package XmlObjects.repositoryWriters;
 
-import Objects.Branch;
+import Objects.branch.Branch;
 import Objects.Commit;
 import Objects.Folder;
 import System.Engine;

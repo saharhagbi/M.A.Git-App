@@ -42,7 +42,7 @@
             <Menu mnemonicParsing="false" text="Remote Repository">
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#Fetch_OnClick" text="Fetch" />
-                  <MenuItem mnemonicParsing="false" text="Pull" />
+                  <MenuItem mnemonicParsing="false" onAction="#Pull_OnClick" text="Pull" />
                   <MenuItem mnemonicParsing="false" text="Push" />
               </items>
             </Menu>

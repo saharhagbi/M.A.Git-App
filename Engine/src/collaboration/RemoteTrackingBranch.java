@@ -1,6 +1,6 @@
 package collaboration;
 
-import Objects.Branch;
+import Objects.branch.Branch;
 import Objects.Commit;
 
 public class RemoteTrackingBranch extends Branch

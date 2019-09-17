@@ -151,6 +151,8 @@ public class StartingController
             File dirToClone = MAGitUtils.GetDirectory(MAGitUtils.GetStage(m_CloneBtn), "Select the target folder: ");
             String repositoryName = MAGitUtils.GetString("Enter your repository name.", "Name:", "Repository Name");
             m_MagitController.Clone(dirToClone, repositoryName, dirOfRepo);
+
+            moveToRepositoryScene();
         } catch (Exception e)
         {
             //todo:

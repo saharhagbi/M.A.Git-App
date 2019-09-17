@@ -1,6 +1,6 @@
 package repository.top;
 
-import Objects.Branch;
+import Objects.branch.Branch;
 import System.FolderDifferences;
 import common.MAGitResourceConstants;
 import common.MAGitUtils;
@@ -519,12 +519,38 @@ public class TopController
     @FXML
     void Fetch_OnClick(ActionEvent event)
     {
-        m_RepositoryController.InitProgress("Fetch...");
+        try
+        {
+            m_RepositoryController.InitProgress("Fetch...");
 
-        m_RepositoryController.Fetch();
+            m_RepositoryController.Fetch();
+
+            m_RepositoryController.UpdateProgress();
+        } catch (Exception e)
+        {
+            //todo:
+            // handle proper message to user
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void Pull_OnClick(ActionEvent event)
+    {
+        m_RepositoryController.InitProgress("Pull...");
+
+        try
+        {
+            m_RepositoryController.Pull();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
         m_RepositoryController.UpdateProgress();
     }
+
+
 }
 
 

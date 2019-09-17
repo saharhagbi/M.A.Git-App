@@ -3,7 +3,9 @@ package repository;
 import Objects.Commit;
 import System.FolderDifferences;
 import System.Repository;
+import common.MAGitUtils;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SplitPane;
@@ -184,8 +186,18 @@ public class RepositoryController
         m_BottomController.ShowCommitInfo(i_Commit);
     }
 
-    public void Fetch()
+    public void Fetch() throws Exception
     {
         m_MagitController.Fetch();
+    }
+
+    public void Pull() throws Exception
+    {
+        m_MagitController.Pull();
+    }
+
+    public void InformUserMessage(Alert.AlertType i_AlertType, String i_Title, String i_Header, String i_ContextText)
+    {
+        MAGitUtils.InformUserPopUpMessage(i_AlertType, i_Title, i_Header, i_ContextText);
     }
 }

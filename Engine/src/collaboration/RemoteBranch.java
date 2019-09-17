@@ -1,6 +1,6 @@
 package collaboration;
 
-import Objects.Branch;
+import Objects.branch.Branch;
 import Objects.Commit;
 
 import java.io.File;
@@ -12,7 +12,7 @@ public class RemoteBranch extends Branch
         super(i_BranchName, i_CurrentCommit);
     }
 
-    public static RemoteBranch createRemoteBranchFromBranch(Branch i_Branch, String i_CloneFromRepoName)
+    public static RemoteBranch CreateRemoteBranchFromBranch(Branch i_Branch, String i_CloneFromRepoName)
     {
         String remoteBranchName = i_CloneFromRepoName + File.separator + i_Branch.getBranchName();
 

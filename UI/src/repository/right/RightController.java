@@ -2,7 +2,7 @@ package repository.right;
 
 import Objects.Commit;
 import Objects.Item;
-import Objects.Branch;
+import Objects.branch.Branch;
 import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;

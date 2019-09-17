@@ -1,5 +1,6 @@
 package Objects;
 
+import Objects.branch.Branch;
 import System.FolderDifferences;
 import System.User;
 import common.constants.NumConstants;

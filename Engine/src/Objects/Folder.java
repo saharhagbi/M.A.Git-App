@@ -408,7 +408,7 @@ public class Folder extends Item
 
     public void initFolderPaths(Path i_NewPathOfRepository)
     {
-        this.m_Path = Paths.get(i_NewPathOfRepository + sf_Slash + this.m_ItemName);
+        this.m_Path = i_NewPathOfRepository;
 
         for (Item item : this.m_ListOfItems)
         {

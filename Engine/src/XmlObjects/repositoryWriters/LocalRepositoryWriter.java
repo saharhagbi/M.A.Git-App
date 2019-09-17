@@ -21,14 +21,12 @@ import static XmlObjects.XMLParser.sf_Slash;
 public class LocalRepositoryWriter
 {
     private LocalRepository m_RepositoryToWrite;
-    private List<Commit> m_CommitsThatHaveBeenWritten;
     private RepositoryWriter m_Writer;
 
 
     public LocalRepositoryWriter(LocalRepository i_Repository)
     {
         m_RepositoryToWrite = i_Repository;
-        m_CommitsThatHaveBeenWritten = new ArrayList<>();
         m_Writer = new RepositoryWriter(i_Repository);
     }
 
@@ -45,7 +43,7 @@ public class LocalRepositoryWriter
 
         MagitFileUtils.CreateDirectory(pathForWritingRB);
 
-        WriteAllRemoteBranches(m_RepositoryToWrite.getActiveBranch().getBranchName()/*, pathForWritingRB*/);
+        WriteAllRemoteBranches();
 
         //writing repository name
         MagitFileUtils.WritingFileByPath(m_RepositoryToWrite.getRepositoryPath() +
@@ -55,7 +53,7 @@ public class LocalRepositoryWriter
         Folder.SpanDirectory(m_RepositoryToWrite.getActiveBranch().getPointedCommit().getRootFolder());
     }
 
-    private void WriteAllRemoteBranches(String i_BranchName/*, String pathForWritingRB*/) throws IOException, ParseException
+    public void WriteAllRemoteBranches() throws IOException, ParseException
     {
         for (RemoteBranch remoteBranch : m_RepositoryToWrite.getRemoteBranches())
         {
@@ -70,7 +68,7 @@ public class LocalRepositoryWriter
 
     private void WriteAllRemoteTrackingBranches(String i_BranchName) throws IOException, ParseException
     {
-        if(m_RepositoryToWrite.getAllBranches() == null)
+        if (m_RepositoryToWrite.getRemoteTrackingBranches() == null)
             return;
 
         for (RemoteTrackingBranch remoteTrackingBranch : m_RepositoryToWrite.getRemoteTrackingBranches())
