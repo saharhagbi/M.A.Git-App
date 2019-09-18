@@ -9,6 +9,8 @@ import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.nio.file.Path;
 
+import static common.MagitFileUtils.IsMagitFolder;
+
 // this class is a builder for a repository from an xml:
 // 1) checks that the the "xml" file is valid
 // 2) assigns a MagitRepository data member - parsing from the XML file
@@ -24,8 +26,6 @@ public class XMLMain
     public XMLMain()
     {
     }
-
-
 
     public void setXmlRepositoryInXMLParser(MagitRepository i_XmlRepository)
     {
@@ -43,7 +43,7 @@ public class XMLMain
             m_XmlRepository = parseFromXmlFileToXmlMagitRepository(i_XmlFilePath);
             m_XmlValidate.setAllObjects(m_XmlRepository);
 
-            m_XmlValidate.validateXmlRepositoryAndAssign(i_XmlFilePath);
+            m_XmlValidate.validateXmlRepositoryAndAssign(i_XmlFilePath, this);
             isXMLRepoAlreadyExist = checkIfAnotherRepoInLocation();
 
         } catch (Exception xmlException)
@@ -63,10 +63,21 @@ public class XMLMain
     {
         m_XmlParser.setAllObjects(i_MagitRepository);
 
-        // only if it is valid we continue to create an Repository Object
-            m_ParsedRepository = m_XmlParser.parseRepositoryFromXmlFile();
+        boolean isLocalRepository = IsLocalRepository(i_MagitRepository.getMagitBranches());
+
+        if (isLocalRepository)
+            // only if it is valid we continue to create an Repository Object
+            m_ParsedRepository = m_XmlParser.ParseLocalRepositoryFromXmlFile();
+        else
+            m_ParsedRepository = m_XmlParser.ParseRepositoryFromXmlFile();
 
         return m_ParsedRepository;
+    }
+
+    public boolean IsLocalRepository(MagitBranches i_MagitBranches)
+    {
+        return i_MagitBranches.magitSingleBranch.stream().anyMatch(magitSingleBranch ->
+                (magitSingleBranch.tracking == true));
     }
 
 
@@ -89,10 +100,12 @@ public class XMLMain
         return XmlRepositoryToValidate;
     }
 
+    //todo:
+    // reduce function using stream
     private boolean checkIfAnotherRepoInLocation()
     {
 
-        if(!Folder.IsFileExist(m_XmlRepository.getLocation()))
+        if (!Folder.IsFileExist(m_XmlRepository.getLocation()))
             return false;
 
         File[] filesInRepo = new File(m_XmlRepository.location).listFiles();
@@ -100,7 +113,7 @@ public class XMLMain
 
         for (File currentFile : filesInRepo)
         {
-            if (Folder.IsMagitFolder(currentFile))
+            if (IsMagitFolder(currentFile))
                 return true;
         }
 

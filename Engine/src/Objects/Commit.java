@@ -1,9 +1,11 @@
 package Objects;
 
-import Objects.branches.Branch;
+import Objects.branch.Branch;
+import System.ConflictingItems;
 import System.FolderDifferences;
+import System.MergeConflictsAndMergedItems;
 import System.User;
-import common.NumConstants;
+import common.constants.NumConstants;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.IOException;
@@ -22,30 +24,6 @@ public class Commit {
     private User m_UserCreated;
     private Date m_Date;
 
-    /*public Commit(String i_CommitsSha1, Folder i_RootFolder, String i_SHA1PrevCommit, String i_SHA1SecondPrevCommit, String i_CommitMessage, User i_UserCreated, Date i_Date) throws Exception
-    {
-        Path objectsFolderPath = null;
-        this.m_SHA1 = i_CommitsSha1;
-        this.m_RootFolder = i_RootFolder;
-        if (i_SHA1PrevCommit != null)
-        {
-            if (!i_SHA1PrevCommit.equals("null"))
-            {
-                objectsFolderPath = Paths.get(m_RootFolder.GetPath().toString() + "\\.magit\\Objects");
-                m_PrevCommit = CreateCommitFromSha1(i_SHA1PrevCommit, objectsFolderPath);
-            }
-        }
-        if (i_SHA1SecondPrevCommit != null)
-        {
-            if (!i_SHA1SecondPrevCommit.equals("null"))
-            {
-                m_SecondPrevCommit = CreateCommitFromSha1(i_SHA1SecondPrevCommit, objectsFolderPath);
-            }
-        }
-        this.m_CommitMessage = i_CommitMessage;
-        this.m_UserCreated = i_UserCreated;
-        this.m_Date = i_Date;
-    }*/
 
     public Commit(Folder i_RootFolder, String i_SHA1, Commit i_PrevCommit, Commit i_SecondPrevCommit, String i_CommitMessage, User i_UserCreated, Date i_Date) {
         this.m_RootFolder = i_RootFolder;
@@ -57,18 +35,155 @@ public class Commit {
         this.m_Date = i_Date;
     }
 
-    public static Commit MergeCommits(Commit i_PullingCommit, Commit i_PushingCommit) throws Exception {
-        Commit closestCommonAncestorCommit = getClosestCommonAncestor(i_PullingCommit, i_PushingCommit);
-        //1.
-        // TODO: check if in one of the commit is an ancestor of the other - if so then is a FF (Fast Forward) merge
-
-        //2. if not FF
-
-
-        return null;
+    public Commit(Commit commit) {
+        this.m_RootFolder = commit.m_RootFolder;
+        this.m_SHA1 = commit.m_SHA1;
+        this.m_PrevCommit = commit.m_PrevCommit;
+        this.m_SecondPrevCommit = commit.m_SecondPrevCommit;
+        this.m_CommitMessage = commit.m_CommitMessage;
+        this.m_UserCreated = commit.m_UserCreated;
+        this.m_Date = commit.m_Date;
     }
 
+    public static MergeConflictsAndMergedItems GetConflictsForMerge(Commit i_PullingCommit, Commit i_PulledCommit, Path i_RepositoryPath) throws Exception {
+        Set<Item> mergedItems = new HashSet<Item>();
+        HashSet<ConflictingItems> conflictItems = new HashSet<ConflictingItems>();
+        Commit closestCommonAncestorCommit = getClosestCommonAncestor(i_PullingCommit, i_PulledCommit);
+        Map<Path, Item> mapOfRelativePathToItemPullingRootFolder = i_PullingCommit.createMapOfRelativePathToItem(i_RepositoryPath);
+        Map<Path, Item> mapOfRelativePathToItemPulledRootFolder = i_PulledCommit.createMapOfRelativePathToItem(i_RepositoryPath);
+        Map<Path, Item> mapOfRelativePathToItemAncestorRootFolder = closestCommonAncestorCommit.createMapOfRelativePathToItem(i_RepositoryPath);
+        Set<Item> pullingAndPulledAllItems = i_PullingCommit.getUnitedListOfItems(i_PulledCommit);
+
+        pullingAndPulledAllItems.forEach(item -> {
+            Path itemRelativePath = getRelativePath(item.GetPath(), i_RepositoryPath);
+            int itemState = getStateForMerge(itemRelativePath, mapOfRelativePathToItemPullingRootFolder, mapOfRelativePathToItemPulledRootFolder, mapOfRelativePathToItemAncestorRootFolder);
+            Item pullingItem = mapOfRelativePathToItemPullingRootFolder.get(itemRelativePath);
+            Item pulledItem = mapOfRelativePathToItemPulledRootFolder.get(itemRelativePath);
+            if (MergeConflictsAndMergedItems.isConflict(itemState)) {
+                conflictItems.add(new ConflictingItems(pullingItem, pulledItem));
+            } else {
+                if (MergeConflictsAndMergedItems.ShouldTakePullingItem(itemState)) {
+                    if (!mergedItems.contains(item) && !mergedItems.contains(pullingItem))
+                        mergedItems.add(pullingItem);
+                }// pulled item cases
+                else {
+                    if (MergeConflictsAndMergedItems.ShouldTakePulledItem(itemState)) {
+                        if (!mergedItems.contains(item) && !mergedItems.contains(pulledItem))
+                            mergedItems.add(pulledItem);
+
+
+                    } else if (MergeConflictsAndMergedItems.NeedToCheckWithAncstor(itemState)) {
+                        String sha1OfPulledItem = pulledItem.getSHA1();
+                        String sha1OfAncestorItem = mapOfRelativePathToItemAncestorRootFolder.get(itemRelativePath).getSHA1();
+                        if (!sha1OfPulledItem.equals(sha1OfAncestorItem))
+                            if (!mergedItems.contains(item) && !mergedItems.contains(pulledItem))
+                                mergedItems.add(pulledItem);
+                    }
+                }
+
+            }
+        });
+        return new MergeConflictsAndMergedItems(mergedItems, conflictItems, false);
+    }
+
+    private static int getStateForMerge(Path i_ItemRelativePathToCheck, Map<Path, Item> i_MapOfRelativePathToItemPullingRootFolder, Map<Path, Item> i_MapOfRelativePathToItemPulledRootFolder, Map<Path, Item> i_MapOfRelativePathToItemAncestorRootFolder) {
+        int stateInBinary = 0;
+        Item itemFromPulling = i_MapOfRelativePathToItemPullingRootFolder.get(i_ItemRelativePathToCheck);
+        Item itemFromPulled = i_MapOfRelativePathToItemPulledRootFolder.get(i_ItemRelativePathToCheck);
+        Item itemFromAncestor = i_MapOfRelativePathToItemAncestorRootFolder.get(i_ItemRelativePathToCheck);
+        if (itemFromPulling != null)
+            stateInBinary = stateInBinary | 1;
+        else
+            stateInBinary = stateInBinary | 0;
+
+        stateInBinary = stateInBinary << 1;
+        if (itemFromPulled != null) {
+            stateInBinary = stateInBinary | 1;
+        } else
+            stateInBinary = stateInBinary | 0;
+
+        stateInBinary = stateInBinary << 1;
+        if (itemFromPulling != null && itemFromPulled != null && itemFromPulling.getSHA1().equals(itemFromPulled.getSHA1()))
+            stateInBinary = stateInBinary | 1;
+        else
+            stateInBinary = stateInBinary | 0;
+
+        stateInBinary = stateInBinary << 1;
+        if (itemFromPulling != null)
+            stateInBinary = stateInBinary | 1;
+        else
+            stateInBinary = stateInBinary | 0;
+
+        stateInBinary = stateInBinary << 1;
+        if (itemFromAncestor != null)
+            stateInBinary = stateInBinary | 1;
+        else
+            stateInBinary = stateInBinary | 0;
+
+        stateInBinary = stateInBinary << 1;
+        if (itemFromPulling != null && itemFromAncestor != null && itemFromPulling.getSHA1().equals(itemFromPulled.getSHA1()))
+            stateInBinary = stateInBinary | 1;
+        else
+            stateInBinary = stateInBinary | 0;
+
+        return stateInBinary;
+
+    }
+
+    public static boolean isAncestor(Commit i_PullingCommit, Commit i_PulledCommit) {
+        boolean res;
+        if (i_PullingCommit == null)
+            res = false;
+        else {
+            if (i_PullingCommit.getSHA1().equals(i_PulledCommit.getSHA1()))
+                return true;
+            else {
+                boolean possibleAncestor1 = isAncestor(i_PullingCommit.GetPrevCommit(), i_PulledCommit);
+                boolean possibleAncestor2 = isAncestor(i_PullingCommit.GetSecondPrevCommit(), i_PulledCommit);
+                if (possibleAncestor1 == true || possibleAncestor2 == true)
+                    res =  true;
+                else res = false;
+            }
+        }
+        return res;
+    }
+
+    private Set<Item> getUnitedListOfItems(Commit i_pulledCommit) {
+        Set<Item> allItemsUnited = new HashSet<Item>();
+        this.m_RootFolder.m_ListOfItems.forEach(item -> {
+            if (!allItemsUnited.contains(item))
+                allItemsUnited.add(item);
+        });
+        i_pulledCommit.m_RootFolder.m_ListOfItems.forEach(item -> {
+            if (!allItemsUnited.contains(item)) {
+                allItemsUnited.add(item);
+            }
+        });
+        return allItemsUnited;
+    }
+
+    private Map<Path, Item> createMapOfRelativePathToItem(Path i_repositoryPath) {
+        Map<Path, Item> resMap = new HashMap<Path, Item>();
+        m_RootFolder.m_ListOfItems.forEach(item -> {
+            Path relativePath = getRelativePath(item.GetPath(), i_repositoryPath);
+            if (resMap.get(relativePath) == null) {
+                resMap.put(relativePath, item);
+            }
+        });
+
+        return resMap;
+    }
+
+    public static Path getRelativePath(Path i_PathOfItemToGetItsRelative, Path i_BasePath) {
+        Path pathRelative = i_BasePath.relativize(i_PathOfItemToGetItsRelative);
+        return pathRelative;
+    }
+
+
     private static Commit getClosestCommonAncestor(Commit i_pullingCommit, Commit i_pushingCommit) throws Exception {
+        
+
+
         //TODO: implement and remove this Exception
         throw new Exception("implement getClosestCommonAncestor() in Commit Class");
     }
@@ -80,7 +195,8 @@ public class Commit {
             Commit pointedCommit = currentBranch.getPointedCommit();
             Map<String, Commit> pointedCommitMap = pointedCommit.CreateMapOfSha1ToCommit();
             Set<String> pointedCommitMapKeys = pointedCommitMap.keySet();
-            pointedCommitMapKeys.forEach(sha1Key -> {
+            pointedCommitMapKeys.forEach(sha1Key ->
+            {
                 if (resMap.get(sha1Key) == null) {
                     resMap.put(sha1Key, pointedCommitMap.get(sha1Key));
                 }
@@ -90,35 +206,12 @@ public class Commit {
         return resMap;
     }
 
-    private Map<String,Commit> CreateMapOfSha1ToCommit() {
-        Map<String,Commit> sha1ToCommitMap = new HashMap<String, Commit>();
-        Commit commitIterator = this;
-        while(commitIterator!=null)
-        {
-            sha1ToCommitMap.put(commitIterator.getSHA1(),commitIterator);
-            if(commitIterator.GetSecondPrevCommit()!=null){
-                Map<String,Commit> secondMapForSha1ToCommit = commitIterator.GetSecondPrevCommit().CreateMapOfSha1ToCommit();
-                Set<String> sha1Keys = secondMapForSha1ToCommit.keySet();
-                sha1Keys.forEach(sha1->{
-                    if(sha1ToCommitMap.get(sha1)==null){
-                        sha1ToCommitMap.put(sha1,secondMapForSha1ToCommit.get(sha1));
-                    }
-                });
-
-            }
-            commitIterator = commitIterator.GetPrevCommit();
-
-        }
-        return sha1ToCommitMap;
-    }
-
     public static List<String> GetCommitFieldsFromCommitTextFile(Path i_CommitTextFilePath) throws IOException {
         Scanner lineScanner = new Scanner(i_CommitTextFilePath);
         List<String> commitTextFileFields = new ArrayList<>();
 
         while (lineScanner.hasNext()) {
             commitTextFileFields.add(lineScanner.nextLine());
-
         }
         return commitTextFileFields;
     }
@@ -133,7 +226,8 @@ public class Commit {
         return commitInfo.toString();
     }
 
-    public static String GetInformationFromCommitTextFile(String i_commitsSha1, Path i_commitTextFileUnzipped, Path i_ObjectsFolderPath) throws IOException {
+    public static String GetInformationFromCommitTextFile(String i_commitsSha1, Path i_commitTextFileUnzipped, Path
+            i_ObjectsFolderPath) throws IOException {
         StringBuilder commitHistoryBuilder = new StringBuilder();
         String headline = "Commits details:" + System.lineSeparator();
         commitHistoryBuilder.append(headline);
@@ -154,7 +248,8 @@ public class Commit {
 
     }
 
-    public static String createSha1ForCommit(Folder i_rootFolder, String i_sha1PrevCommit, String i_sha1OfSecondPrevCommit, String i_commitMessage, User i_user, Date date) {
+    public static String createSha1ForCommit(Folder i_rootFolder, String i_sha1PrevCommit, String
+            i_sha1OfSecondPrevCommit, String i_commitMessage, User i_user, Date date) {
         StringBuilder strForCalculatingSHA1 = new StringBuilder();
         strForCalculatingSHA1.append(i_rootFolder.getSHA1());
         strForCalculatingSHA1.append(i_sha1PrevCommit);
@@ -223,6 +318,28 @@ public class Commit {
 
         }
         return newCommit;
+    }
+
+    private Map<String, Commit> CreateMapOfSha1ToCommit() {
+        Map<String, Commit> sha1ToCommitMap = new HashMap<String, Commit>();
+        Commit commitIterator = this;
+        while (commitIterator != null) {
+            sha1ToCommitMap.put(commitIterator.getSHA1(), commitIterator);
+            if (commitIterator.GetSecondPrevCommit() != null) {
+                Map<String, Commit> secondMapForSha1ToCommit = commitIterator.GetSecondPrevCommit().CreateMapOfSha1ToCommit();
+                Set<String> sha1Keys = secondMapForSha1ToCommit.keySet();
+                sha1Keys.forEach(sha1 ->
+                {
+                    if (sha1ToCommitMap.get(sha1) == null) {
+                        sha1ToCommitMap.put(sha1, secondMapForSha1ToCommit.get(sha1));
+                    }
+                });
+
+            }
+            commitIterator = commitIterator.GetPrevCommit();
+
+        }
+        return sha1ToCommitMap;
     }
 
     public Date GetDate() {

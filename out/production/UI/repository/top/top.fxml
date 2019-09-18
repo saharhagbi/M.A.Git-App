@@ -5,7 +5,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -40,12 +39,18 @@
                   <MenuItem fx:id="m_CheckoutMenuItem" mnemonicParsing="false" onAction="#Checkout_OnClick" text="Checkout" />
                </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Remote Repository">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#Fetch_OnClick" text="Fetch" />
+                  <MenuItem mnemonicParsing="false" onAction="#Pull_OnClick" text="Pull" />
+                  <MenuItem mnemonicParsing="false" text="Push" />
+              </items>
+            </Menu>
         </menus>
       </MenuBar>
       <GridPane prefHeight="55.0" prefWidth="600.0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -54,15 +59,9 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <MenuButton maxWidth="-Infinity" mnemonicParsing="false" prefHeight="31.0" prefWidth="5000.0" text="Pull\Push" GridPane.columnIndex="3">
-              <items>
-                <MenuItem mnemonicParsing="false" text="Action 1" />
-                <MenuItem mnemonicParsing="false" text="Action 2" />
-              </items>
-            </MenuButton>
             <Button fx:id="m_ShowStatusBtn" maxWidth="-Infinity" mnemonicParsing="false" onAction="#ShowStatus_OnClick" prefHeight="31.0" prefWidth="5000.0" text="Show-Status" />
             <Button fx:id="m_CommitBtn" maxWidth="-Infinity" mnemonicParsing="false" onAction="#Commit_OnClick" prefHeight="27.0" prefWidth="5000.0" text="Commit" GridPane.columnIndex="1" />
-            <Button maxWidth="-Infinity" mnemonicParsing="false" prefHeight="31.0" prefWidth="5000.0" text="Merge" GridPane.columnIndex="4" />
+            <Button maxWidth="-Infinity" mnemonicParsing="false" prefHeight="31.0" prefWidth="5000.0" text="Merge" GridPane.columnIndex="3" />
             <ComboBox fx:id="m_ComboBoxBranches" maxWidth="-Infinity" prefWidth="5000.0" promptText="Branches" GridPane.columnIndex="2" />
          </children>
       </GridPane>
@@ -76,7 +75,7 @@
         </rowConstraints>
          <children>
             <Label alignment="CENTER" prefHeight="69.0" prefWidth="128.0" text="User Name" />
-            <Text fx:id="m_UserNameTxt" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" wrappingWidth="261.6708984375" GridPane.columnIndex="1" />
+            <Text fx:id="m_UserNameTxt" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" wrappingWidth="503.6708984375" GridPane.columnIndex="1" />
          </children>
       </GridPane>
       <GridPane layoutX="10.0" layoutY="72.0" GridPane.rowIndex="3">
@@ -89,7 +88,7 @@
          </rowConstraints>
          <children>
             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="69.0" prefWidth="128.0" text="Path:" textAlignment="CENTER" />
-            <Text fx:id="m_PathTxt" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" wrappingWidth="261.6708984375" GridPane.columnIndex="1" />
+            <Text fx:id="m_PathTxt" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" wrappingWidth="502.6708984375" GridPane.columnIndex="1" />
          </children>
       </GridPane>
    </children>

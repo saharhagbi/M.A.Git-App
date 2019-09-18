@@ -12,5 +12,6 @@ public class StringConstants
     public static final String NO = "No";
     public static final String PROGRESS = "Progress: ";
     public static final String ARROW = "→";
-
+    public static final String TRUE = "true";
+    public static final String REPOSITORY_NAME = "RepositoryName";
 }

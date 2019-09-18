@@ -1,8 +1,8 @@
-package XmlObjects;
+package XmlObjects.repositoryWriters;
 
+import Objects.branch.Branch;
 import Objects.Commit;
 import Objects.Folder;
-import Objects.branches.Branch;
 import System.Engine;
 import System.Repository;
 import common.MagitFileUtils;
@@ -31,33 +31,52 @@ public class RepositoryWriter
         this.m_CommitsThatHaveBeenWritten = new ArrayList<Commit>();
     }
 
-
-
     public void WriteRepositoryToFileSystem(String i_NameHeadBranch) throws IOException, ParseException
     {
-       MagitFileUtils.CreateDirectory(m_RepositoryToWrite.getRepositoryPath().toString());
-        Engine.CreateRepositoryDirectories(Paths.get(m_RepositoryToWrite.getRepositoryPath().toString()));
+        MakeDirectoriesForRepositories();
+
+        WriteAllBranches(i_NameHeadBranch);
+
+        Folder.SpanDirectory(m_RepositoryToWrite.getActiveBranch().getPointedCommit().getRootFolder());
+    }
+
+    public void WriteAllBranches(String i_NameHeadBranch) throws ParseException, IOException
+    {
+        if(m_RepositoryToWrite.getAllBranches() == null)
+            return;
 
         for (Branch currentBranch : m_RepositoryToWrite.getAllBranches())
         {
             Commit currentCommit = currentBranch.getPointedCommit();
 
-            if (!m_CommitsThatHaveBeenWritten.contains(currentCommit))
-                writeCommitAndAllPrevCommits(currentCommit);
+            WriteCommitInFileSystem(currentCommit);
 
-            String pathForWritingBranch = m_RepositoryToWrite.getRepositoryPath().toString() + sf_PathForBranches;
+//            String pathForWritingBranch = m_RepositoryToWrite.getRepositoryPath().toString() + sf_PathForBranches;
 
-            checkIfCurrentBranchIsHeadAndUpdateIfItDoes(currentBranch.getBranchName(), i_NameHeadBranch,
-                    pathForWritingBranch);
+            CheckIfCurrentBranchIsHeadAndUpdateIfItDoes(currentBranch.getBranchName(), i_NameHeadBranch,
+                    m_RepositoryToWrite.getRepositoryPath().toString() + sf_PathForBranches);
 
-            MagitFileUtils.WritingFileByPath(pathForWritingBranch + sf_Slash + currentBranch.getBranchName()
+            MagitFileUtils.WritingFileByPath(
+                    m_RepositoryToWrite.getRepositoryPath().toString() + sf_PathForBranches
+                            + sf_Slash + currentBranch.getBranchName()
                     + Repository.sf_txtExtension, currentCommit.getSHA1());
         }
-        Folder.SpanDirectory(m_RepositoryToWrite.getActiveBranch().getPointedCommit().getRootFolder());
     }
 
-    private void checkIfCurrentBranchIsHeadAndUpdateIfItDoes(String i_CurrentBranchName, String i_NameHeadBranch,
-                                                             String i_PathForWritingBranch) throws IOException
+    public void MakeDirectoriesForRepositories()
+    {
+        MagitFileUtils.CreateDirectory(m_RepositoryToWrite.getRepositoryPath().toString());
+        Engine.CreateRepositoryDirectories(Paths.get(m_RepositoryToWrite.getRepositoryPath().toString()));
+    }
+
+    public void WriteCommitInFileSystem(Commit currentCommit) throws ParseException, IOException
+    {
+        if (!m_CommitsThatHaveBeenWritten.contains(currentCommit))
+            writeCommitAndAllPrevCommits(currentCommit);
+    }
+
+    public void CheckIfCurrentBranchIsHeadAndUpdateIfItDoes(String i_CurrentBranchName, String i_NameHeadBranch,
+                                                            String i_PathForWritingBranch) throws IOException
     {
         if (i_NameHeadBranch.equals(i_CurrentBranchName))
             MagitFileUtils.WritingFileByPath(i_PathForWritingBranch + sf_AdditionalPathToHEAD

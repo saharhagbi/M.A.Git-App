@@ -1,8 +1,9 @@
 package starting;
 
 import common.MAGitResourceConstants;
-import common.MAGitUtilities;
+import common.MAGitUtils;
 import common.constants.StringConstants;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -22,6 +23,8 @@ public class StartingController
     private Button m_LoadExistingRepositoryBtn;
     @FXML
     private Button m_LoadRepoFromXMLBtn;
+    @FXML
+    private Button m_CloneBtn;
 
     private MAGitController m_MagitController;
 
@@ -29,12 +32,12 @@ public class StartingController
     @FXML
     public void CreateNewRepositry_OnClick()
     {
-        File selectedDir = MAGitUtilities.GetDirectory(MAGitUtilities.GetStage(m_NewRepositoryBtn));
         //check if repository already exist, and if not
 
         try
         {
-            String repositoryName = MAGitUtilities.GetString("Enter the name of your repository", "Name",
+            File selectedDir = MAGitUtils.GetDirectory(MAGitUtils.GetStage(m_NewRepositoryBtn), "Select the location of your new Repository");
+            String repositoryName = MAGitUtils.GetString("Enter the name of your repository", "Name",
                     "Repository Name");
             m_MagitController.CreateNewRepositry(repositoryName, selectedDir.toPath());
             moveToRepositoryScene();
@@ -43,7 +46,7 @@ public class StartingController
             //Todo:
             // handle exception in UI, pop up window
             // handle in case that repository already exist in location!! (popup window> need to move to repository stage?)
-            MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", null, exception.getMessage());
+            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", null, exception.getMessage());
         }
     }
 
@@ -51,7 +54,7 @@ public class StartingController
     public void LoadRepositoryFromXML_OnClick() throws Exception
     {
 
-        File selectedFile = MAGitUtilities.GetFile(MAGitUtilities.GetStage(m_LoadRepoFromXMLBtn));
+        File selectedFile = MAGitUtils.GetFile(MAGitUtils.GetStage(m_LoadRepoFromXMLBtn));
 
         m_MagitController.loadRepositoryFromXML(selectedFile.getAbsolutePath());
 
@@ -63,15 +66,15 @@ public class StartingController
     {
         try
         {
-            String RepositoryName = MAGitUtilities.GetString("Enter your repository name.", "Name:", "Repository Name");
-            File selecredDir = MAGitUtilities.GetDirectory(MAGitUtilities.GetStage(m_LoadExistingRepositoryBtn));
-            //String RepositoryPath = MAGitUtilities.GetString("Enter your existing repository path", "Path:", "Repository Path");
+            String RepositoryName = MAGitUtils.GetString("Enter your repository name.", "Name:", "Repository Name");
+            File selecredDir = MAGitUtils.GetDirectory(MAGitUtils.GetStage(m_LoadExistingRepositoryBtn), "Select the repository folder");
+            //String RepositoryPath = MAGitUtils.GetString("Enter your existing repository path", "Path:", "Repository Path");
             m_MagitController.PullAnExistingRepository(RepositoryName, selecredDir.getAbsolutePath());
         } catch (Exception exception)
         {
             //TODO:
             // handling exception by proper message to user
-            MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", null, exception.getMessage());
+            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", null, exception.getMessage());
         }
 
         moveToRepositoryScene();
@@ -79,7 +82,7 @@ public class StartingController
 
     private void moveToRepositoryScene()
     {
-        Stage currentStage = MAGitUtilities.GetStage(m_LoadExistingRepositoryBtn);
+        Stage currentStage = MAGitUtils.GetStage(m_LoadExistingRepositoryBtn);
 
         try
         {
@@ -106,7 +109,7 @@ public class StartingController
 
         String defaultChoice = String.format(StringConstants.XML_REPOSITORY);
 
-        String userChoice = MAGitUtilities.GetUserChoice(title, headerText, defaultChoice, UserChoices);
+        String userChoice = MAGitUtils.GetUserChoice(title, headerText, defaultChoice, UserChoices);
 
         try
         {
@@ -127,6 +130,8 @@ public class StartingController
             m_MagitController = new MAGitController(this);
         } catch (IOException e)
         {
+            //todo:
+            // handle exception
             e.printStackTrace();
         }
     }
@@ -135,4 +140,26 @@ public class StartingController
     {
         m_MagitController = i_MaGitController;
     }
+
+    @FXML
+    void Clone_OnClick(ActionEvent event)
+    {
+
+        try
+        {
+            File dirOfRepo = MAGitUtils.GetDirectory(MAGitUtils.GetStage(m_CloneBtn), "Select the folder of the repository you want to clone from: ");
+            File dirToClone = MAGitUtils.GetDirectory(MAGitUtils.GetStage(m_CloneBtn), "Select the target folder: ");
+            String repositoryName = MAGitUtils.GetString("Enter your repository name.", "Name:", "Repository Name");
+            m_MagitController.Clone(dirToClone, repositoryName, dirOfRepo);
+
+            moveToRepositoryScene();
+        } catch (Exception e)
+        {
+            //todo:
+            // handle proper message UI
+            e.printStackTrace();
+        }
+    }
+
+
 }

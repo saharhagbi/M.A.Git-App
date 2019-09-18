@@ -2,7 +2,7 @@ package repository.left;
 
 import Objects.Item;
 import System.FolderDifferences;
-import common.NumConstants;
+import common.constants.NumConstants;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;

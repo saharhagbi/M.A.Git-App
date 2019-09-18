@@ -1,8 +1,8 @@
 package Objects;
 
-import common.CompareItems;
-import System.User;
 import System.FolderDifferences;
+import System.User;
+import common.CompareItems;
 import common.MagitFileUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -18,6 +18,8 @@ import java.util.*;
 import static Objects.Item.TypeOfFile.BLOB;
 import static Objects.Item.TypeOfFile.FOLDER;
 import static System.Repository.WritingStringInAFile;
+import static System.Repository.sf_Slash;
+import static common.MagitFileUtils.IsMagitFolder;
 
 
 public class Folder extends Item
@@ -308,11 +310,6 @@ public class Folder extends Item
 
     }
 
-    public static boolean IsMagitFolder(File file)
-    {
-        return file.getName().equals(".magit");
-    }
-
     public static String CreateSHA1ForFolderFile(List<Item> i_AllItems)
     {
         StringBuilder stringForCreatingSHA1 = new StringBuilder();
@@ -407,5 +404,20 @@ public class Folder extends Item
         }
 
         return resultString.toString();
+    }
+
+    public void initFolderPaths(Path i_NewPathOfRepository)
+    {
+        this.m_Path = i_NewPathOfRepository;
+
+        for (Item item : this.m_ListOfItems)
+        {
+            if (item.getTypeOfFile().equals(Item.TypeOfFile.FOLDER))
+            {
+                Folder currentFolder = (Folder) item;
+                currentFolder.initFolderPaths(Paths.get(i_NewPathOfRepository + sf_Slash + currentFolder.getName()));
+            } else
+                item.setPath(Paths.get(i_NewPathOfRepository + sf_Slash + item.getName()));
+        }
     }
 }

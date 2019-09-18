@@ -1,9 +1,9 @@
 package repository.top;
 
-import Objects.branches.Branch;
+import Objects.branch.Branch;
 import System.FolderDifferences;
 import common.MAGitResourceConstants;
-import common.MAGitUtilities;
+import common.MAGitUtils;
 import common.constants.StringConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -62,7 +62,7 @@ public class TopController
     @FXML
     void SwitchRepository_OnClick() throws IOException
     {
-        Stage currentStage = MAGitUtilities.GetStage(m_CommitBtn);
+        Stage currentStage = MAGitUtils.GetStage(m_CommitBtn);
         m_RepositoryController.SwitchScenes(MAGitResourceConstants.STARTING_SCENE, currentStage);
     }
 
@@ -86,7 +86,7 @@ public class TopController
                         {
                             Platform.runLater(() ->
                             {
-                                MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.INFORMATION, StringConstants.COMMIT, "Can't Execute Commit"
+                                MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, StringConstants.COMMIT, "Can't Execute Commit"
                                         , StringConstants.NOTHING_TO_COMMIT_ON);
                             });
                         } else
@@ -129,14 +129,14 @@ public class TopController
     private void doCommit() throws Exception
     {
         FutureTask<String> futureTask = new FutureTask<String>(() ->
-                MAGitUtilities.GetString("Enter your commit message please", "Message:", StringConstants.COMMIT
+                MAGitUtils.GetString("Enter your commit message please", "Message:", StringConstants.COMMIT
                 ));
 
         Platform.runLater(futureTask);
 
         String commitMessage = futureTask.get();
 
-        //commitMessage = MAGitUtilities.GetString("Enter your commit message please", "Message:", StringConstants.COMMIT);
+        //commitMessage = MAGitUtils.GetString("Enter your commit message please", "Message:", StringConstants.COMMIT);
         m_RepositoryController.CommitChanges(commitMessage);
 
         System.out.println("got here");
@@ -148,7 +148,7 @@ public class TopController
         try
         {
             m_UserNameTxt.setText(
-                    MAGitUtilities.GetString("Enter a new user name please", "Name", "Switch User"
+                    MAGitUtils.GetString("Enter a new user name please", "Name", "Switch User"
                     ));
         } catch (Exception e)
         {
@@ -197,20 +197,18 @@ public class TopController
     {
         try
         {
+            m_RepositoryController.InitProgress("Deleting Branch...");
+
             if (!isHeadBranch(i_BranchNameToErase))
             {
-                m_RepositoryController.InitProgress("Deleting Branch...");
-
                 m_RepositoryController.DeleteBranch(i_BranchNameToErase);
                 updateBoardAfterDeletingBranch(i_BranchNameToErase);
 
-                m_RepositoryController.UpdateProgress();
-
-                MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Deleting Branch", "Deleting Branch",
+                MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Deleting Branch", "Deleting Branch",
                         "Branch was deleted Successfully!");
             } else
             {
-                MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.ERROR, "Deleting Head Branch", "Error!",
+                MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Deleting Head Branch", "Error!",
                         "Can not delete head branch");
             }
         } catch (Exception e)
@@ -218,6 +216,9 @@ public class TopController
             //Todo:
             // handle exception proper message!
             e.printStackTrace();
+        } finally
+        {
+            m_RepositoryController.UpdateProgress();
         }
     }
 
@@ -251,7 +252,7 @@ public class TopController
                     Text txt = new Text(branch.getBranchName());
 
                     if (isHeadBranch(branch.getBranchName()))
-                        MAGitUtilities.HighlightText(txt);
+                        MAGitUtils.HighlightText(txt);
 
                     return txt;
                 }).collect(Collectors.toList()));
@@ -267,10 +268,10 @@ public class TopController
                 .forEach(txt ->
                 {
                     if (i_Highlight)
-                        MAGitUtilities.HighlightText(txt);
+                        MAGitUtils.HighlightText(txt);
                     else
                     {
-                        MAGitUtilities.UnhighlightText(txt);
+                        MAGitUtils.UnhighlightText(txt);
                         /*m_BranchesListComboBox.remove(txt);
                         addBranchToComboBox(new Text(txt.getText()));*/
                     }
@@ -317,7 +318,7 @@ public class TopController
                         allBranchesInfo.append(branchInfo)
                 );
 
-        MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Show All Branches",
+        MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Show All Branches",
                 "Info of All Branches:", allBranchesInfo.toString());
     }
 
@@ -333,10 +334,10 @@ public class TopController
         String SHA1Commit;
         try
         {
-           m_RepositoryController.InitProgress("Creationg Branch...");
+            m_RepositoryController.InitProgress("Creationg Branch...");
 
-            newBranch = MAGitUtilities.GetString("Enter the name of the new Branch", "Name", "New Branch");
-            SHA1Commit = MAGitUtilities.GetString("Enter the SHA1 of the commit you want the branch will point",
+            newBranch = MAGitUtils.GetString("Enter the name of the new Branch", "Name", "New Branch");
+            SHA1Commit = MAGitUtils.GetString("Enter the SHA1 of the commit you want the branch will point",
                     "SHA1:", "Commit SHA1");
 
             m_RepositoryController.CreateNewBranch(newBranch, SHA1Commit);
@@ -399,6 +400,9 @@ public class TopController
         bindTaskComponentsToUI(m_RepositoryController.GetLabelBar(), m_RepositoryController.GetProgressBar(), checkoutTask);
         new Thread(checkoutTask).start();
 
+        //todo:
+        // implement setOnSucceeded
+
         /*  checkoutTask.
                 setOnSucceeded(() ->
                         m_RepositoryController.UpdateTableColumnAccordingToLastCommit(),
@@ -408,7 +412,7 @@ public class TopController
     private void getUserChoiceAndCheckout() throws Exception
     {
         FutureTask<String> futureTask = new FutureTask<String>(() ->
-                MAGitUtilities.GetUserChoice("Changes in WC", "There were changes since last commit"
+                MAGitUtils.GetUserChoice("Changes in WC", "There were changes since last commit"
                         + System.lineSeparator() +
                         "Are you sure you want to continue?" + System.lineSeparator() +
                         "Choose no, to commit first", StringConstants.YES, new String[]{StringConstants.YES, StringConstants.NO}));
@@ -437,7 +441,7 @@ public class TopController
 
         //String[] choices = (String[]) tempList.toArray();
         FutureTask<String> futureTask = new FutureTask<String>(() ->
-                MAGitUtilities.GetUserChoice(
+                MAGitUtils.GetUserChoice(
                         "Branch Name", "Now, Choose one branch from below for checkout", "choose branch here",
                         choices)
         );
@@ -456,7 +460,7 @@ public class TopController
         try
         {
             m_RepositoryController.InitProgress("Reset...");
-            String SHA1OfCommit = MAGitUtilities.GetString("Enter the sha1 of the commit you want to reset to", "SHA1:",
+            String SHA1OfCommit = MAGitUtils.GetString("Enter the sha1 of the commit you want to reset to", "SHA1:",
                     StringConstants.COMMIT + " SHA1");
 
             m_RepositoryController.ResetHeadBranch(SHA1OfCommit);
@@ -488,7 +492,7 @@ public class TopController
                     if (folderDifferences == null)
                         Platform.runLater(() ->
                         {
-                            MAGitUtilities.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Show Status", "No Changes",
+                            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Show Status", "No Changes",
                                     "There are no Changes since last commit");
 
                         });
@@ -510,6 +514,43 @@ public class TopController
         bindTaskComponentsToUI(m_RepositoryController.GetLabelBar(), m_RepositoryController.GetProgressBar(), showStatusTask);
         new Thread(showStatusTask).start();
     }
+
+
+    @FXML
+    void Fetch_OnClick(ActionEvent event)
+    {
+        try
+        {
+            m_RepositoryController.InitProgress("Fetch...");
+
+            m_RepositoryController.Fetch();
+
+            m_RepositoryController.UpdateProgress();
+        } catch (Exception e)
+        {
+            //todo:
+            // handle proper message to user
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void Pull_OnClick(ActionEvent event)
+    {
+        m_RepositoryController.InitProgress("Pull...");
+
+        try
+        {
+            m_RepositoryController.Pull();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        m_RepositoryController.UpdateProgress();
+    }
+
+
 }
 
 

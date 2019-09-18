@@ -2,13 +2,13 @@ package repository.right;
 
 import Objects.Commit;
 import Objects.Item;
-import Objects.branches.Branch;
+import Objects.branch.Branch;
 import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;
 import com.fxgraph.graph.Model;
 import com.fxgraph.graph.PannableCanvas;
-import common.NumConstants;
+import common.constants.NumConstants;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import repository.RepositoryController;
@@ -25,7 +25,6 @@ public class RightController
     private RepositoryController m_RepositoryController;
     private Map<Commit, ICell> m_MapCommitToIcell = new HashMap<>();
     private Graph m_TreeGraph;
-    //  private Map<String, Branch> m_MapSHA1CommitToBranch = new HashMap<>();
 
     @FXML
     private ScrollPane m_TreeScrollPane;

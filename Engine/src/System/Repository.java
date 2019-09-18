@@ -4,7 +4,7 @@ import Objects.Blob;
 import Objects.Commit;
 import Objects.Folder;
 import Objects.Item;
-import Objects.branches.Branch;
+import Objects.branch.Branch;
 import common.MagitFileUtils;
 
 import java.io.*;
@@ -54,6 +54,16 @@ public class Repository
         m_Branches.add(i_ActiveBranch);
         settingAllPathsInRepository(i_RepositoryPath);
 
+    }
+
+    public String getName()
+    {
+        return m_RepositoryName;
+    }
+
+    public void setBranches(List<Branch> m_Branches)
+    {
+        this.m_Branches = m_Branches;
     }
 
     public Repository(Branch i_ActiveBranch, Path i_RepositoryPath, String i_RepositoryName, List<Branch> i_AllBranches,

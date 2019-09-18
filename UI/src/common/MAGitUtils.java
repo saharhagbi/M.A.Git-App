@@ -14,9 +14,10 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Optional;
 
-public class MAGitUtilities
+public class MAGitUtils
 {
     public static String GetString(String i_Prompt, String i_Label, String i_Title) throws Exception
     {
@@ -61,15 +62,16 @@ public class MAGitUtilities
         alert.showAndWait();
     }
 
-    public static File GetDirectory(Window i_CurrentStage)
+    public static File GetDirectory(Window i_CurrentStage, String i_Title) throws FileNotFoundException
     {
-        DirectoryChooser DirChooser = new DirectoryChooser();
-        File selectedDir = DirChooser.showDialog(i_CurrentStage);
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle(i_Title);
+        File selectedDir = dirChooser.showDialog(i_CurrentStage);
+
 
         if (selectedDir == null)
         {
-            //TODO:
-            // handle in case of cancelling
+            throw new FileNotFoundException("No file were chosen");
         }
         return selectedDir;
     }

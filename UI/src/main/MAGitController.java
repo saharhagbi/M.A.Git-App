@@ -8,11 +8,13 @@ import XmlObjects.MagitRepository;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import primaryController.PrimaryController;
 import repository.RepositoryController;
 import starting.StartingController;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -149,5 +151,26 @@ public class MAGitController
     public FolderDifferences ShowDeltaCommits(Commit i_Commit)
     {
         return m_PrimaryController.ShowDeltaCommits(i_Commit);
+    }
+
+    public void Clone(File i_DirToClone, String i_RepositoryName, File i_DirOfRepo) throws Exception
+    {
+        m_PrimaryController.Clone(i_DirToClone, i_RepositoryName, i_DirOfRepo);
+    }
+
+    public void Fetch() throws Exception
+    {
+        m_PrimaryController.Fetch();
+    }
+
+    public void Pull() throws Exception
+    {
+        m_PrimaryController.Pull();
+    }
+
+
+    public void InformUserMessage(Alert.AlertType i_AlertType, String i_Title, String i_Header, String i_ContextText)
+    {
+        m_RepositoryController.InformUserMessage(i_AlertType, i_Title, i_Header, i_ContextText);
     }
 }
