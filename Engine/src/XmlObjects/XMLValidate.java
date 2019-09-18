@@ -75,7 +75,7 @@ public class XMLValidate
         doesHeadPointsToDefinedNameOfMagitBranch();
 
         //10 if it is remote repository, check if the repository that pointed by his path exist
-        doesRemoteRepositoryExistInCaseOfLocalRepository(xmlMain);
+       // doesRemoteRepositoryExistInCaseOfLocalRepository(xmlMain);
 
         //11)check that all that tracking after branches, track after branch that define his remote == true
         doesAllTrackingBranchesTrackAfterRemoteBranchThatIsRemote();
@@ -92,10 +92,10 @@ public class XMLValidate
 
         for (MagitSingleBranch magitSingleBranch : magitSingleBranches)
         {
-            if (magitSingleBranch.tracking == true)
+            if (magitSingleBranch.tracking != null)
             {
-                if (!branchTrackingAfterIsNotRemote(magitSingleBranch, magitSingleBranches))
-                    throw new Exception("Branch" + magitSingleBranch.name + "tracking after branch that is not remote");
+                if (branchTrackingAfterIsNotRemote(magitSingleBranch, magitSingleBranches))
+                    throw new Exception("Branch " + magitSingleBranch.name + " tracking after branch that is not remote");
             }
         }
     }
@@ -107,14 +107,21 @@ public class XMLValidate
         return magitSingleBranches
                 .stream()
                 .filter(magitSingleBranch -> magitSingleBranch.name.equals(trackingAfterName))
-                .anyMatch(magitSingleBranch -> magitSingleBranch.isRemote == true);
+                .anyMatch(magitSingleBranch -> magitSingleBranch.isRemote == null);
     }
 
     private void doesRemoteRepositoryExistInCaseOfLocalRepository(XMLMain xmlMain) throws Exception
     {
-        if (xmlMain.IsLocalRepository(m_MagitRepository.magitBranches))
-            if (!MagitFileUtils.IsRemoteRepositoryExistInLocation(m_MagitRepository.magitRemoteReference.location))
+        if (xmlMain.IsLocalRepository(m_MagitRepository))
+        {
+            try
+            {
+                MagitFileUtils.IsRemoteRepositoryExistInLocation(m_MagitRepository.magitRemoteReference.location);
+            } catch (Exception e)
+            {
                 throw new Exception("There are no remote repository pointed in that location!!");
+            }
+        }
     }
 
 

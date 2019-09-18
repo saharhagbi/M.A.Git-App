@@ -1,8 +1,9 @@
 package Objects.branch;
 
-import Objects.Blob;
 import Objects.Commit;
 import Objects.Item;
+import common.MagitFileUtils;
+import common.constants.StringConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -55,7 +56,7 @@ public class Branch
         File[] allBranchesFiles = i_BranchFolderPath.toFile().listFiles();
         for (int i = 0; i < allBranchesFiles.length; i++)
         {
-            if (!allBranchesFiles[i].getName().equals("HEAD.txt"))
+            if (!allBranchesFiles[i].getName().equals(StringConstants.HEAD))
             {
                 allBranches.add(Branch.createBranchInstanceFromExistBranch(allBranchesFiles[i].toPath()));
             }
@@ -75,16 +76,17 @@ public class Branch
             realPathToBranch = Paths.get(i_BranchesPath.getParent().toString() + "\\" + branchName + ".txt");
         } else
         {
-            String[] fileNameAndExtension = i_BranchesPath.getFileName().toString().split("\\.(?=[^\\.]+$)");
-            branchName = fileNameAndExtension[0];
+            branchName = MagitFileUtils.RemoveExtension(i_BranchesPath);
         }
 
         String branchCommitsSha1 = Branch.getCommitSha1FromBranchFile(realPathToBranch);
         Path ObjectsFolderPath = Paths.get(realPathToBranch.getParent().getParent().toString() + "\\Objects");
-        Commit branchCommit = Commit.CreateCommitFromSha1(branchCommitsSha1,ObjectsFolderPath);
+        Commit branchCommit = Commit.CreateCommitFromSha1(branchCommitsSha1, ObjectsFolderPath);
 
         return new Branch(branchName, branchCommit);
     }
+
+
 
     //TODO: if there is more then one line throw exception
     private static String getCommitSha1FromBranchFile(Path i_Branch) throws FileNotFoundException
@@ -110,6 +112,21 @@ public class Branch
         return branchName;
     }
 
+    private static Branch mergeBranches(Branch i_PullingBranch, Branch i_PushingBranch) throws Exception
+    {
+        Branch mergedBranch = null;
+        Commit mergedCommit = Commit.MergeCommits(i_PullingBranch.getPointedCommit(), i_PushingBranch.getPointedCommit());
+        mergedBranch = new Branch(i_PullingBranch.m_BranchName, mergedCommit);
+
+        return mergedBranch;
+    }
+
+    public static Optional<Branch> GetHeadBranch(List<Branch> i_AllBranches, String headBranchName) throws Exception
+    {
+        Optional<Branch> headBranch = i_AllBranches.stream().filter(branch -> branch.getBranchName().equals(headBranchName)).findFirst();
+        return headBranch;
+    }
+
     public String getBranchName()
     {
         return m_BranchName;
@@ -123,21 +140,6 @@ public class Branch
     public void setPointedCommit(Commit i_Commit)
     {
         m_PointedCommit = i_Commit;
-    }
-
-    private static Branch mergeBranches(Branch i_PullingBranch,Branch i_PushingBranch) throws Exception {
-        Branch mergedBranch=null;
-        Commit mergedCommit = Commit.MergeCommits(i_PullingBranch.getPointedCommit(),i_PushingBranch.getPointedCommit());
-        mergedBranch = new Branch(i_PullingBranch.m_BranchName,mergedCommit);
-
-        return mergedBranch;
-    }
-
-    public static Optional<Branch> GetHeadBranch(List<Branch> i_AllBranches, Path i_BranchesFolderPath) throws Exception {
-        File HEAD = Paths.get(i_BranchesFolderPath.toString() + "\\HEAD.txt").toFile();
-        String headBranchName = Blob.ReadLineByLine(HEAD);
-        Optional<Branch> headBranch = i_AllBranches.stream().filter(branch -> branch.getBranchName().equals(headBranchName)).findFirst();
-        return headBranch;
     }
 }
 

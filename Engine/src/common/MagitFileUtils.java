@@ -1,5 +1,6 @@
 package common;
 
+import common.constants.NumConstants;
 import common.constants.ResourceUtils;
 import org.apache.commons.io.FileUtils;
 
@@ -9,7 +10,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
 
 public class MagitFileUtils
 {
@@ -50,7 +54,7 @@ public class MagitFileUtils
 
     public static boolean IsFolderExist(Path i_BranchFolderPath)
     {
-        File[] branches = getFilesInLocation(i_BranchFolderPath.toString());
+        File[] branches = GetFilesInLocation(i_BranchFolderPath.toString());
 
         return Arrays.stream(branches).anyMatch(file ->
                 file.isDirectory());
@@ -59,17 +63,17 @@ public class MagitFileUtils
     public static boolean IsRemoteRepositoryExistInLocation(String location)
     {
         //Path locationPath = Paths.get(location);
-        File[] WC = getFilesInLocation(location);
+        File[] WC = GetFilesInLocation(location);
 
         if (magitFileExist(WC))
         {
-            location += ResourceUtils.AdditinalPathMagit;
+            location += ResourceUtils.AdditinalPathBranches;
             return IsFolderExist(Paths.get(location));
         }
         return false;
     }
 
-    public static File[] getFilesInLocation(String location)
+    public static File[] GetFilesInLocation(String location)
     {
         File repositoryFile = new File(location);
         return repositoryFile.listFiles();
@@ -79,5 +83,33 @@ public class MagitFileUtils
     {
         return Arrays.stream(wc).anyMatch(file ->
                 IsMagitFolder(file));
+    }
+
+    public static List<String> GetTextLines(Path i_TextFilePath) throws IOException
+    {
+        Scanner lineScanner = new Scanner(i_TextFilePath);
+        List<String> textFileLines = new ArrayList<>();
+
+        while (lineScanner.hasNext())
+        {
+            textFileLines.add(lineScanner.nextLine());
+
+        }
+        return textFileLines;
+    }
+
+    public static boolean IsRemoteTrackingBranch(File branchFile) throws IOException
+    {
+        Path pathBranchFile = branchFile.toPath();
+
+        return GetTextLines(pathBranchFile).size() == NumConstants.TWO;
+    }
+
+    public static String RemoveExtension(Path filePath)
+    {
+        String fileName;
+        String[] fileNameAndExtension = filePath.getFileName().toString().split("\\.(?=[^\\.]+$)");
+        fileName = fileNameAndExtension[0];
+        return fileName;
     }
 }

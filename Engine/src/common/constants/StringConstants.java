@@ -13,5 +13,7 @@ public class StringConstants
     public static final String PROGRESS = "Progress: ";
     public static final String ARROW = "→";
     public static final String TRUE = "true";
-    public static final String REPOSITORY_NAME = "RepositoryName";
+    public static final String REPOSITORY_DETAILS = "RepositoryDetails";
+    public static final String HEAD = "HEAD.txt";
+    public static final String MERGE = "Merge";
 }

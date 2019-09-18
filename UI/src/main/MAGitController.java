@@ -173,4 +173,9 @@ public class MAGitController
     {
         m_RepositoryController.InformUserMessage(i_AlertType, i_Title, i_Header, i_ContextText);
     }
+
+    public void SetUser(String newUserName)
+    {
+        m_PrimaryController.SetUset(newUserName);
+    }
 }

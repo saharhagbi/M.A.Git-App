@@ -31,8 +31,8 @@ public class Repository
 
     private Path m_RepositoryPath;
     private String m_RepositoryName;
-    private Branch m_ActiveBranch;
-    private List<Branch> m_Branches = null;
+    protected Branch m_ActiveBranch;
+    protected List<Branch> m_Branches = null;
     private Path m_ObjectsFolderPath;
     private Path m_BranchesFolderPath;
     private Path m_TempFolderPath;

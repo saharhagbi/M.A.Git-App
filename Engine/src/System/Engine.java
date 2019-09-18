@@ -3,12 +3,16 @@ package System;
 import Objects.Commit;
 import Objects.Folder;
 import Objects.branch.Branch;
+import Objects.branch.BranchFactory;
 import XmlObjects.MagitRepository;
 import XmlObjects.XMLMain;
 import XmlObjects.repositoryWriters.LocalRepositoryWriter;
 import collaboration.*;
+import common.Enums;
 import common.MagitFileUtils;
 import common.constants.NumConstants;
+import common.constants.ResourceUtils;
+import common.constants.StringConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -85,7 +89,7 @@ public class Engine
         m_CurrentRepository.CreateNewCommitAndUpdateActiveBranch(m_User, i_CommitMessage);
     }
 
-    public void CreateNewLocalRepository(Path i_PathToRootFolderOfRepository, String i_RepositoryName) throws Exception
+    public void CreateNewRepository(Path i_PathToRootFolderOfRepository, String i_RepositoryName) throws Exception
     {
         Boolean exists = false;
         Path magitFolderPath = Paths.get(i_PathToRootFolderOfRepository.toString() + "\\" + ".magit");
@@ -168,7 +172,7 @@ public class Engine
 
     public Repository getCurrentRepository()
     {
-        return m_CurrentRepository;
+        return m_CurrentRepository == null ? m_CurrentLocalRepository : m_CurrentRepository;
     }
 
     public void setCurrentRepository(Repository m_CurrentRepository)
@@ -192,14 +196,14 @@ public class Engine
 
         Path HEAD = Paths.get(branchFolderPath.toString() + "\\HEAD.txt");
         String activeBranchName = Engine.ReadLineByLine(HEAD.toFile());
-        Path activeBranchPath = Paths.get(branchFolderPath.toString() + "\\" + activeBranchName + ".txt");
+        //  Path activeBranchPath = Paths.get(branchFolderPath.toString() + "\\" + activeBranchName + ".txt");
 
-        if(MagitFileUtils.IsFolderExist(branchFolderPath))
-            createLocalRepository();
+        if (MagitFileUtils.IsFolderExist(branchFolderPath))
+            createLocalRepository(i_repositoryPathAsString, activeBranchName, i_NameOfRepository);
         else
         {
             List<Branch> allBranches = Branch.GetAllBranches(branchFolderPath);
-            activeBranch = Branch.GetHeadBranch(allBranches, branchFolderPath);
+            activeBranch = Branch.GetHeadBranch(allBranches, activeBranchName);
             Map<String, Commit> allCommitsInRepositoryMap = Commit.GetMapOfCommits(allBranches);
             //repository = new Repository(activeBranch, repositoryPath, i_NameOfRepository, allBranches);-
             repository = new Repository(activeBranch.get(), repositoryPath, i_NameOfRepository, allBranches, allCommitsInRepositoryMap);
@@ -209,9 +213,108 @@ public class Engine
 
     }
 
-    private void createLocalRepository()
+    private void createLocalRepository(String repositoryPath, String activeBranchName, String nameOfRepository) throws Exception
     {
+        makeCurrentRepositoryNull();
 
+        List<Branch> branches = new ArrayList<>();
+        List<RemoteBranch> remoteBranches = new ArrayList<>();
+        List<RemoteTrackingBranch> remoteTrackingBranches = new ArrayList<>();
+
+        Path pathToObjects = Paths.get(repositoryPath + ResourceUtils.AdditinalPathObjects);
+
+        Map<String, Commit> allCommits = createMapOfCommits(pathToObjects);
+
+        RemoteRepositoryRef remoteRepositoryRef = RemoteRepositoryRef.CreateRepositoryRefFromFile(repositoryPath);
+
+        createAllBranches(repositoryPath, branches, remoteBranches, remoteRepositoryRef.getName(), remoteTrackingBranches, allCommits);
+
+        m_CurrentLocalRepository = new LocalRepository(null, Paths.get(repositoryPath), nameOfRepository, branches, allCommits,
+                remoteTrackingBranches, remoteBranches, remoteRepositoryRef);
+
+        m_CurrentLocalRepository.FindAndSetActiveBranch(activeBranchName);
+    }
+
+    private void makeCurrentRepositoryNull()
+    {
+        m_CurrentRepository = null;
+    }
+
+    private void createAllBranches(String repositoryPath, List<Branch> branches, List<RemoteBranch> remoteBranches, String remoteRepoName,
+                                   List<RemoteTrackingBranch> remoteTrackingBranches, Map<String, Commit> allCommits) throws IOException
+    {
+        String branchesPath = repositoryPath + ResourceUtils.AdditinalPathBranches;
+
+        File[] branchesFiles = MagitFileUtils.GetFilesInLocation(branchesPath);
+
+        //create remote tracking branches and ordinary branches
+        for (File branchFile : branchesFiles)
+        {
+            if (!branchFile.getName().equals(StringConstants.HEAD) && (!branchFile.isDirectory()))
+            {
+                Enums.BranchType type;
+                String branchName = MagitFileUtils.RemoveExtension(branchFile.toPath());
+                Commit branchCommit = allCommits.get(MagitFileUtils.GetTextLines(Paths.get(branchFile.getAbsolutePath())).get(0));
+
+                if (MagitFileUtils.IsRemoteTrackingBranch(branchFile))
+                    type = Enums.BranchType.REMOTE_TRACKING_BRANCH;
+                else
+                    type = Enums.BranchType.BRANCH;
+
+                BranchFactory.CreateBranchInBranchFactory(branches, remoteTrackingBranches, remoteBranches, branchName, branchCommit,
+                        type);
+            }
+        }
+
+        //create remote branches
+
+        String remoteBranchesPath = branchesPath + ResourceUtils.Slash + remoteRepoName;
+        File[] remoteBranchesFiles = MagitFileUtils.GetFilesInLocation(remoteBranchesPath);
+
+        for (File remoteBranchFile : remoteBranchesFiles)
+        {
+            String branchName = RemoteBranch.GetRemoteBranchName(MagitFileUtils.RemoveExtension(remoteBranchFile.toPath()), remoteRepoName);
+            Commit branchCommit = allCommits.get(MagitFileUtils.GetTextLines(Paths.get(remoteBranchFile.getAbsolutePath())).get(0));
+
+            BranchFactory.CreateBranchInBranchFactory(branches, remoteTrackingBranches, remoteBranches, branchName, branchCommit,
+                    Enums.BranchType.REMOTE_BRANCH);
+        }
+    }
+
+    private Map<String, Commit> createMapOfCommits(Path i_ObjectsFolder) throws Exception
+    {
+        Map<String, Commit> resMap = new HashMap<>();
+        File[] allObjects = i_ObjectsFolder.toFile().listFiles();
+        for (int i = 0; i < allObjects.length; i++)
+        {
+            File currObject = allObjects[i];
+            if (Commit.IsSha1ValidForCommit(currObject.getName(), i_ObjectsFolder))
+            {
+                String commitsSha1 = currObject.getName();
+                Commit commitFromFile = Commit.CreateCommitFromSha1(commitsSha1, i_ObjectsFolder);
+
+//                if (!resMap.containsKey(commitFromFile.getSHA1()))
+                addCommitAndAllItsPrevsToMap(commitFromFile, resMap);
+
+               /* if (!resMap.containsKey(commitFromFile.getSHA1()))
+                    resMap.put(commitsSha1, commitFromFile);*/
+            }
+        }
+        return resMap;
+    }
+
+    private void addCommitAndAllItsPrevsToMap(Commit commitFromFile, Map<String, Commit> resMap)
+    {
+        if (!resMap.containsKey(commitFromFile.getSHA1()))
+            resMap.put(commitFromFile.getSHA1(), commitFromFile);
+
+        if (commitFromFile.ThereIsPrevCommit(NumConstants.ONE))
+            addCommitAndAllItsPrevsToMap(commitFromFile.GetPrevCommit(), resMap);
+
+        if (commitFromFile.ThereIsPrevCommit(NumConstants.TWO))
+            addCommitAndAllItsPrevsToMap(commitFromFile.GetSecondPrevCommit(), resMap);
+
+//            resMap.put(commitFromFile.getSHA1(), commitFromFile);
     }
 
     public String ShowAllCurrentCommitData()
@@ -408,16 +511,16 @@ public class Engine
         }
     }
 
-   /* private void initFolderPaths(Folder i_RootFolder, Path i_NewPathOfRepository)
-    {
-        for (Item item : i_RootFolder)
-        {
-            if(item.getTypeOfFile().equals(Item.TypeOfFile.FOLDER))
-            {
-                initNewPaths();
-            }
-        }
-    }*/
+    /* private void initFolderPaths(Folder i_RootFolder, Path i_NewPathOfRepository)
+     {
+         for (Item item : i_RootFolder)
+         {
+             if(item.getTypeOfFile().equals(Item.TypeOfFile.FOLDER))
+             {
+                 initNewPaths();
+             }
+         }
+     }*/
     private void createRemoteBranches(List<RemoteBranch> i_RemoteBranches, String i_CloneFromRepoName)
     {
         m_CurrentRepository.getAllBranches().stream().forEach(branch ->

@@ -70,6 +70,7 @@ public class XMLParser
 
             Branch currentBranch = BranchFactory.CreateBranchInBranchFactory(branches, remoteTrackingBranches, remoteBranches,
                     magitSingleBranch.name, currentCommit, analyzeBranchType(magitSingleBranch));
+
             checkIfCurrentBranchIsHEAD(magitSingleBranch, currentBranch);
         }
         Map<String, Commit> sha1ToCommitMap = createMapSha1ForCommit();

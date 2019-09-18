@@ -11,8 +11,6 @@ import common.constants.StringConstants;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static System.Repository.sf_PathForBranches;
 import static System.Repository.sf_txtExtension;
@@ -45,10 +43,14 @@ public class LocalRepositoryWriter
 
         WriteAllRemoteBranches();
 
-        //writing repository name
+        //writing repository details
+
+        String remoteRepositoryDetailsToWrite = m_RepositoryToWrite.getRemoteRepoRef().getName() + System.lineSeparator()
+                + m_RepositoryToWrite.getRemoteRepoRef().getRepoPath();
+
         MagitFileUtils.WritingFileByPath(m_RepositoryToWrite.getRepositoryPath() +
-                        ResourceUtils.AdditinalPathMagit + sf_Slash + StringConstants.REPOSITORY_NAME + sf_txtExtension,
-                m_RepositoryToWrite.getRemoteRepoRef().getName());
+                        ResourceUtils.AdditinalPathMagit + ResourceUtils.Slash + StringConstants.REPOSITORY_DETAILS + sf_txtExtension,
+                remoteRepositoryDetailsToWrite);
 
         Folder.SpanDirectory(m_RepositoryToWrite.getActiveBranch().getPointedCommit().getRootFolder());
     }

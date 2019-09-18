@@ -5,7 +5,6 @@ import System.Engine;
 import System.FolderDifferences;
 import System.Repository;
 import XmlObjects.XMLMain;
-import common.MAGitUtils;
 import common.constants.NumConstants;
 import common.constants.StringConstants;
 import javafx.scene.control.Alert;
@@ -29,7 +28,7 @@ public class PrimaryController
 
     public void CreateNewRepository(String i_RepoName, Path i_RepoPath) throws Exception
     {
-        m_Engine.CreateNewLocalRepository(i_RepoPath, i_RepoName);
+        m_Engine.CreateNewRepository(i_RepoPath, i_RepoName);
     }
 
     public void loadRepositoryFromXML(String i_PathToXML) throws Exception
@@ -142,5 +141,10 @@ public class PrimaryController
         m_Engine.Pull();
 
 //        MAGitUtils.InformUserPopUpMessage();
+    }
+
+    public void SetUset(String newUserName)
+    {
+        m_Engine.UpdateNewUserInSystem(newUserName);
     }
 }

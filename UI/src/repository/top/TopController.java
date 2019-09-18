@@ -4,6 +4,7 @@ import Objects.branch.Branch;
 import System.FolderDifferences;
 import common.MAGitResourceConstants;
 import common.MAGitUtils;
+import common.StageBuilder;
 import common.constants.StringConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -11,12 +12,17 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import repository.RepositoryController;
+import repository.top.merge.MergeController;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.FutureTask;
@@ -147,9 +153,12 @@ public class TopController
     {
         try
         {
-            m_UserNameTxt.setText(
-                    MAGitUtils.GetString("Enter a new user name please", "Name", "Switch User"
-                    ));
+            m_RepositoryController.InitProgress("Setting User..");
+            String newUserName = MAGitUtils.GetString("Enter a new user name please", "Name", "Switch User");
+            m_UserNameTxt.setText(newUserName);
+            m_RepositoryController.SetUser(newUserName);
+            m_RepositoryController.UpdateProgress();
+
         } catch (Exception e)
         {
             //TODO:
@@ -548,6 +557,25 @@ public class TopController
         }
 
         m_RepositoryController.UpdateProgress();
+    }
+
+
+    @FXML
+    void Merge_OnClick(ActionEvent event) throws IOException
+    {
+        URL urlFXML = getClass().getResource(MAGitResourceConstants.MERGE_STAGE);
+        FXMLLoader loader = new FXMLLoader(urlFXML);
+
+        Parent root = loader.load(urlFXML.openStream());
+
+        MergeController mergeController = loader.getController();
+        mergeController.setController(this);
+
+        Stage stage = new Stage();
+        stage.setTitle(StringConstants.MERGE);
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
     }
 
 

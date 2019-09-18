@@ -200,4 +200,9 @@ public class RepositoryController
     {
         MAGitUtils.InformUserPopUpMessage(i_AlertType, i_Title, i_Header, i_ContextText);
     }
+
+    public void SetUser(String newUserName)
+    {
+        m_MagitController.SetUser(newUserName);
+    }
 }

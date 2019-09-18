@@ -1,13 +1,14 @@
 package collaboration;
 
 
-import Objects.branch.Branch;
 import Objects.Commit;
+import Objects.branch.Branch;
 import System.Repository;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public class LocalRepository extends Repository
 {
@@ -48,5 +49,24 @@ public class LocalRepository extends Repository
     public void addRemoteBranch(RemoteBranch remoteBranch)
     {
         this.m_RemoteBranches.add(remoteBranch);
+    }
+
+    public void FindAndSetActiveBranch(String activeBranchName)
+    {
+        Predicate<Branch> predicate = branch -> branch.getBranchName().equals(activeBranchName);
+
+        m_ActiveBranch = m_RemoteTrackingBranches.stream().filter(remoteTrackingBranch ->
+                predicate.test(remoteTrackingBranch)).findAny().orElse(null);
+
+        if (m_ActiveBranch == null)
+        {
+            m_ActiveBranch = m_Branches.stream().filter(branch ->
+                    predicate.test(branch)).findAny().orElse(null);
+        }
+    }
+
+    private Branch findBranchByPredicate(List<Branch> branches, Predicate<Branch> predicate)
+    {
+        return branches.stream().filter(branch -> predicate.test(branch)).findAny().orElse(null);
     }
 }

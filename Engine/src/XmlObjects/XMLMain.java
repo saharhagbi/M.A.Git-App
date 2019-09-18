@@ -36,20 +36,13 @@ public class XMLMain
     {
         boolean isXMLRepoAlreadyExist;
 
-        try
-        {
-            m_XmlValidate.checkExistencesAndXMLExtension(i_XmlFilePath);
+        m_XmlValidate.checkExistencesAndXMLExtension(i_XmlFilePath);
 
-            m_XmlRepository = parseFromXmlFileToXmlMagitRepository(i_XmlFilePath);
-            m_XmlValidate.setAllObjects(m_XmlRepository);
+        m_XmlRepository = parseFromXmlFileToXmlMagitRepository(i_XmlFilePath);
+        m_XmlValidate.setAllObjects(m_XmlRepository);
 
-            m_XmlValidate.validateXmlRepositoryAndAssign(i_XmlFilePath, this);
-            isXMLRepoAlreadyExist = checkIfAnotherRepoInLocation();
-
-        } catch (Exception xmlException)
-        {
-            throw xmlException;
-        }
+        m_XmlValidate.validateXmlRepositoryAndAssign(i_XmlFilePath, this);
+        isXMLRepoAlreadyExist = checkIfAnotherRepoInLocation();
 
         return isXMLRepoAlreadyExist;
     }
@@ -63,7 +56,7 @@ public class XMLMain
     {
         m_XmlParser.setAllObjects(i_MagitRepository);
 
-        boolean isLocalRepository = IsLocalRepository(i_MagitRepository.getMagitBranches());
+        boolean isLocalRepository = IsLocalRepository(i_MagitRepository);
 
         if (isLocalRepository)
             // only if it is valid we continue to create an Repository Object
@@ -74,10 +67,12 @@ public class XMLMain
         return m_ParsedRepository;
     }
 
-    public boolean IsLocalRepository(MagitBranches i_MagitBranches)
+    public boolean IsLocalRepository(MagitRepository magitRepository)
     {
-        return i_MagitBranches.magitSingleBranch.stream().anyMatch(magitSingleBranch ->
-                (magitSingleBranch.tracking == true));
+        return magitRepository.magitRemoteReference.location != null;
+
+        /*.stream().anyMatch(magitSingleBranch ->
+                (magitSingleBranch.tracking == true));*/
     }
 
 
