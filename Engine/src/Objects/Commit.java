@@ -141,7 +141,7 @@ public class Commit {
                 boolean possibleAncestor1 = isAncestor(i_PullingCommit.GetPrevCommit(), i_PulledCommit);
                 boolean possibleAncestor2 = isAncestor(i_PullingCommit.GetSecondPrevCommit(), i_PulledCommit);
                 if (possibleAncestor1 == true || possibleAncestor2 == true)
-                    res =  true;
+                    res = true;
                 else res = false;
             }
         }
@@ -180,13 +180,40 @@ public class Commit {
     }
 
 
-    private static Commit getClosestCommonAncestor(Commit i_pullingCommit, Commit i_pushingCommit) throws Exception {
-        
+    private static Commit getClosestCommonAncestor(Commit i_First, Commit i_Second) throws Exception {
+        Commit optionalAncestor = null;
+        if (i_First.getSHA1().equals(i_Second.getSHA1()))
+            return i_First;
+        if (i_First == null || i_Second == null)
+            return null;
+        else {
+            if ((i_First != null) & (i_Second != null) & (i_Second.GetPrevCommit() != null))
+                optionalAncestor = getClosestCommonAncestor(i_First, i_Second.GetPrevCommit()); // 1,2.p
 
+            if ((optionalAncestor != null) && (i_First != null) && (i_Second != null) && (i_Second.GetSecondPrevCommit() != null))
+                optionalAncestor = getClosestCommonAncestor(i_First, i_Second.GetSecondPrevCommit()); // 1,2.sec_p
 
-        //TODO: implement and remove this Exception
-        throw new Exception("implement getClosestCommonAncestor() in Commit Class");
+            if ((optionalAncestor != null) && (i_First != null) && (i_First.GetPrevCommit() != null) && (i_Second != null))
+                optionalAncestor = getClosestCommonAncestor(i_First.GetPrevCommit(), i_Second); // 1.p,2
+
+            if ((optionalAncestor != null) && (i_First != null) && (i_First.GetSecondPrevCommit() != null) && (i_Second != null))
+                optionalAncestor = getClosestCommonAncestor(i_First.GetSecondPrevCommit(), i_Second); // 1.sec_p,2
+
+            if ((optionalAncestor != null) && (i_First != null) && (i_First.GetPrevCommit() != null) && (i_Second != null) && (i_Second.GetPrevCommit() != null))
+                optionalAncestor = getClosestCommonAncestor(i_First.GetPrevCommit(), i_Second.GetPrevCommit()); // 1.p,2.p
+
+            if ((optionalAncestor != null) && (i_First != null) && (i_First.GetPrevCommit() != null) && (i_Second != null) && (i_Second.GetSecondPrevCommit() != null))
+                optionalAncestor = getClosestCommonAncestor(i_First.GetPrevCommit(), i_Second.GetSecondPrevCommit()); // 1.p,2.sec_p
+
+            if ((optionalAncestor != null) && (i_First != null) && (i_First.GetSecondPrevCommit() != null) && (i_Second != null) && (i_Second.GetPrevCommit() != null))
+                optionalAncestor = getClosestCommonAncestor(i_First.GetSecondPrevCommit(), i_Second.GetPrevCommit()); // 1.sec_p,2.p
+
+            if ((optionalAncestor != null) && (i_First != null) && (i_First.GetSecondPrevCommit() != null) && (i_Second != null) && (i_Second.GetSecondPrevCommit() != null))
+                optionalAncestor = getClosestCommonAncestor(i_First.GetSecondPrevCommit(), i_Second.GetSecondPrevCommit()); // 1.sec_p,2.sec_p
+        }
+        return optionalAncestor;
     }
+
 
     public static Map<String, Commit> GetMapOfCommits(List<Branch> i_allBranches) throws Exception {
         Map<String, Commit> resMap = new HashMap<>();
