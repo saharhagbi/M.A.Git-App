@@ -1,6 +1,7 @@
 package primaryController;
 
 import Objects.Commit;
+import Objects.branch.Branch;
 import System.Engine;
 import System.FolderDifferences;
 import System.Repository;
@@ -9,7 +10,7 @@ import common.constants.NumConstants;
 import common.constants.StringConstants;
 import javafx.scene.control.Alert;
 import main.MAGitController;
-
+import System.MergeConflictsAndMergedItems;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -146,5 +147,10 @@ public class PrimaryController
     public void SetUset(String newUserName)
     {
         m_Engine.UpdateNewUserInSystem(newUserName);
+    }
+
+
+    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_PushingBranch) throws Exception {
+        return m_Engine.getCurrentRepository().getActiveBranch().GetConflictsForMerge(i_PushingBranch,m_Engine.getCurrentRepository().getRepositoryPath());
     }
 }

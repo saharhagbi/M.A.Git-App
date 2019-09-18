@@ -579,6 +579,9 @@ public class TopController
     }
 
 
+    public Object getRepositoryController() {
+        return this.m_RepositoryController;
+    }
 }
 
 
