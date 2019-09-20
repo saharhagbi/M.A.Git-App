@@ -205,4 +205,9 @@ public class RepositoryController
     {
         m_MagitController.SetUser(newUserName);
     }
+
+    public void Push() throws Exception
+    {
+        m_MagitController.Push();
+    }
 }

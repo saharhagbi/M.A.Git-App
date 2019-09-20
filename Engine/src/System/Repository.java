@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -28,11 +29,10 @@ public class Repository
     public static final String sf_PathForTempFolder = "\\.magit\\Temp";
     public static final String sf_Slash = "\\";
     public static final String sf_txtExtension = ".txt";
-
-    private Path m_RepositoryPath;
-    private String m_RepositoryName;
     protected Branch m_ActiveBranch;
     protected List<Branch> m_Branches = null;
+    private Path m_RepositoryPath;
+    private String m_RepositoryName;
     private Path m_ObjectsFolderPath;
     private Path m_BranchesFolderPath;
     private Path m_TempFolderPath;
@@ -54,16 +54,6 @@ public class Repository
         m_Branches.add(i_ActiveBranch);
         settingAllPathsInRepository(i_RepositoryPath);
 
-    }
-
-    public String getName()
-    {
-        return m_RepositoryName;
-    }
-
-    public void setBranches(List<Branch> m_Branches)
-    {
-        this.m_Branches = m_Branches;
     }
 
     public Repository(Branch i_ActiveBranch, Path i_RepositoryPath, String i_RepositoryName, List<Branch> i_AllBranches,
@@ -95,6 +85,22 @@ public class Repository
 
     }
 
+    public String getName()
+    {
+        return m_RepositoryName;
+    }
+
+    public void setBranches(List<Branch> m_Branches)
+    {
+        this.m_Branches = m_Branches;
+    }
+
+    public Branch findBranchByPredicate(Predicate<Branch> predicate)
+    {
+        return m_Branches.stream().filter(branch ->
+                predicate.test(branch)).findAny().orElse(null);
+    }
+
     public Map<String, Commit> getAllCommitsSHA1ToCommit()
     {
         return m_AllCommitsSHA1ToCommit;
@@ -120,10 +126,10 @@ public class Repository
     {
         Date date = new Date();
         String prevCommitSha1 = null;
-        if(this.m_ActiveBranch.getPointedCommit()!=null) // if its the first time commiting then there is no pointed commit yet
+        if (this.m_ActiveBranch.getPointedCommit() != null) // if its the first time commiting then there is no pointed commit yet
             prevCommitSha1 = this.m_ActiveBranch.getPointedCommit().getSHA1();
-        String CommitSha1 = Commit.createSha1ForCommit(i_RootFolder,prevCommitSha1,"null", i_CommitMessage, i_User, date);
-        Commit theNewCommit = new Commit(i_RootFolder,CommitSha1,this.m_ActiveBranch.getPointedCommit(),null,i_CommitMessage,i_User,date);
+        String CommitSha1 = Commit.createSha1ForCommit(i_RootFolder, prevCommitSha1, "null", i_CommitMessage, i_User, date);
+        Commit theNewCommit = new Commit(i_RootFolder, CommitSha1, this.m_ActiveBranch.getPointedCommit(), null, i_CommitMessage, i_User, date);
         m_AllCommitsSHA1ToCommit.put(CommitSha1, theNewCommit);
         return theNewCommit;
     }
@@ -151,7 +157,7 @@ public class Repository
             if(currentCommit.GetSecondPrevCommit()!=null)
                 secondPrevCommitSha1 = currentCommit.GetSecondPrevCommit().getSHA1();*/
             //CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, currentCommit);
-            CreateANewCommitInActiveBranch(i_CurrentUser,i_CommitMessage);
+            CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage);
             if (this.m_ActiveBranch.getPointedCommit().GetPrevCommit() != null)
             {//it means there is no new commit because there were no changes
                 differencesBetweenLastAndCurrentCommit = Commit.findDifferences(m_ActiveBranch.getPointedCommit(), m_ActiveBranch.getPointedCommit().GetPrevCommit());
@@ -207,7 +213,7 @@ public class Repository
 
             Path pathForWritingWC = WC.WritingFolderAsATextFile();
             zipAndPutInObjectsFolder(pathForWritingWC.toFile(), WC.getSHA1());
-            Commit newCommit = createNewInstanceCommit(i_CurrentUser,WC,i_CommitMessage);
+            Commit newCommit = createNewInstanceCommit(i_CurrentUser, WC, i_CommitMessage);
 
             //putting Commit in objects
             String contentOfCommit = newCommit.CreatingContentOfCommit();
@@ -225,7 +231,7 @@ public class Repository
     // this method creats recursivly the working copy as textFiles zipped inside objects as their names are their sha1
     private void createFirstCommitInActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
     {
-        CreateANewCommitInActiveBranch(i_CurrentUser,i_CommitMessage);
+        CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage);
     }
 
     //this method takes a Folder object and turns it in to a String -
@@ -379,7 +385,7 @@ public class Repository
                 rootFoldeDate, m_ObjectsFolderPath);
 
         //Commit brnachCommit = createNewInstanceCommit(new User(rootFolderDetails[3]), commitsMembersFromFile[1], commitsMembersFromFile[2], rootFolder, rootFolderDetails[2]);
-        Commit brnachCommit = createNewInstanceCommit(new User(rootFolderDetails[3]),rootFolder,commitsMembersFromFile[3]);
+        Commit brnachCommit = createNewInstanceCommit(new User(rootFolderDetails[3]), rootFolder, commitsMembersFromFile[3]);
         setActiveBranch(new Branch(i_NameOfBranch, brnachCommit));
     }
 

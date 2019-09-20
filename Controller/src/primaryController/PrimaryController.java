@@ -5,6 +5,8 @@ import System.Engine;
 import System.FolderDifferences;
 import System.Repository;
 import XmlObjects.XMLMain;
+import collaboration.LocalRepository;
+import collaboration.Push;
 import common.constants.NumConstants;
 import common.constants.StringConstants;
 import javafx.scene.control.Alert;
@@ -134,17 +136,26 @@ public class PrimaryController
 
     public void Pull() throws Exception
     {
-        if (m_Engine.ShowStatus() == null)
+        if (m_Engine.ShowStatus() != null)
             m_MagitController.InformUserMessage(Alert.AlertType.ERROR, "Error!", "WC is Dirty",
                     "Can not execute Pull, there open changes in WC");
-
-        m_Engine.Pull();
-
-//        MAGitUtils.InformUserPopUpMessage();
+        else
+            m_Engine.Pull();
     }
 
     public void SetUset(String newUserName)
     {
         m_Engine.UpdateNewUserInSystem(newUserName);
+    }
+
+    public void Push() throws Exception
+    {
+        Push pusher = new Push(m_Engine, (LocalRepository) m_Engine.getCurrentRepository());
+
+        if (pusher.isPossibleToPush())
+            pusher.Push();
+        else
+            m_MagitController.InformUserMessage(Alert.AlertType.ERROR, "Error!", "Can't Push", "Can't push " +
+                    "current head branch");
     }
 }

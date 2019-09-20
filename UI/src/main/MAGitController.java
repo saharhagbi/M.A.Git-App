@@ -178,4 +178,9 @@ public class MAGitController
     {
         m_PrimaryController.SetUset(newUserName);
     }
+
+    public void Push() throws Exception
+    {
+        m_PrimaryController.Push();
+    }
 }

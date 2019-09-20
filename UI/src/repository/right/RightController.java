@@ -39,8 +39,6 @@ public class RightController
         if (m_RepositoryController.getCurrentRepository().getActiveBranch().getPointedCommit() == null)
             return;
 
-        //initCommitToBranchMap();
-
         ResetCommitsTree();
     }
 

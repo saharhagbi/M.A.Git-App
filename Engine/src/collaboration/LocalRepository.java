@@ -55,18 +55,25 @@ public class LocalRepository extends Repository
     {
         Predicate<Branch> predicate = branch -> branch.getBranchName().equals(activeBranchName);
 
-        m_ActiveBranch = m_RemoteTrackingBranches.stream().filter(remoteTrackingBranch ->
-                predicate.test(remoteTrackingBranch)).findAny().orElse(null);
+        //check if can replace two statements with statement below woth predicate
+        m_ActiveBranch = findRemoteTrackingBranchByPredicate(remoteTrackingBranch ->
+                remoteTrackingBranch.getBranchName().equals(activeBranchName));
 
         if (m_ActiveBranch == null)
         {
-            m_ActiveBranch = m_Branches.stream().filter(branch ->
-                    predicate.test(branch)).findAny().orElse(null);
+            m_ActiveBranch = findBranchByPredicate(predicate);
         }
     }
 
-    private Branch findBranchByPredicate(List<Branch> branches, Predicate<Branch> predicate)
+    public RemoteBranch findRemoteBranchBranchByPredicate(Predicate<RemoteBranch> predicate)
     {
-        return branches.stream().filter(branch -> predicate.test(branch)).findAny().orElse(null);
+        return m_RemoteBranches.stream().filter(branch ->
+                predicate.test(branch)).findAny().orElse(null);
+    }
+
+    public RemoteTrackingBranch findRemoteTrackingBranchByPredicate(Predicate<RemoteTrackingBranch> predicate)
+    {
+        return m_RemoteTrackingBranches.stream().filter(remoteTrackingBranch ->
+                predicate.test(remoteTrackingBranch)).findAny().orElse(null);
     }
 }

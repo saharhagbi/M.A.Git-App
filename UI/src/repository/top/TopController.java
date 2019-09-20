@@ -4,7 +4,6 @@ import Objects.branch.Branch;
 import System.FolderDifferences;
 import common.MAGitResourceConstants;
 import common.MAGitUtils;
-import common.StageBuilder;
 import common.constants.StringConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -27,6 +26,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TopController
 {
@@ -254,8 +254,12 @@ public class TopController
 
     private void initBranchesInComboBox()
     {
+        /*Stream<Branch> combinedStream = Stream.concat(
+                collectionA.stream(),
+                collectionB.stream());*/
+        List<Branch> branches = m_RepositoryController.getAllBranchesToShow();
         m_BranchesListComboBox = FXCollections.observableList(m_RepositoryController.getCurrentRepository().getAllBranches()
-                .stream()
+                    .stream()
                 .map(branch ->
                 {
                     Text txt = new Text(branch.getBranchName());
@@ -546,13 +550,13 @@ public class TopController
     @FXML
     void Pull_OnClick(ActionEvent event)
     {
-        m_RepositoryController.InitProgress("Pull...");
-
         try
         {
+            m_RepositoryController.InitProgress("Pull...");
             m_RepositoryController.Pull();
         } catch (Exception e)
         {
+            //todo
             e.printStackTrace();
         }
 
@@ -578,7 +582,20 @@ public class TopController
         stage.show();
     }
 
-
+    @FXML
+    void Push_OnClick(ActionEvent event)
+    {
+        try
+        {
+           // m_RepositoryController.InitProgress("Pushing...");
+            m_RepositoryController.Push();
+        } catch (Exception e)
+        {
+            //todo
+            e.printStackTrace();
+        }
+       // m_RepositoryController.UpdateProgress();
+    }
 }
 
 
