@@ -257,7 +257,7 @@ public class TopController
         /*Stream<Branch> combinedStream = Stream.concat(
                 collectionA.stream(),
                 collectionB.stream());*/
-        List<Branch> branches = m_RepositoryController.getAllBranchesToShow();
+      //  List<Branch> branches = m_RepositoryController.getAllBranchesToShow();
         m_BranchesListComboBox = FXCollections.observableList(m_RepositoryController.getCurrentRepository().getAllBranches()
                     .stream()
                 .map(branch ->
