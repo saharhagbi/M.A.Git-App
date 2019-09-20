@@ -38,7 +38,7 @@ public class MergeController
     void chooseBranchToMerge(Branch i_selectedBranchToMerge, PrimaryController primaryController)
     {
         try {
-            MergeConflictsAndMergedItems conflicts = primaryController.GetConflictsForMerge(i_selectedBranchToMerge);
+            MergeConflictsAndMergedItems conflicts=  this.m_TopController.GetConflictsForMerge(i_selectedBranchToMerge);
             if(conflicts.IsFastForwardCase())
             {
                 // point head branch to i_selectedBranch

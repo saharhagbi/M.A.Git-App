@@ -1,6 +1,8 @@
 package repository;
 
+import System.MergeConflictsAndMergedItems;
 import Objects.Commit;
+import Objects.branch.Branch;
 import System.FolderDifferences;
 import System.Repository;
 import common.MAGitUtils;
@@ -204,5 +206,9 @@ public class RepositoryController
     public void SetUser(String newUserName)
     {
         m_MagitController.SetUser(newUserName);
+    }
+
+    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_selectedBranchToMerge) throws Exception {
+       return m_MagitController.GetConflictsForMerge(i_selectedBranchToMerge);
     }
 }

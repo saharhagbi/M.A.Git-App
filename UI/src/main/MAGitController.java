@@ -1,9 +1,10 @@
 package main;
 
 import Objects.Commit;
+import Objects.branch.Branch;
 import System.Repository;
 import System.FolderDifferences;
-
+import System.MergeConflictsAndMergedItems;
 import XmlObjects.MagitRepository;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -177,5 +178,9 @@ public class MAGitController
     public void SetUser(String newUserName)
     {
         m_PrimaryController.SetUset(newUserName);
+    }
+
+    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_selectedBranchToMerge) throws Exception {
+        return m_PrimaryController.GetConflictsForMerge(i_selectedBranchToMerge);
     }
 }

@@ -5,6 +5,7 @@ import System.FolderDifferences;
 import common.MAGitResourceConstants;
 import common.MAGitUtils;
 import common.StageBuilder;
+import System.MergeConflictsAndMergedItems;
 import common.constants.StringConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -581,6 +582,10 @@ public class TopController
 
     public Object getRepositoryController() {
         return this.m_RepositoryController;
+    }
+
+    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_selectedBranchToMerge) throws Exception {
+        return this.m_RepositoryController.GetConflictsForMerge(i_selectedBranchToMerge);
     }
 }
 
