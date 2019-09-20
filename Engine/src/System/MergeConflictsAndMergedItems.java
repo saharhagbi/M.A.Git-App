@@ -1,7 +1,6 @@
 package System;
 
 import Objects.Item;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.Set;
 
@@ -14,6 +13,19 @@ public class MergeConflictsAndMergedItems {
     public MergeConflictsAndMergedItems(Set<Item> i_MergedItemsNotSorted, Set<ConflictingItems> i_ConflictItems, Boolean i_IsFastForward) {
         m_mergedItemsNotSorted = i_MergedItemsNotSorted;
         m_conflictItems = i_ConflictItems;
+        m_IsFastForwardCase = i_IsFastForward;
+    }
+
+    public Boolean IsFastForwardCase() {
+        return m_IsFastForwardCase;
+    }
+
+    public Set<Item> GetMergedItemsNotSorted() {
+        return m_mergedItemsNotSorted;
+    }
+
+    public Set<ConflictingItems> GetConflictItems() {
+        return m_conflictItems;
     }
 
     // states for merge

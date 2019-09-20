@@ -4,7 +4,7 @@ import Objects.Commit;
 import Objects.Item;
 import common.MagitFileUtils;
 import common.constants.StringConstants;
-
+import System.MergeConflictsAndMergedItems;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -87,6 +87,7 @@ public class Branch
     }
 
 
+
     //TODO: if there is more then one line throw exception
     private static String getCommitSha1FromBranchFile(Path i_Branch) throws FileNotFoundException
     {
@@ -111,14 +112,10 @@ public class Branch
         return branchName;
     }
 
-    /*private static Branch mergeBranches(Branch i_PullingBranch, Branch i_PushingBranch) throws Exception
-    {
-        Branch mergedBranch = null;
-        Commit mergedCommit = Commit.MergeCommits(i_PullingBranch.getPointedCommit(), i_PushingBranch.getPointedCommit());
-        mergedBranch = new Branch(i_PullingBranch.m_BranchName, mergedCommit);
-
-        return mergedBranch;
-    }*/
+    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_PushingBranch, Path i_RepositoryPath) throws Exception {
+        MergeConflictsAndMergedItems mergeConflicts = Commit.GetConflictsForMerge(this.getPointedCommit(), i_PushingBranch.getPointedCommit(), i_RepositoryPath);
+        return mergeConflicts;
+    }
 
     public static Optional<Branch> GetHeadBranch(List<Branch> i_AllBranches, String headBranchName) throws Exception
     {
@@ -140,7 +137,6 @@ public class Branch
     {
         m_PointedCommit = i_Commit;
     }
-
     public boolean AreTheSameBranches(Branch branch)
     {
         return m_PointedCommit.AreTheCommitsTheSame(branch.getPointedCommit()) &&
