@@ -4,6 +4,7 @@ import Objects.Item;
 import System.FolderDifferences;
 import common.constants.NumConstants;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import repository.RepositoryController;
@@ -89,12 +90,15 @@ public class LeftController
 
     private void addListToTreeItem(List<Item> i_ListToAdd, TreeItem<String> i_TreeItemRoot)
     {
+//        i_TreeItemRoot.getChildren().add(new TreeItem<Button>())
+
         i_ListToAdd
                 .stream()
                 .map(item ->
                         item.GetPath().toString())
                 .forEach(pathString ->
-                        i_TreeItemRoot.getChildren().add(new TreeItem<>(pathString))
-                );
+                {
+                    i_TreeItemRoot.getChildren().add(new TreeItem<>(pathString));
+                });
     }
 }

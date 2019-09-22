@@ -6,6 +6,7 @@ import Objects.branch.Branch;
 import System.Repository;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -16,6 +17,7 @@ public class LocalRepository extends Repository
     private List<RemoteBranch> m_RemoteBranches;
     private RemoteRepositoryRef m_RemoteRepoRef;
 
+
     public LocalRepository(Branch i_ActiveBranch, Path i_RepositoryPath, String i_RepositoryName, List<Branch> i_AllBranches, Map<String, Commit> i_AllCommitsRepository,
                            List<RemoteTrackingBranch> i_RemoteTrackingBranches, List<RemoteBranch> i_RemoteBranches, RemoteRepositoryRef i_RemoteRepoRef)
     {
@@ -25,11 +27,25 @@ public class LocalRepository extends Repository
         this.m_RemoteRepoRef = i_RemoteRepoRef;
     }
 
-    public LocalRepository(Branch i_ActiveBranch, Path i_RepositoryPath, String i_RepositoryName, List<Branch> i_AllBranches, Map<String, Commit> i_AllCommitsRepository)
+
+
+    @Override
+    public List<Branch> getAllBranches()
     {
-        super(i_ActiveBranch, i_RepositoryPath, i_RepositoryName, i_AllBranches, i_AllCommitsRepository);
+        List<Branch> allBranches = new ArrayList<Branch>();
+
+        if (m_Branches != null)
+            allBranches.addAll(m_Branches);
+
+        allBranches.addAll(m_RemoteBranches);
+        allBranches.addAll(m_RemoteTrackingBranches);
+        return allBranches;
     }
 
+   public List<Branch> getRegularBranches()
+   {
+       return m_Branches;
+   }
 
     public List<RemoteTrackingBranch> getRemoteTrackingBranches()
     {

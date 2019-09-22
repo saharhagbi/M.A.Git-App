@@ -30,7 +30,7 @@ public class CenterController
     @FXML
     private TableColumn<Commit, String> m_AuthorColumn;
 
-    private ObservableList<Commit> m_CommitsObservableList = FXCollections.observableArrayList();
+    private ObservableList<Commit> m_CommitsObservableList;
 
     public void SetRepositoryController(RepositoryController i_RepositoryController)
     {
@@ -55,19 +55,21 @@ public class CenterController
         m_SHA1Column.setCellValueFactory(commit ->
                 new SimpleStringProperty(commit.getValue().getSHA1()));
 
-        initObservCommitList();
+        InitObservCommitList();
         loadCommitsInTableView();
 
         bindSelectedCommitChangedToMainController();
     }
 
-    private void loadCommitsInTableView()
+    public void loadCommitsInTableView()
     {
         m_TableView.setItems(m_CommitsObservableList);
     }
 
-    private void initObservCommitList()
+    public void InitObservCommitList()
     {
+        m_CommitsObservableList = FXCollections.observableArrayList();
+
         m_RepositoryController.getCurrentRepository().getAllCommitsSHA1ToCommit()
                 .values()
                 .stream()

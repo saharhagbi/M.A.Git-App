@@ -1,5 +1,6 @@
 package Objects.branch;
 
+import collaboration.RemoteBranch;
 import collaboration.RemoteTrackingBranch;
 
 public class BranchUtils
@@ -10,6 +11,11 @@ public class BranchUtils
 
     public static boolean IsRemoteTrackingBranch(Branch branch)
     {
-        return branch.getClass() == RemoteTrackingBranch.class;
+        return branch.getClass().equals(RemoteTrackingBranch.class);
+    }
+
+    public static boolean IsRemoteBranch(Branch branch)
+    {
+        return branch.getClass().equals(RemoteBranch.class);
     }
 }

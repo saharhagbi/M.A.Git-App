@@ -137,6 +137,7 @@ public class Branch
     {
         m_PointedCommit = i_Commit;
     }
+
     public boolean AreTheSameBranches(Branch branch)
     {
         return m_PointedCommit.AreTheCommitsTheSame(branch.getPointedCommit()) &&

@@ -4,16 +4,19 @@ import Objects.Commit;
 import Objects.branch.Branch;
 import System.Engine;
 import System.FolderDifferences;
+import System.MergeConflictsAndMergedItems;
 import System.Repository;
 import XmlObjects.XMLMain;
 import collaboration.LocalRepository;
 import collaboration.Push;
+import collaboration.RemoteBranch;
 import common.constants.NumConstants;
 import common.constants.StringConstants;
 import javafx.scene.control.Alert;
 import main.MAGitController;
-import System.MergeConflictsAndMergedItems;
+
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -90,14 +93,62 @@ public class PrimaryController
         return m_Engine.getCurrentRepository();
     }
 
-    public void CreateNewBranch(String i_NewBranch, String i_SHA1Commit) throws Exception
+    public void CreateNewBranch() throws Exception
+    {
+
+        if (m_Engine.IsLocalRepository())
+            createBranchOnLocalRepository();
+        else
+            createReugularBranch();
+
+    }
+
+    private void createBranchOnLocalRepository() throws Exception
+    {
+        m_MagitController.getUserChoiceAndCreateBranch();
+    }
+
+    public void CreateNewBranchToSystem(String i_NewBranch, String i_SHA1Commit) throws Exception
     {
         m_Engine.CreateNewBranchToSystem(i_NewBranch, i_SHA1Commit);
     }
 
+
+    private void createReugularBranch() throws Exception
+    {
+        m_MagitController.getBranchNameAndCommitSHA1();
+
+    }
+
     public void DeleteBranch(String i_BranchNameToErase) throws Exception
     {
+        if (IsLocalRepository())
+            checkIfBranchIsRemoteBranch(i_BranchNameToErase);
+        else
+        {
+            deleteBranchFromSystem(i_BranchNameToErase);
+        }
+    }
+
+    public void deleteBranchFromSystem(String i_BranchNameToErase) throws Exception
+    {
         m_Engine.DeleteBranchFromSystem(i_BranchNameToErase);
+        m_MagitController.InformUserMessage(Alert.AlertType.INFORMATION, "Deleting Branch", "Deleting Branch",
+                "Branch was deleted Successfully!");
+        m_MagitController.UpdateWindowAfterDeletingBranch(i_BranchNameToErase);
+    }
+
+    private void checkIfBranchIsRemoteBranch(String i_branchNameToErase) throws Exception
+    {
+        LocalRepository localRepository = (LocalRepository) m_Engine.getCurrentRepository();
+
+        RemoteBranch remoteBranch = localRepository.findRemoteBranchBranchByPredicate(remoteBranch1 ->
+                remoteBranch1.getBranchName().equals(i_branchNameToErase));
+
+        if (remoteBranch == null)
+            deleteBranchFromSystem(i_branchNameToErase);
+        else
+            m_MagitController.InformUserMessage(Alert.AlertType.ERROR, "Delete Branch", "Remote Branch", "Can't delete RemoteBranch");
     }
 
     public boolean RootFolderChanged() throws Exception
@@ -141,10 +192,13 @@ public class PrimaryController
             m_MagitController.InformUserMessage(Alert.AlertType.ERROR, "Error!", "WC is Dirty",
                     "Can not execute Pull, there open changes in WC");
         else
+        {
             m_Engine.Pull();
+            m_MagitController.UpdateWindowTreeAndTable();
+        }
     }
 
-    public void SetUset(String newUserName)
+    public void SetUser(String newUserName)
     {
         m_Engine.UpdateNewUserInSystem(newUserName);
     }
@@ -154,13 +208,35 @@ public class PrimaryController
         Push pusher = new Push(m_Engine, (LocalRepository) m_Engine.getCurrentRepository());
 
         if (pusher.isPossibleToPush())
+        {
             pusher.Push();
+            m_MagitController.UpdateCommitTree();
+        }
         else
-            m_MagitController.InformUserMessage(Alert.AlertType.ERROR, "Error!", "Can't Push", "Can't push " +
-                    "current head branch");
+            m_MagitController.InformUserMessage(Alert.AlertType.ERROR, "Error!", "Push Invalid!", "Can't push " +
+                    "because one of the following reasons:" + System.lineSeparator() +
+                    "1. There are open changes in Wc" + System.lineSeparator() +
+                    "2. HeadBranch is not RTB" + System.lineSeparator() +
+                    "3. There is nothing to push! RR and LR synchronized!");
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_PushingBranch) throws Exception {
-        return m_Engine.getCurrentRepository().getActiveBranch().GetConflictsForMerge(i_PushingBranch,m_Engine.getCurrentRepository().getRepositoryPath());
+    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_PushingBranch) throws Exception
+    {
+        return m_Engine.getCurrentRepository().getActiveBranch().GetConflictsForMerge(i_PushingBranch, m_Engine.getCurrentRepository().getRepositoryPath());
+    }
+
+    public boolean IsLocalRepository()
+    {
+        return m_Engine.IsLocalRepository();
+    }
+
+    public boolean IsHeadBranch(String branchName)
+    {
+        return m_Engine.IsHeadBranch(branchName);
+    }
+
+    public void CreateRTB(Commit commit, String branchName) throws IOException
+    {
+        m_Engine.CreateRTB(commit, branchName);
     }
 }

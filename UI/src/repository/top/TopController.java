@@ -22,11 +22,9 @@ import repository.top.merge.MergeController;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class TopController
 {
@@ -53,11 +51,20 @@ public class TopController
     private MenuItem m_CheckoutMenuItem;
     @FXML
     private MenuItem m_ResetBtn;
+    @FXML
+    private MenuItem m_FetchBtn;
+    @FXML
+    private MenuItem m_PullBtn;
+    @FXML
+    private MenuItem m_PushBtn;
+    @FXML
+    private Menu m_RemoteRepo;
+
+
     private RepositoryController m_RepositoryController;
-    // see if needed this property
     private List<Branch> m_AllBranches;
     private ObservableList<MenuItem> m_BranchesListMenuBar;
-    private ObservableList<Text> m_BranchesListComboBox;
+    private ObservableList<Text> m_BranchesList;
 
 
     public void SetRepositoryController(RepositoryController i_RepositoryController)
@@ -118,8 +125,9 @@ public class TopController
         commitTask.
                 setOnSucceeded(event ->
                 {
-                    m_RepositoryController.UpdateTableColumnAccordingToLastCommit();
+                    m_RepositoryController.UpdateCommitTable();
                     m_RepositoryController.UpdateCommitTree();
+                    m_RepositoryController.ClearTableView();
                 });
 
         new Thread(commitTask).start();
@@ -144,8 +152,6 @@ public class TopController
 
         //commitMessage = MAGitUtils.GetString("Enter your commit message please", "Message:", StringConstants.COMMIT);
         m_RepositoryController.CommitChanges(commitMessage);
-
-        System.out.println("got here");
     }
 
     @FXML
@@ -169,29 +175,16 @@ public class TopController
 
     public void InitAllComponentsInTop()
     {
-        initPathAndUserName(m_RepositoryController.getCurrentRepository().getRepositoryPath());
-
-//        m_AllBranches = m_RepositoryController.GetCurrentRepository().getAllBranches();
+        initPathAndUserName();
         initBranchesInComboBox();
         initBranchesInMenuBar();
-
-        //   initEventListeners();
-    }
-
-    private void initEventListeners()
-    {
+        m_RemoteRepo.setDisable(!m_RepositoryController.IsLocalRepository());
 
     }
 
     private void initBranchesInMenuBar()
     {
-       /* m_BranchesListMenuBar = FXCollections.observableList(m_AllBranches
-                .stream()
-                .map(branch -> new MenuItem(branch.getBranchName()))
-                .collect(Collectors.toList()));
-*/
-        m_RepositoryController.getCurrentRepository().getAllBranches()
-                .stream()
+        m_RepositoryController.getCurrentRepository().getAllBranches().stream()
                 .forEach(branchItem -> addBranchToMenuBar(branchItem.getBranchName()));
     }
 
@@ -204,22 +197,12 @@ public class TopController
 
     private void deleteBranch(String i_BranchNameToErase)
     {
+        //m_RepositoryController.InitProgress("Deleting Branch...");
         try
         {
-            m_RepositoryController.InitProgress("Deleting Branch...");
 
-            if (!isHeadBranch(i_BranchNameToErase))
-            {
-                m_RepositoryController.DeleteBranch(i_BranchNameToErase);
-                updateBoardAfterDeletingBranch(i_BranchNameToErase);
+            m_RepositoryController.DeleteBranch(i_BranchNameToErase);
 
-                MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Deleting Branch", "Deleting Branch",
-                        "Branch was deleted Successfully!");
-            } else
-            {
-                MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Deleting Head Branch", "Error!",
-                        "Can not delete head branch");
-            }
         } catch (Exception e)
         {
             //Todo:
@@ -227,15 +210,15 @@ public class TopController
             e.printStackTrace();
         } finally
         {
-            m_RepositoryController.UpdateProgress();
+            //m_RepositoryController.UpdateProgress();
         }
     }
 
-    private void updateBoardAfterDeletingBranch(String i_BranchNameToErase)
+    public void UpdateBoardAfterDeletingBranch(String i_BranchNameToErase)
     {
         deleteBranchFromComboBox(i_BranchNameToErase);
         deleteBranchFromMenuBar(i_BranchNameToErase);
-        m_RepositoryController.UpdateCommitTree();
+        //m_RepositoryController.UpdateCommitTree();
     }
 
     //todo:
@@ -249,33 +232,57 @@ public class TopController
 
     private void deleteBranchFromComboBox(String i_BranchNameToErase)
     {
-        m_BranchesListComboBox.removeIf(branch -> branch.getText().equals(i_BranchNameToErase));
+        m_BranchesList.removeIf(branch -> branch.getText().equals(i_BranchNameToErase));
     }
 
     private void initBranchesInComboBox()
     {
-        /*Stream<Branch> combinedStream = Stream.concat(
-                collectionA.stream(),
-                collectionB.stream());*/
-      //  List<Branch> branches = m_RepositoryController.getAllBranchesToShow();
-        m_BranchesListComboBox = FXCollections.observableList(m_RepositoryController.getCurrentRepository().getAllBranches()
-                    .stream()
+      /*  if (m_RepositoryController.IsLocalRepository())
+        {
+            showAllBranches();
+        } else
+        {
+            //  List<Branch> branches = m_RepositoryController.getAllBranchesToShow();*/
+        m_BranchesList = showListOfBranches(m_RepositoryController.getCurrentRepository().getAllBranches());
+        m_ComboBoxBranches.setItems(m_BranchesList);
+//        }
+    }
+
+    private ObservableList<Text> showListOfBranches(List<Branch> allBranches)
+    {
+        return FXCollections.observableList(allBranches
+                .stream()
                 .map(branch ->
                 {
                     Text txt = new Text(branch.getBranchName());
 
-                    if (isHeadBranch(branch.getBranchName()))
+                    if (m_RepositoryController.IsHeadBranch(branch.getBranchName()))
                         MAGitUtils.HighlightText(txt);
 
                     return txt;
                 }).collect(Collectors.toList()));
+    }
 
-        m_ComboBoxBranches.setItems(m_BranchesListComboBox);
+    private void showAllBranches()
+    {
+        /*LocalRepository currentRepository = (LocalRepository) m_RepositoryController.getCurrentRepository();
+
+         *//* if (currentRepository.getAllBranches() != null)*//*
+            m_BranchesList = showListOfBranches(currentRepository.getAllBranches());*/
+/*
+        List<Branch> remoteBranches = currentRepository.getRemoteBranches().stream().map(remoteBranch -> (Branch) remoteBranch).collect(Collectors.toList());
+        m_RBListComboBox = showListOfBranches(remoteBranches);
+
+        List<Branch> remoteTrackingBranches = currentRepository.getRemoteTrackingBranches().stream().map(remoteTBranch -> (Branch) remoteTBranch).collect(Collectors.toList());
+        m_RTBListComboBox = showListOfBranches(remoteTrackingBranches);
+
+        ObservListCombinder.merge(m_AllBranchesForComboBox, m_BranchesList, m_RBListComboBox, m_RTBListComboBox);
+        m_ComboBoxBranches.setItems(m_AllBranchesForComboBox);*/
     }
 
     private void hightlightHeadBranchInComboBox(boolean i_Highlight)
     {
-        m_BranchesListComboBox
+        m_BranchesList
                 .filtered(txt ->
                         txt.getText().equals(m_RepositoryController.getCurrentRepository().getActiveBranch().getBranchName()))
                 .forEach(txt ->
@@ -283,17 +290,8 @@ public class TopController
                     if (i_Highlight)
                         MAGitUtils.HighlightText(txt);
                     else
-                    {
                         MAGitUtils.UnhighlightText(txt);
-                        /*m_BranchesListComboBox.remove(txt);
-                        addBranchToComboBox(new Text(txt.getText()));*/
-                    }
                 });
-    }
-
-    private boolean isHeadBranch(String i_BranchName)
-    {
-        return i_BranchName.equals(m_RepositoryController.getCurrentRepository().getActiveBranch().getBranchName());
     }
 
     private void addBranchToComboBox(Text i_BranchName)
@@ -301,10 +299,10 @@ public class TopController
         m_ComboBoxBranches.getItems().add(i_BranchName);
     }
 
-    private void initPathAndUserName(Path i_RepositoryPath)
+    private void initPathAndUserName()
     {
         m_UserNameTxt.setText(StringConstants.ADMINISTRATOR);
-        m_PathTxt.setText(i_RepositoryPath.toString());
+        m_PathTxt.setText(m_RepositoryController.getCurrentRepository().getRepositoryPath().toString());
     }
 
     @FXML
@@ -319,7 +317,7 @@ public class TopController
                 {
                     StringBuilder branchInfo = new StringBuilder();
 
-                    if (isHeadBranch(branch.getBranchName()))
+                    if (m_RepositoryController.IsHeadBranch(branch.getBranchName()))
                         branchInfo.append("------>");
 
                     return branchInfo.append("Branch Name: " + branch.getBranchName() + System.lineSeparator())
@@ -335,26 +333,24 @@ public class TopController
                 "Info of All Branches:", allBranchesInfo.toString());
     }
 
-    /* Node wrapTxt = Borders.wrap(new TextArea(branchInfo.toString()))
-             .lineBorder().color(Color.GREEN)
-             .thickness(1)
-             .radius(0,5, 5, 0)
-             .build().build();*/
     @FXML
     void CreateBranch_OnClick(ActionEvent event)
     {
-        String newBranch;
-        String SHA1Commit;
+      /*  String newBranch;
+        String SHA1Commit;*/
         try
         {
             m_RepositoryController.InitProgress("Creationg Branch...");
+/*
 
             newBranch = MAGitUtils.GetString("Enter the name of the new Branch", "Name", "New Branch");
             SHA1Commit = MAGitUtils.GetString("Enter the SHA1 of the commit you want the branch will point",
                     "SHA1:", "Commit SHA1");
+*/
 
-            m_RepositoryController.CreateNewBranch(newBranch, SHA1Commit);
-            updateBoardAfterCreatingNewBranch(newBranch);
+
+            m_RepositoryController.CreateNewBranch();
+//            updateBoardAfterCreatingNewBranch(newBranch);
 
             m_RepositoryController.UpdateProgress();
         } catch (Exception e)
@@ -365,7 +361,7 @@ public class TopController
         }
     }
 
-    private void updateBoardAfterCreatingNewBranch(String newBranch)
+    public void updateBoardAfterCreatingNewBranch(String newBranch)
     {
         addBranchToComboBox(new Text(newBranch));
         addBranchToMenuBar(newBranch);
@@ -416,10 +412,9 @@ public class TopController
         //todo:
         // implement setOnSucceeded
 
-        /*  checkoutTask.
-                setOnSucceeded(() ->
-                        m_RepositoryController.UpdateTableColumnAccordingToLastCommit(),
-                m_RepositoryController.AddNodeCommitToTree());*/
+        checkoutTask.
+                setOnSucceeded(evnt ->
+                        m_RepositoryController.UpdateCommitTree());
     }
 
     private void getUserChoiceAndCheckout() throws Exception
@@ -552,7 +547,7 @@ public class TopController
     {
         try
         {
-            m_RepositoryController.InitProgress("Pull...");
+            //   m_RepositoryController.InitProgress("Pull...");
             m_RepositoryController.Pull();
         } catch (Exception e)
         {
@@ -560,7 +555,7 @@ public class TopController
             e.printStackTrace();
         }
 
-        m_RepositoryController.UpdateProgress();
+        //    m_RepositoryController.UpdateProgress();
     }
 
 
@@ -587,16 +582,11 @@ public class TopController
     {
         try
         {
-           // m_RepositoryController.InitProgress("Pushing...");
             m_RepositoryController.Push();
         } catch (Exception e)
         {
             //todo
             e.printStackTrace();
         }
-       // m_RepositoryController.UpdateProgress();
     }
 }
-
-
-

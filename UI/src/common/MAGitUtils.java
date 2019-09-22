@@ -1,10 +1,7 @@
 package common;
 
 import common.constants.StringConstants;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ChoiceDialog;
-import javafx.scene.control.Control;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -99,11 +96,10 @@ public class MAGitUtils
         i_Txt.setStyle(null);
     }
 
-    public static Text Arrow()
-    {
-        Text arrow = new Text(StringConstants.ARROW);
-        arrow.setFont(Font.font(null, FontWeight.BOLD, 20));
 
-        return arrow;
+
+    public static void HighlightLabel(Label branchName)
+    {
+        branchName.setStyle("-fx-font-weight: bold; -fx-stroke: #5b72ff");
     }
 }

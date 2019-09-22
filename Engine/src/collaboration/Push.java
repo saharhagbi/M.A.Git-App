@@ -5,6 +5,7 @@ import Objects.Folder;
 import Objects.branch.Branch;
 import Objects.branch.BranchUtils;
 import System.Engine;
+import XmlObjects.repositoryWriters.LocalRepositoryWriter;
 import XmlObjects.repositoryWriters.RepositoryWriter;
 import common.constants.ResourceUtils;
 
@@ -17,6 +18,7 @@ public class Push
     private Engine m_Engine;
     private LocalRepository m_LocalRepository;
     private Branch m_BranchToPushToInRepo;
+    private RemoteBranch m_RemoteBranchOfRTB;
 
     public Push(Engine engine, LocalRepository localRepository) throws Exception
     {
@@ -40,33 +42,40 @@ public class Push
         String remoteBranchNameExpected = m_LocalRepository.getRemoteRepoRef().getName() + ResourceUtils.Slash +
                 remoteTrackingBranchInLocal.getBranchName();
 
-        RemoteBranch remoteBranchOfRTB = m_LocalRepository.findRemoteBranchBranchByPredicate(
+        m_RemoteBranchOfRTB = m_LocalRepository.findRemoteBranchBranchByPredicate(
                 remoteBranch ->
                         remoteBranch.getBranchName().equals(remoteBranchNameExpected)
         );
 
-
         m_BranchToPushToInRepo = m_Fetcher.getRemoteRepositoryToFetchFrom().findBranchByPredicate(branch ->
                 branch.getBranchName().equals(remoteTrackingBranchInLocal.getBranchName()));
 
-        return remoteBranchOfRTB.getPointedCommit().AreTheCommitsTheSame(m_BranchToPushToInRepo.getPointedCommit());
+        //checking if the remoteBranch in local and the branch in remote repository in the same location
+        return m_RemoteBranchOfRTB.getPointedCommit().AreTheCommitsTheSame(m_BranchToPushToInRepo.getPointedCommit()) &&
+                !remoteTrackingBranchInLocal.getPointedCommit().AreTheCommitsTheSame(m_BranchToPushToInRepo.getPointedCommit());
+        //checking if there is something to pull
     }
 
     public void Push() throws IOException, ParseException
     {
         RepositoryWriter repositoryWriter = new RepositoryWriter(m_Fetcher.getRemoteRepositoryToFetchFrom());
+        LocalRepositoryWriter localRepositoryWriter = new LocalRepositoryWriter(m_LocalRepository);
 
 
-        //in function isPossibleToPush we check that headBranch Is rtb
+        //in function isPossibleToPush we checked that headBranch Is rtb
         m_BranchToPushToInRepo.setPointedCommit(m_LocalRepository.getActiveBranch().getPointedCommit());
+        m_RemoteBranchOfRTB.setPointedCommit(m_LocalRepository.getActiveBranch().getPointedCommit());
+        localRepositoryWriter.WriteRemoteBranch(m_RemoteBranchOfRTB);
 
         repositoryWriter.WriteBranch(m_BranchToPushToInRepo);
 
+        //check if needed to do checkout in remote repository
         if (m_BranchToPushToInRepo.AreTheSameBranches(m_LocalRepository.getActiveBranch()))
         {
-            Commit commitOfHeadBranchInRepo = m_BranchToPushToInRepo.getPointedCommit();
+            Commit commitOfHeadBranchInRepoDup = new Commit(m_BranchToPushToInRepo.getPointedCommit());
+            commitOfHeadBranchInRepoDup.getRootFolder().initFolderPaths(m_Fetcher.getRemoteRepositoryToFetchFrom().getRepositoryPath());
 
-            Folder.RemoveFilesAndFoldersWithoutMagit(commitOfHeadBranchInRepo.getRootFolder().GetPath());
+            Folder.RemoveFilesAndFoldersWithoutMagit(commitOfHeadBranchInRepoDup.getRootFolder().GetPath());
             Folder.SpanDirectory(m_BranchToPushToInRepo.getPointedCommit().getRootFolder());
         }
     }

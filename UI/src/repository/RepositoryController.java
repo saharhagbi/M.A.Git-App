@@ -3,7 +3,12 @@ package repository;
 import Objects.Commit;
 import System.FolderDifferences;
 import System.Repository;
+import collaboration.LocalRepository;
+import collaboration.RemoteBranch;
+import common.Enums;
 import common.MAGitUtils;
+import common.constants.ResourceUtils;
+import common.constants.StringConstants;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -20,6 +25,8 @@ import repository.right.RightController;
 import repository.top.TopController;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RepositoryController
 {
@@ -111,9 +118,9 @@ public class RepositoryController
         return m_BottomController.GetLabelBar();
     }
 
-    public void CreateNewBranch(String i_NewBranch, String i_SHA1Commit) throws Exception
+    public void CreateNewBranch() throws Exception
     {
-        m_MagitController.CreateNewBranch(i_NewBranch, i_SHA1Commit);
+        m_MagitController.CreateNewBranch();
     }
 
     public void DeleteBranch(String i_BranchNameToErase) throws Exception
@@ -169,10 +176,10 @@ public class RepositoryController
             m_LeftController.ClearTableView();
     }
 
-    public void UpdateTableColumnAccordingToLastCommit()
+    public void UpdateCommitTable()
     {
-        Commit newLastCommit = getCurrentRepository().getActiveBranch().getPointedCommit();
-        m_CenterController.AddCommitToObservList(newLastCommit);
+        m_CenterController.InitObservCommitList();
+        m_CenterController.loadCommitsInTableView();
     }
 
     public void UpdateCommitTree()
@@ -209,5 +216,76 @@ public class RepositoryController
     public void Push() throws Exception
     {
         m_MagitController.Push();
+    }
+
+    public boolean IsLocalRepository()
+    {
+        return m_MagitController.IsLocalRepository();
+    }
+
+    public boolean IsHeadBranch(String branchName)
+    {
+        return m_MagitController.IsHeadBranch(branchName);
+    }
+
+
+    public void getBranchNameAndCommitSHA1AndCreateBranch() throws Exception
+    {
+        String newBranch = MAGitUtils.GetString("Enter the name of the new Branch", "Name", "New Branch");
+        String SHA1Commit = MAGitUtils.GetString("Enter the SHA1 of the commit you want the branch will point",
+                "SHA1:", "Commit SHA1");
+
+        m_MagitController.CreateNewBranchToSystem(newBranch, SHA1Commit);
+        m_TopController.updateBoardAfterCreatingNewBranch(newBranch);
+    }
+
+    public void getUserChoiceAndCreateBranch() throws Exception
+    {
+        String userChoice = MAGitUtils.GetUserChoice("Create Branch", "Choose which kind of Branch dwould you like to create",
+                StringConstants.REMOTE_TRACKING_BRANCH, new String[]{StringConstants.REGULAR_BRANCH, StringConstants.REMOTE_TRACKING_BRANCH});
+
+        Enums.BranchType type = userChoice.equals(StringConstants.REGULAR_BRANCH) ? Enums.BranchType.BRANCH : Enums.BranchType.REMOTE_TRACKING_BRANCH;
+
+        if (type == Enums.BranchType.BRANCH)
+            getBranchNameAndCommitSHA1AndCreateBranch();
+        else
+            createRTBranchInLocalRepository();
+    }
+
+    private void createRTBranchInLocalRepository() throws IOException
+    {
+        LocalRepository localRepository = (LocalRepository) getCurrentRepository();
+
+        List<String> remoteBranchesNames = localRepository.getRemoteBranches().stream().map(branch -> branch.getBranchName()).collect(Collectors.toList());
+        String[] remoteBranches = remoteBranchesNames.toArray(new String[0]);
+
+        String remoteBranchName = MAGitUtils.GetUserChoice("Create Branch", "Choose remote Branch to track after:",
+                null, remoteBranches);
+
+        String[] temp = remoteBranchName.split(ResourceUtils.Slash);
+        String branchName = temp[1];
+
+        RemoteBranch remoteBranch = localRepository.findRemoteBranchBranchByPredicate(remoteBranch1 -> remoteBranch1.getBranchName().equals(remoteBranchName));
+        Commit pointedCommit = remoteBranch.getPointedCommit();
+
+        m_MagitController.createRTB(pointedCommit, branchName);
+        m_TopController.updateBoardAfterCreatingNewBranch(branchName);
+    }
+
+    public void UpdateWindowAfterDeletingBranch(String i_branchNameToErase)
+    {
+        m_TopController.UpdateBoardAfterDeletingBranch(i_branchNameToErase);
+        UpdateCommitTree();
+    }
+
+    public void UpdateWindowTreeAndTable()
+    {
+        UpdateCommitTable();
+        UpdateCommitTree();
+    }
+
+    public void ClearTableView()
+    {
+        m_LeftController.ClearTableView();
     }
 }

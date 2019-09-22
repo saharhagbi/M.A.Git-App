@@ -135,4 +135,9 @@ public class Fetch
                 .anyMatch(remoteBranch ->
                         remoteBranch.getBranchName().equals(expectedRemoteBranchName));
     }
+
+    public LocalRepository getCurrentLocalRepository()
+    {
+        return m_CurrentLocalRepository;
+    }
 }
