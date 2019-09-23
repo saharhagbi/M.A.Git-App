@@ -14,7 +14,12 @@ public class MergeController {
     @FXML
     private ListView<String> m_ConflictsListView;
     @FXML
-    private TextArea m_OurTextArea;
+    private ListView<String> m_ourVersionListView;
+    @FXML
+    private ListView<String> m_BaseVersionListView;
+    @FXML
+    private ListView<String> m_SelectedBranchListView;
+
     @FXML
     private TextArea m_AncestorTextArea;
     @FXML
@@ -66,7 +71,6 @@ public class MergeController {
                 } else { //not FF
 
                     m_ConflictsListView.setItems(conflicts.GetConflictItemsNames());
-
                     // 1. show user conflicts let him choose which he wants
                     // 2. take chosen items and add to -> conflicts.GetMergedItemsNotSorted();
                     // 3. create new folder FromNotSorted mergedItems
