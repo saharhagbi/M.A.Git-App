@@ -16,4 +16,6 @@ public class StringConstants
     public static final String REPOSITORY_DETAILS = "RepositoryDetails";
     public static final String HEAD = "HEAD.txt";
     public static final String MERGE = "Merge";
+    public static final String REGULAR_BRANCH = "Regular Branch";
+    public static final String REMOTE_TRACKING_BRANCH = "Remote Tracking Branch";
 }

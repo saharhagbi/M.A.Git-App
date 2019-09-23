@@ -1,7 +1,12 @@
 package System;
 
+import Objects.Commit;
 import Objects.Item;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class MergeConflictsAndMergedItems {
@@ -9,11 +14,18 @@ public class MergeConflictsAndMergedItems {
     Set<Item> m_mergedItemsNotSorted;
     Set<ConflictingItems> m_conflictItems;
     Boolean m_IsFastForwardCase;
+    Commit m_FastForwardCommit;
+    Boolean m_IsPullingAncestorOfPulled;
+    Boolean m_IsPulledAncestorOfPulling;
 
-    public MergeConflictsAndMergedItems(Set<Item> i_MergedItemsNotSorted, Set<ConflictingItems> i_ConflictItems, Boolean i_IsFastForward) {
+
+    public MergeConflictsAndMergedItems(Set<Item> i_MergedItemsNotSorted, Set<ConflictingItems> i_ConflictItems, Boolean i_IsFastForward, Commit i_FastForwardCommit, Boolean i_isPullingAncestorOfPulled, Boolean i_isPulledAncestorOfPulling) {
         m_mergedItemsNotSorted = i_MergedItemsNotSorted;
         m_conflictItems = i_ConflictItems;
         m_IsFastForwardCase = i_IsFastForward;
+        m_FastForwardCommit = i_FastForwardCommit;
+        m_IsPulledAncestorOfPulling = i_isPulledAncestorOfPulling;
+        m_IsPullingAncestorOfPulled = i_isPullingAncestorOfPulled;
     }
 
     public Boolean IsFastForwardCase() {
@@ -87,4 +99,19 @@ public class MergeConflictsAndMergedItems {
         else return false;
     }
 
+    public Boolean IsPullingAncestorOfPulled() {
+        return m_IsPullingAncestorOfPulled;
+    }
+
+    public Boolean IsPulledAncestorOfPulling() {
+        return m_IsPulledAncestorOfPulling;
+    }
+
+    public ObservableList<String> GetConflictItemsNames() {
+        List<String > conflictNamesList = new ArrayList<>();
+        m_conflictItems.forEach(conflictingItem -> {
+            conflictNamesList.add(conflictingItem.m_PullingItem.getName());
+        });
+        return FXCollections.observableList(conflictNamesList);
+    }
 }

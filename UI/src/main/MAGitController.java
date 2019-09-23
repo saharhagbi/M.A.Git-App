@@ -2,9 +2,8 @@ package main;
 
 import Objects.Commit;
 import Objects.branch.Branch;
-import System.Repository;
 import System.FolderDifferences;
-import System.MergeConflictsAndMergedItems;
+import System.Repository;
 import XmlObjects.MagitRepository;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -19,7 +18,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
-
+import java.util.concurrent.ExecutionException;
+import System.MergeConflictsAndMergedItems;
 public class MAGitController
 {
     private PrimaryController m_PrimaryController;
@@ -42,7 +42,7 @@ public class MAGitController
         m_PrimaryController.loadRepositoryFromXML(i_PathToXML);
     }
 
-    public void handleCurrentRepositoryAlreadyExist(MagitRepository i_XmlRepository)
+    public void handleCurrentRepositoryAlreadyExist(MagitRepository i_XmlRepository) throws ExecutionException, InterruptedException
     {
         m_StartingController.HandleCurrentRepositoryAlreadyExist();
     }
@@ -68,6 +68,8 @@ public class MAGitController
         Scene scene = new Scene(root);
 
         i_PrimaryStage.setScene(scene);
+        i_PrimaryStage.setMinWidth(scene.getWidth());
+        i_PrimaryStage.setMinHeight(scene.getHeight());
 
         setComponentsIfRepositoryScene(i_PrimaryStage, isRepositoryScene);
 
@@ -124,9 +126,9 @@ public class MAGitController
         return m_PrimaryController.GetCurrentRepository();
     }
 
-    public void CreateNewBranch(String i_NewBranch, String i_SHA1Commit) throws Exception
+    public void CreateNewBranch() throws Exception
     {
-        m_PrimaryController.CreateNewBranch(i_NewBranch, i_SHA1Commit);
+        m_PrimaryController.CreateNewBranch();
     }
 
     public void DeleteBranch(String i_BranchNameToErase) throws Exception
@@ -167,7 +169,7 @@ public class MAGitController
     public void Pull() throws Exception
     {
         m_PrimaryController.Pull();
-    }
+        }
 
 
     public void InformUserMessage(Alert.AlertType i_AlertType, String i_Title, String i_Header, String i_ContextText)
@@ -177,10 +179,60 @@ public class MAGitController
 
     public void SetUser(String newUserName)
     {
-        m_PrimaryController.SetUset(newUserName);
+        m_PrimaryController.SetUser(newUserName);
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_selectedBranchToMerge) throws Exception {
-        return m_PrimaryController.GetConflictsForMerge(i_selectedBranchToMerge);
+    public void Push() throws Exception
+    {
+        m_PrimaryController.Push();
+    }
+
+    public boolean IsLocalRepository()
+    {
+        return m_PrimaryController.IsLocalRepository();
+    }
+
+    public boolean IsHeadBranch(String branchName)
+    {
+        return m_PrimaryController.IsHeadBranch(branchName);
+    }
+
+    public void getBranchNameAndCommitSHA1() throws Exception
+    {
+        m_RepositoryController.getBranchNameAndCommitSHA1AndCreateBranch();
+    }
+
+    public void CreateNewBranchToSystem(String newBranch, String sha1Commit) throws Exception
+    {
+        m_PrimaryController.CreateNewBranchToSystem(newBranch, sha1Commit);
+    }
+
+    public void getUserChoiceAndCreateBranch() throws Exception
+    {
+        m_RepositoryController.getUserChoiceAndCreateBranch();
+    }
+
+    public void createRTB(Commit commit, String branchName) throws IOException
+    {
+        m_PrimaryController.CreateRTB(commit, branchName);
+    }
+
+    public void UpdateWindowAfterDeletingBranch(String i_branchNameToErase)
+    {
+        m_RepositoryController.UpdateWindowAfterDeletingBranch(i_branchNameToErase);
+    }
+
+    public void UpdateWindowTreeAndTable()
+    {
+        m_RepositoryController.UpdateWindowTreeAndTable();
+    }
+
+    public void UpdateCommitTree()
+    {
+        m_RepositoryController.UpdateCommitTree();
+    }
+
+    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_selectedBranchNameToMerge) throws Exception {
+        return this.m_PrimaryController.GetConflictsForMerge(i_selectedBranchNameToMerge);
     }
 }

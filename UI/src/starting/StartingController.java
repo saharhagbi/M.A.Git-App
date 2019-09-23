@@ -3,15 +3,21 @@ package starting;
 import common.MAGitResourceConstants;
 import common.MAGitUtils;
 import common.constants.StringConstants;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.stage.Stage;
 import main.MAGitController;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 //import java.awt.*;
 
@@ -27,7 +33,10 @@ public class StartingController
     private Button m_CloneBtn;
 
     private MAGitController m_MagitController;
-
+    @FXML
+    private ProgressBar m_ProgressBar;
+    @FXML
+    private Label m_WelcomeLabel;
 
     @FXML
     public void CreateNewRepositry_OnClick()
@@ -53,13 +62,38 @@ public class StartingController
     @FXML
     public void LoadRepositoryFromXML_OnClick() throws Exception
     {
-
         File selectedFile = MAGitUtils.GetFile(MAGitUtils.GetStage(m_LoadRepoFromXMLBtn));
 
-        m_MagitController.loadRepositoryFromXML(selectedFile.getAbsolutePath());
+        m_LoadExistingRepositoryBtn.getParent().setVisible(false);
+        /*m_ProgressBar.setVisible(true);
+        m_ProgressBar.setProgress();
+*/
+        Task loadTask = new Task()
+        {
+            @Override
+            protected Object call() throws Exception
+            {
+                updateMessage("Loading...");
 
-        moveToRepositoryScene();
+
+                m_MagitController.loadRepositoryFromXML(selectedFile.getAbsolutePath());
+
+                updateProgress(1, 1);
+                return null;
+            }
+        };
+        m_WelcomeLabel.textProperty().bind(loadTask.messageProperty());
+//        bindTaskComponentsToUI(m_WelcomeLabel, m_ProgressBar, loadTask);
+        new Thread(loadTask).start();
+        loadTask.setOnSucceeded(event -> moveToRepositoryScene());
+        // moveToRepositoryScene();
     }
+
+   /* private void bindTaskComponentsToUI(Label i_LabelBar, ProgressBar i_ProgressBar, Task i_CommitTask)
+    {
+        i_LabelBar.textProperty().bind(i_CommitTask.messageProperty());
+        i_ProgressBar.progressProperty().bind(i_CommitTask.progressProperty());
+    }*/
 
     @FXML
     public void LoadExistingRepository_OnClick()
@@ -96,7 +130,7 @@ public class StartingController
         }
     }
 
-    public void HandleCurrentRepositoryAlreadyExist()
+    public void HandleCurrentRepositoryAlreadyExist() throws ExecutionException, InterruptedException
     {
         String headerText = String.format("Repository already exist in this location!"
                 + System.lineSeparator()
@@ -109,7 +143,14 @@ public class StartingController
 
         String defaultChoice = String.format(StringConstants.XML_REPOSITORY);
 
-        String userChoice = MAGitUtils.GetUserChoice(title, headerText, defaultChoice, UserChoices);
+        FutureTask<String> futureTask = new FutureTask<String>(() ->
+                MAGitUtils.GetUserChoice(title, headerText, defaultChoice, UserChoices)
+        );
+
+        Platform.runLater(futureTask);
+
+
+        String userChoice = futureTask.get();
 
         try
         {

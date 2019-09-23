@@ -4,6 +4,7 @@ import Objects.Commit;
 import Objects.Folder;
 import Objects.branch.Branch;
 import Objects.branch.BranchFactory;
+import Objects.branch.BranchUtils;
 import XmlObjects.MagitRepository;
 import XmlObjects.XMLMain;
 import XmlObjects.repositoryWriters.LocalRepositoryWriter;
@@ -13,7 +14,7 @@ import common.MagitFileUtils;
 import common.constants.NumConstants;
 import common.constants.ResourceUtils;
 import common.constants.StringConstants;
-
+import System.MergeConflictsAndMergedItems;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.*;
 
 public class Engine
@@ -31,19 +33,7 @@ public class Engine
     private XMLMain m_XMLMain = new XMLMain();
     private LocalRepository m_CurrentLocalRepository = null;
 
-    /*private void loadRepositoryFromXML(i_UserPath) throws Exception
-    {
-        boolean isXMLRepoExist;
 
-        isXMLRepoExist = m_XMLMain.CheckXMLFile(Paths.get(i_UserPath));
-
-        if (!isXMLRepoExist)
-            setCurrentRepository(
-                    m_XMLMain.ParseAndWriteXML(m_XMLMain.GetXmlRepository())
-            );
-        else
-            handleCurrentRepositoryAlreadyExist(m_XMLMain.GetXmlRepository());
-    }*/
     public static void CreateRepositoryDirectories(Path i_rootFolderPath)
     {
         Path objectsFolderPath, branchesFolderPath, tempFolderPath;
@@ -86,7 +76,7 @@ public class Engine
 
     public void CommitInCurrentRepository(String i_CommitMessage) throws Exception
     {
-        m_CurrentRepository.CreateNewCommitAndUpdateActiveBranch(m_User, i_CommitMessage);
+        getCurrentRepository().CreateNewCommitAndUpdateActiveBranch(m_User, i_CommitMessage);
     }
 
     public void CreateNewRepository(Path i_PathToRootFolderOfRepository, String i_RepositoryName) throws Exception
@@ -103,6 +93,7 @@ public class Engine
             createMagitFolderInRootFolder(i_PathToRootFolderOfRepository);
             Branch MasterBranch = new Branch("Master", null);
             m_CurrentRepository = new Repository(i_PathToRootFolderOfRepository, i_RepositoryName, MasterBranch);
+            m_CurrentLocalRepository = null;
         }
 
     }
@@ -134,11 +125,11 @@ public class Engine
     {
         //1. create the currentWorkingCopy as Folder
         FolderDifferences differences = null;
-        Folder wc = this.m_CurrentRepository.GetUpdatedWorkingCopy(this.m_User);
-        if (this.m_CurrentRepository.getActiveBranch().getPointedCommit() == null)
+        Folder wc = this.getCurrentRepository().GetUpdatedWorkingCopy(this.m_User);
+        if (this.getCurrentRepository().getActiveBranch().getPointedCommit() == null)
             throw new Exception("Before show status, you need to commit first!");
 
-        Folder lastCommitWc = this.m_CurrentRepository.getActiveBranch().getPointedCommit().getRootFolder();
+        Folder lastCommitWc = this.getCurrentRepository().getActiveBranch().getPointedCommit().getRootFolder();
 
         if (!wc.getSHA1().equals(lastCommitWc.getSHA1()))
             differences = Folder.FinedDifferences(wc, lastCommitWc);
@@ -150,7 +141,7 @@ public class Engine
     public void CheckOut(String i_BranchName) throws Exception
     {
         //1. set active branch to selectd branch
-        this.m_CurrentRepository.replaceActiveBranch(i_BranchName);
+        this.getCurrentRepository().replaceActiveBranch(i_BranchName);
 
         removeFilesFromWCAndSpanNewCommitInActiveBranch();
     }
@@ -158,9 +149,9 @@ public class Engine
     private void removeFilesFromWCAndSpanNewCommitInActiveBranch() throws IOException
     {
         //2. remove previous  files and folders
-        Folder.RemoveFilesAndFoldersWithoutMagit(this.m_CurrentRepository.getActiveBranch().getPointedCommit().getRootFolder().GetPath());
+        Folder.RemoveFilesAndFoldersWithoutMagit(this.getCurrentRepository().getActiveBranch().getPointedCommit().getRootFolder().GetPath());
         //3. span rootFolder in WC
-        Folder.SpanDirectory(this.m_CurrentRepository.getActiveBranch().getPointedCommit().getRootFolder());
+        Folder.SpanDirectory(this.getCurrentRepository().getActiveBranch().getPointedCommit().getRootFolder());
     }
 
     public void GetCommitHistoryInActiveBranch() throws IOException
@@ -208,14 +199,15 @@ public class Engine
             //repository = new Repository(activeBranch, repositoryPath, i_NameOfRepository, allBranches);-
             repository = new Repository(activeBranch.get(), repositoryPath, i_NameOfRepository, allBranches, allCommitsInRepositoryMap);
             this.m_CurrentRepository = repository;
-            this.getCurrentRepository().setActiveBranch(activeBranch.get());
+            m_CurrentLocalRepository = null;
+            this.m_CurrentRepository.setActiveBranch(activeBranch.get());
         }
 
     }
 
     private void createLocalRepository(String repositoryPath, String activeBranchName, String nameOfRepository) throws Exception
     {
-        makeCurrentRepositoryNull();
+        m_CurrentRepository = null;
 
         List<Branch> branches = new ArrayList<>();
         List<RemoteBranch> remoteBranches = new ArrayList<>();
@@ -233,11 +225,6 @@ public class Engine
                 remoteTrackingBranches, remoteBranches, remoteRepositoryRef);
 
         m_CurrentLocalRepository.FindAndSetActiveBranch(activeBranchName);
-    }
-
-    private void makeCurrentRepositoryNull()
-    {
-        m_CurrentRepository = null;
     }
 
     private void createAllBranches(String repositoryPath, List<Branch> branches, List<RemoteBranch> remoteBranches, String remoteRepoName,
@@ -293,11 +280,7 @@ public class Engine
                 String commitsSha1 = currObject.getName();
                 Commit commitFromFile = Commit.CreateCommitFromSha1(commitsSha1, i_ObjectsFolder);
 
-//                if (!resMap.containsKey(commitFromFile.getSHA1()))
                 addCommitAndAllItsPrevsToMap(commitFromFile, resMap);
-
-               /* if (!resMap.containsKey(commitFromFile.getSHA1()))
-                    resMap.put(commitsSha1, commitFromFile);*/
             }
         }
         return resMap;
@@ -305,17 +288,37 @@ public class Engine
 
     private void addCommitAndAllItsPrevsToMap(Commit commitFromFile, Map<String, Commit> resMap)
     {
-        if (!resMap.containsKey(commitFromFile.getSHA1()))
-            resMap.put(commitFromFile.getSHA1(), commitFromFile);
+        if (isInCommitMap(commitFromFile, resMap))
+            return;
+
+        resMap.put(commitFromFile.getSHA1(), commitFromFile);
 
         if (commitFromFile.ThereIsPrevCommit(NumConstants.ONE))
-            addCommitAndAllItsPrevsToMap(commitFromFile.GetPrevCommit(), resMap);
+            if (!isInCommitMap(commitFromFile.GetPrevCommit(), resMap))
+                addCommitAndAllItsPrevsToMap(commitFromFile.GetPrevCommit(), resMap);
+            else//if there is prev commit and it is on map concat them
+                commitFromFile.setPrevCommit(resMap.get(commitFromFile.GetPrevCommit().getSHA1()));
 
         if (commitFromFile.ThereIsPrevCommit(NumConstants.TWO))
-            addCommitAndAllItsPrevsToMap(commitFromFile.GetSecondPrevCommit(), resMap);
-
-//            resMap.put(commitFromFile.getSHA1(), commitFromFile);
+            if (!isInCommitMap(commitFromFile.GetSecondPrevCommit(), resMap))
+                addCommitAndAllItsPrevsToMap(commitFromFile.GetSecondPrevCommit(), resMap);
+            else//if there is prev commit and it is on map concat them
+                commitFromFile.setSecondPrevCommit(resMap.get(commitFromFile.GetSecondPrevCommit().getSHA1()));
     }
+
+    private boolean isInCommitMap(Commit commitFromFile, Map<String, Commit> resMap)
+    {
+        return resMap.containsKey(commitFromFile.getSHA1());
+    }
+
+   /* private void concatPrevCommit(Commit commitFromFile, Map<String, Commit> resMap, int prevNum)
+    {
+        if (commitFromFile.ThereIsPrevCommit(prevNum))
+            if (!resMap.containsKey(commitFromFile.GetPrevCommit().getSHA1()))
+                addCommitAndAllItsPrevsToMap(commitFromFile.GetPrevCommit(), resMap);
+            else//if there is prev commit and it is on map concat them
+                commitFromFile.setPrevCommit(resMap.get(commitFromFile.getSHA1()));
+    }*/
 
     public String ShowAllCurrentCommitData()
     {
@@ -330,9 +333,9 @@ public class Engine
         if (isBranchExist(i_NameOfNewBranch))
             throw new Exception("Error!" + System.lineSeparator() + "Branch name already exist." + System.lineSeparator());
 
-        if (m_CurrentRepository.getActiveBranch().getPointedCommit() != null)
+        if (getCurrentRepository().getActiveBranch().getPointedCommit() != null)
         {
-            m_CurrentRepository.AddingNewBranchInRepository(i_NameOfNewBranch, i_SHA1OfCommit);
+            getCurrentRepository().AddingNewBranchInRepository(i_NameOfNewBranch, i_SHA1OfCommit);
         } else
             throw new Exception("Error!" + System.lineSeparator() + "There are no commits yet" + System.lineSeparator());
 
@@ -340,12 +343,12 @@ public class Engine
 
     private boolean isaCommitExistBySHA1(String i_SHA1OfCommit)
     {
-        return m_CurrentRepository.getAllCommitsSHA1ToCommit().containsKey(i_SHA1OfCommit);
+        return getCurrentRepository().getAllCommitsSHA1ToCommit().containsKey(i_SHA1OfCommit);
     }
 
     private boolean isBranchExist(String i_NameOfNewBranch)
     {
-        return m_CurrentRepository.getAllBranches()
+        return getCurrentRepository().getAllBranches()
                 .stream()
                 .anyMatch(branch ->
                         branch.getBranchName().equals(i_NameOfNewBranch));
@@ -353,10 +356,10 @@ public class Engine
 
     public void DeleteBranchFromSystem(String i_BranchNameToErase) throws Exception
     {
-        if (i_BranchNameToErase.equals(m_CurrentRepository.getActiveBranch().getBranchName()))
+        if (i_BranchNameToErase.equals(getCurrentRepository().getActiveBranch().getBranchName()))
             throw new Exception("Error! Can not erase HEAD Branch");
 
-        String pathBranch = m_CurrentRepository.getRepositoryPath().toString()
+        String pathBranch = getCurrentRepository().getRepositoryPath().toString()
                 + Repository.sf_PathForBranches
                 + Repository.sf_Slash
                 + i_BranchNameToErase
@@ -377,7 +380,7 @@ public class Engine
         //TODO:
         // SOLVE THIS METHOD
         i_TempFileForCheckingExistence.delete();
-        m_CurrentRepository.getAllBranches().removeIf(branch -> branch.getBranchName().equals(i_BranchNameToErase));
+        getCurrentRepository().getAllBranches().removeIf(branch -> branch.getBranchName().equals(i_BranchNameToErase));
     }
 
     public void RemoveTempFolder() throws IOException
@@ -392,9 +395,9 @@ public class Engine
     public boolean CheckIfRootFolderChanged() throws Exception
     {
         //1. get sha1 of root folder of last commit
-        Folder rootFolderOfCommit = this.m_CurrentRepository.getActiveBranch().getPointedCommit().getRootFolder();
+        Folder rootFolderOfCommit = this.getCurrentRepository().getActiveBranch().getPointedCommit().getRootFolder();
         //2. get working copy
-        Folder wc = this.m_CurrentRepository.GetUpdatedWorkingCopy(this.m_User);
+        Folder wc = this.getCurrentRepository().GetUpdatedWorkingCopy(this.m_User);
         //3. compare both Sha1 - if equal then there are no changes
         if (wc.getSHA1().equals(rootFolderOfCommit.getSHA1()))
         {
@@ -428,7 +431,7 @@ public class Engine
 
     private void checkExistenceOfCommit() throws Exception
     {
-        if (m_CurrentRepository.ThereAreNoCmmitsYet())
+        if (getCurrentRepository().ThereAreNoCmmitsYet())
             throw new Exception("Can't execute this operation!" + System.lineSeparator() +
                     "There are no commits in systen yet");
     }
@@ -443,16 +446,16 @@ public class Engine
     {
         checkIfSHA1CommitExist(i_Sha1OfCommit);
 
-        Commit commitRequested = m_CurrentRepository.getAllCommitsSHA1ToCommit().get(i_Sha1OfCommit);
+        Commit commitRequested = getCurrentRepository().getAllCommitsSHA1ToCommit().get(i_Sha1OfCommit);
 
-        String branchFilePath = m_CurrentRepository.getBranchesFolderPath().toString()
+        String branchFilePath = getCurrentRepository().getBranchesFolderPath().toString()
                 + Repository.sf_Slash
                 + m_CurrentRepository.getActiveBranch().getBranchName()
                 + Repository.sf_txtExtension;
 
         MagitFileUtils.OverwriteContentInFile(commitRequested.getSHA1(), branchFilePath);
 
-        m_CurrentRepository.getActiveBranch().setPointedCommit(commitRequested);
+        getCurrentRepository().getActiveBranch().setPointedCommit(commitRequested);
 
         removeFilesFromWCAndSpanNewCommitInActiveBranch();
 
@@ -471,7 +474,7 @@ public class Engine
     {
         Commit prevCommit = null;
         if (i_Commit.ThereIsPrevCommit(NumConstants.FIRST))
-            prevCommit = m_CurrentRepository.getAllCommitsSHA1ToCommit().get(i_Commit.GetPrevCommit().getSHA1());
+            prevCommit = getCurrentRepository().getAllCommitsSHA1ToCommit().get(i_Commit.GetPrevCommit().getSHA1());
         else
             return null;
 
@@ -479,7 +482,7 @@ public class Engine
     }
 
 
-    public void Clone(File i_DirToClone, String i_RepositoryName, File i_DirCloneFrom) throws Exception
+    public void Clone(File i_DirCloneTo, String i_RepositoryName, File i_DirCloneFrom) throws Exception
     {
         List<RemoteBranch> remoteBranches = new ArrayList<>();
         List<RemoteTrackingBranch> remoteTrackingBranches = new ArrayList<>();
@@ -490,14 +493,16 @@ public class Engine
 
         RemoteTrackingBranch remoteHeadTrackingBranch = new RemoteTrackingBranch(m_CurrentRepository.getActiveBranch());
 
-        initNewPaths(m_CurrentRepository.getAllCommitsSHA1ToCommit().values(), i_DirToClone.toPath());
+        initNewPaths(m_CurrentRepository.getAllCommitsSHA1ToCommit().values(), i_DirCloneTo.toPath());
 
         remoteTrackingBranches.add(remoteHeadTrackingBranch);
 
-        m_CurrentLocalRepository = new LocalRepository(remoteHeadTrackingBranch, i_DirToClone.toPath(),
+        m_CurrentLocalRepository = new LocalRepository(remoteHeadTrackingBranch, i_DirCloneTo.toPath(),
                 i_RepositoryName, null, m_CurrentRepository.getAllCommitsSHA1ToCommit(),
                 remoteTrackingBranches, remoteBranches, new RemoteRepositoryRef(i_DirCloneFrom.getName(),
                 i_DirCloneFrom.toPath()));
+
+        m_CurrentRepository = null;
 
         LocalRepositoryWriter localRepositoryWriter = new LocalRepositoryWriter(m_CurrentLocalRepository);
         localRepositoryWriter.WriteRepositoryToFileSystem(m_CurrentLocalRepository.getActiveBranch().getBranchName());
@@ -527,8 +532,6 @@ public class Engine
         {
             RemoteBranch remoteBranch = RemoteBranch.CreateRemoteBranchFromBranch(branch, i_CloneFromRepoName);
             i_RemoteBranches.add(remoteBranch);
-
-
         });
     }
 
@@ -536,15 +539,76 @@ public class Engine
     {
         Fetch fetcher = new Fetch(this, m_CurrentLocalRepository);
         fetcher.FetchAllObjects();
+
+        //fetch assign null to localrepo, so reassgin original values
+        reassignValuesOfRepositories(fetcher);
+    }
+
+    public void reassignValuesOfRepositories(Fetch fetcher)
+    {
+        m_CurrentLocalRepository = fetcher.getCurrentLocalRepository();
+        m_CurrentRepository = null;
     }
 
     public void Pull() throws Exception
     {
         Fetch fetcher = new Fetch(this, m_CurrentLocalRepository);
 
+        reassignValuesOfRepositories(fetcher);
+        Map<String, Commit> allCommitsInLocal = m_CurrentLocalRepository.getAllCommitsSHA1ToCommit();
+
         Branch activeBranchInRemote = fetcher.getRemoteRepositoryToFetchFrom().getActiveBranch();
         fetcher.FetchBranch(activeBranchInRemote);
-//        fetcher.FetchBranch();
+
+        Branch activeBranchInLocal = m_CurrentLocalRepository.getActiveBranch();
+        Commit headCommitInLocalAfterFetched = allCommitsInLocal.get
+                (activeBranchInRemote.getPointedCommit().getSHA1());
+
+        initNewPaths(allCommitsInLocal.values(), m_CurrentLocalRepository.getRepositoryPath());
+        activeBranchInLocal.setPointedCommit(headCommitInLocalAfterFetched);
+
+        writeBranchInSystem(activeBranchInLocal);
+
+        removeFilesFromWCAndSpanNewCommitInActiveBranch();
+    }
+
+    private void writeBranchInSystem(Branch activeBranchInLocal) throws IOException, ParseException
+    {
+        LocalRepositoryWriter writer = new LocalRepositoryWriter(m_CurrentLocalRepository);
+
+        if (BranchUtils.IsRemoteTrackingBranch(activeBranchInLocal))
+            writer.WriteRemoteTrackingBranch((RemoteTrackingBranch) activeBranchInLocal, activeBranchInLocal.getPointedCommit());
+        else
+            writer.WriteBranch(activeBranchInLocal);
+    }
+
+    public boolean IsLocalRepository()
+    {
+        return m_CurrentRepository == null ? true : false;
+    }
+
+    public boolean IsHeadBranch(String branchName)
+    {
+        return branchName.equals(getCurrentRepository().getActiveBranch().getBranchName());
+    }
+
+    public void CreateRTB(Commit commit, String branchName) throws IOException
+    {
+        LocalRepository localRepository = (LocalRepository) getCurrentRepository();
+
+        BranchFactory.CreateBranchInBranchFactory(localRepository.getRegularBranches(), localRepository.getRemoteTrackingBranches(),
+                localRepository.getRemoteBranches(), branchName, commit, Enums.BranchType.REMOTE_TRACKING_BRANCH);
+
+
+        LocalRepositoryWriter writer = new LocalRepositoryWriter(localRepository);
+        RemoteTrackingBranch remoteTrackingBranch = localRepository.findRemoteTrackingBranchByPredicate(RTB ->
+                RTB.getBranchName().equals(branchName));
+        writer.WriteRemoteTrackingBranch(remoteTrackingBranch, remoteTrackingBranch.getPointedCommit());
+    }
+
+    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_pushingBranchName) throws Exception {
+        Branch pushingBranch = this.getCurrentRepository().getBranchByName(i_pushingBranchName);
+        return m_CurrentRepository.getActiveBranch().GetConflictsForMerge(pushingBranch,m_CurrentRepository.getRepositoryPath());
     }
 }
 

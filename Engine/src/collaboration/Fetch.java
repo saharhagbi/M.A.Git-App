@@ -1,11 +1,12 @@
 package collaboration;
 
-import Objects.branch.Branch;
 import Objects.Commit;
+import Objects.branch.Branch;
 import System.Engine;
 import System.Repository;
 import XmlObjects.repositoryWriters.LocalRepositoryWriter;
 import common.constants.NumConstants;
+import common.constants.ResourceUtils;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -57,54 +58,65 @@ public class Fetch
     {
         if (!isBranchExistInLocal(i_Branch))
         {
-            createCommitsInLocalAndConcatThem(i_Branch.getPointedCommit());
+            createCommitsAndConcatThem(i_Branch.getPointedCommit());
             m_CurrentLocalRepository.addRemoteBranch(new RemoteBranch(i_Branch.getBranchName(), i_Branch.getPointedCommit()));
         } else
         {
+            //delete function and use one on LocalRepository class
             RemoteBranch remoteBranch = findRemoteBranch(m_CurrentLocalRepository.getRemoteBranches(), i_Branch);
 
             //if the pointed commits are not the same
-            if (!areTheCommitsTheSame(remoteBranch.getPointedCommit(), i_Branch.getPointedCommit()))
+            if (!remoteBranch.getPointedCommit().AreTheCommitsTheSame(i_Branch.getPointedCommit()))
             {
-                createCommitsInLocalAndConcatThem(i_Branch.getPointedCommit());
+                createCommitsAndConcatThem(i_Branch.getPointedCommit());
 
-                remoteBranch.setPointedCommit(i_Branch.getPointedCommit());
+                Commit parallelCommit = getParallelCommit(i_Branch.getPointedCommit());
+                remoteBranch.setPointedCommit(parallelCommit);
             }
         }
     }
 
-    private void createCommitsInLocalAndConcatThem(Commit branchCommit)
+    public Commit getParallelCommit(Commit i_CommitInRemote)
     {
-       /* if (areTheCommitsTheSame(remoteBranchCommit, branchCommit))
-            return;*/
+        return m_AllCommitsInLocal.get(i_CommitInRemote.getSHA1());
+    }
 
+
+    private void createCommitsAndConcatThem(Commit branchCommit)
+    {
         if (branchCommit.ThereIsPrevCommit(NumConstants.ONE))
         {
-            if (!m_AllCommitsInLocal.containsValue(branchCommit.GetPrevCommit()))
-                createCommitsInLocalAndConcatThem(branchCommit.GetPrevCommit());
+            if (!m_AllCommitsInLocal.containsKey(branchCommit.GetPrevCommit().getSHA1()))
+                createCommitsAndConcatThem(branchCommit.GetPrevCommit());
 
             Commit newCommitToLocal = new Commit(branchCommit);
             m_AllCommitsInLocal.put(newCommitToLocal.getSHA1(), newCommitToLocal);
+
+            Commit prevParallelCommit = getParallelCommit(branchCommit.GetPrevCommit());
+            newCommitToLocal.setPrevCommit(prevParallelCommit);
         }
 
         if (branchCommit.ThereIsPrevCommit(NumConstants.TWO))
         {
-            if (!m_AllCommitsInLocal.containsValue(branchCommit.GetSecondPrevCommit()))
-                createCommitsInLocalAndConcatThem(branchCommit.GetSecondPrevCommit());
+            if (!m_AllCommitsInLocal.containsKey(branchCommit.GetSecondPrevCommit().getSHA1()))
+                createCommitsAndConcatThem(branchCommit.GetSecondPrevCommit());
 
             Commit newCommitToLocal = new Commit(branchCommit);
             m_AllCommitsInLocal.put(newCommitToLocal.getSHA1(), newCommitToLocal);
+
+            Commit secondPrevParallelCommit = getParallelCommit(branchCommit.GetSecondPrevCommit());
+            newCommitToLocal.setPrevCommit(secondPrevParallelCommit);
         }
     }
 
-    private boolean areTheCommitsTheSame(Commit remoteBranchCommit, Commit branchCommit)
+    /*public boolean areTheCommitsTheSame(Commit remoteBranchCommit, Commit branchCommit)
     {
         return branchCommit.getSHA1().equals(remoteBranchCommit.getSHA1());
-    }
+    }*/
 
     private RemoteBranch findRemoteBranch(List<RemoteBranch> i_RemoteBranches, Branch i_Branch)
     {
-        String remoteBranchName = m_CurrentLocalRepository.getRemoteRepoRef().getName() + "/" + i_Branch;
+        String remoteBranchName = m_CurrentLocalRepository.getRemoteRepoRef().getName() + "/" + i_Branch.getBranchName();
 
         return i_RemoteBranches
                 .stream()
@@ -115,9 +127,17 @@ public class Fetch
 
     private boolean isBranchExistInLocal(Branch i_Branch)
     {
+        String expectedRemoteBranchName = m_CurrentLocalRepository.getRemoteRepoRef().getName()
+                + ResourceUtils.Slash + i_Branch.getBranchName();
+
         return m_CurrentLocalRepository.getRemoteBranches()
                 .stream()
                 .anyMatch(remoteBranch ->
-                        remoteBranch.getBranchName().equals(i_Branch.getBranchName()));
+                        remoteBranch.getBranchName().equals(expectedRemoteBranchName));
+    }
+
+    public LocalRepository getCurrentLocalRepository()
+    {
+        return m_CurrentLocalRepository;
     }
 }

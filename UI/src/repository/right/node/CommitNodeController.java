@@ -6,7 +6,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 
-import java.awt.event.ActionEvent;
+import javax.xml.soap.Text;
 
 public class CommitNodeController
 {
@@ -24,7 +24,7 @@ public class CommitNodeController
 
     public int getMessageLabel()
     {
-        return (int) messageLabel.getLayoutX() + 110;
+        return (int) messageLabel.getLayoutX() + 115;
     }
 
     public void setCommitTimeStamp(String timeStamp)

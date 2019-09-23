@@ -3,6 +3,7 @@ package repository.right;
 import Objects.Commit;
 import Objects.Item;
 import Objects.branch.Branch;
+import Objects.branch.BranchUtils;
 import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;
@@ -38,8 +39,6 @@ public class RightController
     {
         if (m_RepositoryController.getCurrentRepository().getActiveBranch().getPointedCommit() == null)
             return;
-
-        //initCommitToBranchMap();
 
         ResetCommitsTree();
     }
@@ -90,11 +89,6 @@ public class RightController
         }
     }
 
-    /*private boolean thereIsPrevCommit(Commit i_GetPrevCommit)
-    {
-        return i_GetPrevCommit != null;
-    }*/
-
     private void createCommits()
     {
         m_RepositoryController.getCurrentRepository().getAllCommitsSHA1ToCommit()
@@ -110,16 +104,13 @@ public class RightController
                     List<Branch> branchesOfCommit = getBranchesPointOn(commit);
                     if (branchesOfCommit.size() != NumConstants.ZERO)
                     {
-                        String branchesString = appendBranchNames(branchesOfCommit);
-                        commitNode.SetBranchName(branchesString);
+                        String branchesText = appendBranchNames(branchesOfCommit);
+                        commitNode.SetBranchName(branchesText);
                     }
 
                     m_TreeGraph.getGraphic(commitNode).setOnMouseClicked(event ->
                             m_RepositoryController.UpdateCommitDetailsInBotoomAfterNodeClicked(commit));
 
-
-
-                    //     commitNode.getGraphic(tree).lookup("");
                     m_TreeGraph.getModel().addCell(commitNode);
 
                     m_MapCommitToIcell.put(commit, commitNode);
@@ -130,30 +121,38 @@ public class RightController
     {
         List<String> branchNames = i_BranchesOfCommit
                 .stream()
-                .map(branch -> branch.getBranchName())
-                .collect(Collectors.toList());
+                .map(branch ->
+                {
+                    StringBuilder currentBranch = new StringBuilder();
+                    if (m_RepositoryController.IsHeadBranch(branch.getBranchName()))
+                        currentBranch.append("--->");
+
+                    if (BranchUtils.IsRemoteBranch(branch))
+                        currentBranch.append("(RB)");
+
+                    if (BranchUtils.IsRemoteTrackingBranch(branch))
+                        currentBranch.append("(RTB)");
+
+                    return currentBranch.append(branch.getBranchName()).toString();
+                }).collect(Collectors.toList());
 
         return String.join(", ", branchNames);
     }
 
     private List<Branch> getBranchesPointOn(Commit i_Commit)
     {
+        /*if (m_RepositoryController.IsLocalRepository())
+        {
+
+            return localRepository.concatRBAndRTBLists().stream()
+                    .filter(branch -> branch.getPointedCommit() == i_Commit)
+                    .collect(Collectors.toList());
+        } else
+        {*/
         return m_RepositoryController.getCurrentRepository().getAllBranches()
                 .stream()
                 .filter(branch -> branch.getPointedCommit() == i_Commit)
                 .collect(Collectors.toList());
-    }
 
-    public void ResetHeadBranchInTree(Commit i_Commit)
-    {
-        m_TreeGraph.layout(new CommitTreeLayout(m_MapCommitToIcell));
-
-        /*Commit currentCommit = m_RepositoryController.getCurrentRepository().getActiveBranch().getPointedCommit();
-        CommitNode currentCommitNode = (CommitNode) m_MapCommitToIcell.get(currentCommit);
-        currentCommitNode.SetBranchName(null);
-
-        String headBranchName  = m_RepositoryController.getCurrentRepository().getActiveBranch().getBranchName();
-        CommitNode commitNodeToResetTo = (CommitNode) m_MapCommitToIcell.get(i_Commit);
-        commitNodeToResetTo.SetBranchName(headBranchName);*/
     }
 }

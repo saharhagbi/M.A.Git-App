@@ -46,44 +46,51 @@ public class Commit {
     }
 
     public static MergeConflictsAndMergedItems GetConflictsForMerge(Commit i_PullingCommit, Commit i_PulledCommit, Path i_RepositoryPath) throws Exception {
-        Set<Item> mergedItems = new HashSet<Item>();
-        HashSet<ConflictingItems> conflictItems = new HashSet<ConflictingItems>();
-        Commit closestCommonAncestorCommit = getClosestCommonAncestor(i_PullingCommit, i_PulledCommit);
-        Map<Path, Item> mapOfRelativePathToItemPullingRootFolder = i_PullingCommit.createMapOfRelativePathToItem(i_RepositoryPath);
-        Map<Path, Item> mapOfRelativePathToItemPulledRootFolder = i_PulledCommit.createMapOfRelativePathToItem(i_RepositoryPath);
-        Map<Path, Item> mapOfRelativePathToItemAncestorRootFolder = closestCommonAncestorCommit.createMapOfRelativePathToItem(i_RepositoryPath);
-        Set<Item> pullingAndPulledAllItems = i_PullingCommit.getUnitedListOfItems(i_PulledCommit);
+        if (isRightAncestorOfLeft(i_PulledCommit, i_PullingCommit))// first case of FF
+            return new MergeConflictsAndMergedItems(null, null, true, i_PulledCommit, true, false);
+        else if (isRightAncestorOfLeft(i_PullingCommit, i_PulledCommit))
+            return new MergeConflictsAndMergedItems(null, null, true, i_PullingCommit, false, true);
+        else {
+            Set<Item> mergedItems = new HashSet<Item>();
+            HashSet<ConflictingItems> conflictItems = new HashSet<ConflictingItems>();
+            Commit closestCommonAncestorCommit = getClosestCommonAncestor(i_PullingCommit, i_PulledCommit);
+            Map<Path, Item> mapOfRelativePathToItemPullingRootFolder = i_PullingCommit.createMapOfRelativePathToItem(i_RepositoryPath);
+            Map<Path, Item> mapOfRelativePathToItemPulledRootFolder = i_PulledCommit.createMapOfRelativePathToItem(i_RepositoryPath);
+            Map<Path, Item> mapOfRelativePathToItemAncestorRootFolder = closestCommonAncestorCommit.createMapOfRelativePathToItem(i_RepositoryPath);
+            Set<Item> pullingAndPulledAllItems = i_PullingCommit.getUnitedListOfItems(i_PulledCommit);
 
-        pullingAndPulledAllItems.forEach(item -> {
-            Path itemRelativePath = getRelativePath(item.GetPath(), i_RepositoryPath);
-            int itemState = getStateForMerge(itemRelativePath, mapOfRelativePathToItemPullingRootFolder, mapOfRelativePathToItemPulledRootFolder, mapOfRelativePathToItemAncestorRootFolder);
-            Item pullingItem = mapOfRelativePathToItemPullingRootFolder.get(itemRelativePath);
-            Item pulledItem = mapOfRelativePathToItemPulledRootFolder.get(itemRelativePath);
-            if (MergeConflictsAndMergedItems.isConflict(itemState)) {
-                conflictItems.add(new ConflictingItems(pullingItem, pulledItem));
-            } else {
-                if (MergeConflictsAndMergedItems.ShouldTakePullingItem(itemState)) {
-                    if (!mergedItems.contains(item) && !mergedItems.contains(pullingItem))
-                        mergedItems.add(pullingItem);
-                }// pulled item cases
-                else {
-                    if (MergeConflictsAndMergedItems.ShouldTakePulledItem(itemState)) {
-                        if (!mergedItems.contains(item) && !mergedItems.contains(pulledItem))
-                            mergedItems.add(pulledItem);
-
-
-                    } else if (MergeConflictsAndMergedItems.NeedToCheckWithAncstor(itemState)) {
-                        String sha1OfPulledItem = pulledItem.getSHA1();
-                        String sha1OfAncestorItem = mapOfRelativePathToItemAncestorRootFolder.get(itemRelativePath).getSHA1();
-                        if (!sha1OfPulledItem.equals(sha1OfAncestorItem))
+            pullingAndPulledAllItems.forEach(item ->
+            {
+                Path itemRelativePath = getRelativePath(item.GetPath(), i_RepositoryPath);
+                int itemState = getStateForMerge(itemRelativePath, mapOfRelativePathToItemPullingRootFolder, mapOfRelativePathToItemPulledRootFolder, mapOfRelativePathToItemAncestorRootFolder);
+                Item pullingItem = mapOfRelativePathToItemPullingRootFolder.get(itemRelativePath);
+                Item pulledItem = mapOfRelativePathToItemPulledRootFolder.get(itemRelativePath);
+                if (MergeConflictsAndMergedItems.isConflict(itemState)) {
+                    conflictItems.add(new ConflictingItems(pullingItem, pulledItem));
+                } else {
+                    if (MergeConflictsAndMergedItems.ShouldTakePullingItem(itemState)) {
+                        if (!mergedItems.contains(item) && !mergedItems.contains(pullingItem))
+                            mergedItems.add(pullingItem);
+                    }// pulled item cases
+                    else {
+                        if (MergeConflictsAndMergedItems.ShouldTakePulledItem(itemState)) {
                             if (!mergedItems.contains(item) && !mergedItems.contains(pulledItem))
                                 mergedItems.add(pulledItem);
-                    }
-                }
 
-            }
-        });
-        return new MergeConflictsAndMergedItems(mergedItems, conflictItems, false);
+
+                        } else if (MergeConflictsAndMergedItems.NeedToCheckWithAncstor(itemState)) {
+                            String sha1OfPulledItem = pulledItem.getSHA1();
+                            String sha1OfAncestorItem = mapOfRelativePathToItemAncestorRootFolder.get(itemRelativePath).getSHA1();
+                            if (!sha1OfPulledItem.equals(sha1OfAncestorItem))
+                                if (!mergedItems.contains(item) && !mergedItems.contains(pulledItem))
+                                    mergedItems.add(pulledItem);
+                        }
+                    }
+
+                }
+            });
+            return new MergeConflictsAndMergedItems(mergedItems, conflictItems, false, null, null, null);
+        }
     }
 
     private static int getStateForMerge(Path i_ItemRelativePathToCheck, Map<Path, Item> i_MapOfRelativePathToItemPullingRootFolder, Map<Path, Item> i_MapOfRelativePathToItemPulledRootFolder, Map<Path, Item> i_MapOfRelativePathToItemAncestorRootFolder) {
@@ -130,16 +137,16 @@ public class Commit {
 
     }
 
-    public static boolean isAncestor(Commit i_PullingCommit, Commit i_PulledCommit) {
+    public static boolean isRightAncestorOfLeft(Commit i_LeftCommit, Commit i_RightCommit) {
         boolean res;
-        if (i_PullingCommit == null)
+        if (i_RightCommit == null)
             res = false;
         else {
-            if (i_PullingCommit.getSHA1().equals(i_PulledCommit.getSHA1()))
+            if (i_LeftCommit.getSHA1().equals(i_RightCommit.getSHA1()))
                 return true;
             else {
-                boolean possibleAncestor1 = isAncestor(i_PullingCommit.GetPrevCommit(), i_PulledCommit);
-                boolean possibleAncestor2 = isAncestor(i_PullingCommit.GetSecondPrevCommit(), i_PulledCommit);
+                boolean possibleAncestor1 = isRightAncestorOfLeft(i_LeftCommit.GetPrevCommit(), i_RightCommit);
+                boolean possibleAncestor2 = isRightAncestorOfLeft(i_LeftCommit.GetSecondPrevCommit(), i_RightCommit);
                 if (possibleAncestor1 == true || possibleAncestor2 == true)
                     res = true;
                 else res = false;
@@ -148,37 +155,10 @@ public class Commit {
         return res;
     }
 
-    private Set<Item> getUnitedListOfItems(Commit i_pulledCommit) {
-        Set<Item> allItemsUnited = new HashSet<Item>();
-        this.m_RootFolder.m_ListOfItems.forEach(item -> {
-            if (!allItemsUnited.contains(item))
-                allItemsUnited.add(item);
-        });
-        i_pulledCommit.m_RootFolder.m_ListOfItems.forEach(item -> {
-            if (!allItemsUnited.contains(item)) {
-                allItemsUnited.add(item);
-            }
-        });
-        return allItemsUnited;
-    }
-
-    private Map<Path, Item> createMapOfRelativePathToItem(Path i_repositoryPath) {
-        Map<Path, Item> resMap = new HashMap<Path, Item>();
-        m_RootFolder.m_ListOfItems.forEach(item -> {
-            Path relativePath = getRelativePath(item.GetPath(), i_repositoryPath);
-            if (resMap.get(relativePath) == null) {
-                resMap.put(relativePath, item);
-            }
-        });
-
-        return resMap;
-    }
-
     public static Path getRelativePath(Path i_PathOfItemToGetItsRelative, Path i_BasePath) {
         Path pathRelative = i_BasePath.relativize(i_PathOfItemToGetItsRelative);
         return pathRelative;
     }
-
 
     private static Commit getClosestCommonAncestor(Commit i_First, Commit i_Second) throws Exception {
         Commit optionalAncestor = null;
@@ -213,7 +193,6 @@ public class Commit {
         }
         return optionalAncestor;
     }
-
 
     public static Map<String, Commit> GetMapOfCommits(List<Branch> i_allBranches) throws Exception {
         Map<String, Commit> resMap = new HashMap<>();
@@ -347,6 +326,43 @@ public class Commit {
         return newCommit;
     }
 
+    public void setPrevCommit(Commit m_PrevCommit) {
+        this.m_PrevCommit = m_PrevCommit;
+    }
+
+    public void setSecondPrevCommit(Commit m_SecondPrevCommit) {
+        this.m_SecondPrevCommit = m_SecondPrevCommit;
+    }
+
+    private Set<Item> getUnitedListOfItems(Commit i_pulledCommit) {
+        Set<Item> allItemsUnited = new HashSet<Item>();
+        this.m_RootFolder.m_ListOfItems.forEach(item ->
+        {
+            if (!allItemsUnited.contains(item))
+                allItemsUnited.add(item);
+        });
+        i_pulledCommit.m_RootFolder.m_ListOfItems.forEach(item ->
+        {
+            if (!allItemsUnited.contains(item)) {
+                allItemsUnited.add(item);
+            }
+        });
+        return allItemsUnited;
+    }
+
+    private Map<Path, Item> createMapOfRelativePathToItem(Path i_repositoryPath) {
+        Map<Path, Item> resMap = new HashMap<Path, Item>();
+        m_RootFolder.m_ListOfItems.forEach(item ->
+        {
+            Path relativePath = getRelativePath(item.GetPath(), i_repositoryPath);
+            if (resMap.get(relativePath) == null) {
+                resMap.put(relativePath, item);
+            }
+        });
+
+        return resMap;
+    }
+
     private Map<String, Commit> CreateMapOfSha1ToCommit() {
         Map<String, Commit> sha1ToCommitMap = new HashMap<String, Commit>();
         Commit commitIterator = this;
@@ -453,5 +469,9 @@ public class Commit {
         }
 
         return isExist;
+    }
+
+    public boolean AreTheCommitsTheSame(Commit pointedCommit) {
+        return this.m_SHA1.equals(pointedCommit.getSHA1());
     }
 }

@@ -1,20 +1,18 @@
 package repository.top.merge;
 
-import Objects.branch.Branch;
+import System.MergeConflictsAndMergedItems;
+import common.MAGitUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
-import primaryController.PrimaryController;
 import repository.top.TopController;
-import System.MergeConflictsAndMergedItems;
 
-public class MergeController
-{
-
+public class MergeController {
     @FXML
-    private ListView<?> m_ConflictsListView;
+    private ListView<String> m_ConflictsListView;
     @FXML
     private TextArea m_OurTextArea;
     @FXML
@@ -27,45 +25,67 @@ public class MergeController
     private Button m_TakeResultVersionButton;
     @FXML
     private Button m_DeleteFileButton;
+    @FXML
+    private ListView<String> m_BranchesListView;
 
     private TopController m_TopController;
 
-    public void setController(TopController topController)
-    {
+    public void setController(TopController topController) {
         m_TopController = topController;
+        m_BranchesListView.setItems(m_TopController.GetBranchNameList());
     }
 
-    void chooseBranchToMerge(Branch i_selectedBranchToMerge, PrimaryController primaryController)
-    {
-        try {
-            MergeConflictsAndMergedItems conflicts=  this.m_TopController.GetConflictsForMerge(i_selectedBranchToMerge);
-            if(conflicts.IsFastForwardCase())
-            {
-                // point head branch to i_selectedBranch
-            }
-            else{
-                // 1. show user conflicts let him choose which he wants
-                // 2. take chosen items and add to -> conflicts.GetMergedItemsNotSorted();
-                // 3. create new folder FromNotSorted mergedItems
-                // 4. create the new commit and point the branch to it
-            }
+    @FXML
+    void deleteFileButtonAction(ActionEvent event) {
 
-        } catch (Exception e) {
-            e.printStackTrace();
+    }
+
+    @FXML
+    void takeResultVersionButtonAction(ActionEvent event) {
+
+    }
+
+    @FXML
+    void ChooseBranchBtn_OnClick(ActionEvent actionEvent) throws Exception {
+        if (noItemWasChosen()) {
+            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Merge ERROR", "Please Choose a Branch To merge first", "");
+        } else {
+            String selectedItem = m_BranchesListView.getSelectionModel().getSelectedItems().get(0);
+            if (isHeadBranchSelected(selectedItem)) {
+                MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Merge ERROR", "You chose the Head Branch", "please choose a different branch");
+            } else {
+                MergeConflictsAndMergedItems conflicts = this.m_TopController.GetConflictsForMerge(selectedItem);
+                if (conflicts.IsFastForwardCase()) {
+                    if (conflicts.IsPulledAncestorOfPulling()) {// chosen branch is an ancestor of HEAD branch
+                        // point head branch to i_selectedBranch
+                        MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Merge - Fast Forward", "This is a Fast Forward Merge - selected Branch is ancestor of head branch", "Head branch will point to current Commit\nno changes have been made");
+
+                    } else {// HEAD branch is Ancestor of chosen branch
+                        MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Merge - Fast Forward", "This is a Fast Forward Merge - HEAD branch is Ancestor of selected branch", "HEAD branch will point to the same commit as selected branch");
+                    }
+                } else { //not FF
+
+                    m_ConflictsListView.setItems(conflicts.GetConflictItemsNames());
+
+                    // 1. show user conflicts let him choose which he wants
+                    // 2. take chosen items and add to -> conflicts.GetMergedItemsNotSorted();
+                    // 3. create new folder FromNotSorted mergedItems
+                    // 4. create the new commit and point the branch to it
+                }
+
+
+            }
         }
     }
 
-
-    @FXML
-    void deleteFileButtonAction(ActionEvent event)
-    {
-
+    private boolean isHeadBranchSelected(String i_selectedItem) {
+        return m_TopController.isHeadBranch(i_selectedItem);
     }
 
-    @FXML
-    void takeResultVersionButtonAction(ActionEvent event)
-    {
 
+    private boolean noItemWasChosen() {
+        if (m_BranchesListView.getSelectionModel().getSelectedItems().get(0) == null)
+            return true;
+        else return false;
     }
-
 }
