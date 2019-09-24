@@ -7,6 +7,8 @@ import System.MergeConflictsAndMergedItems;
 import System.User;
 import common.constants.NumConstants;
 import org.apache.commons.codec.digest.DigestUtils;
+import puk.team.course.magit.ancestor.finder.AncestorFinder;
+import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -14,8 +16,9 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
 
-public class Commit {
+public class Commit implements CommitRepresentative {
     private Folder m_RootFolder;
     private String m_SHA1 = null;
     private Commit m_PrevCommit = null;
@@ -53,7 +56,10 @@ public class Commit {
         else {
             Set<Item> mergedItems = new HashSet<Item>();
             HashSet<ConflictingItems> conflictItems = new HashSet<ConflictingItems>();
-            Commit closestCommonAncestorCommit = getClosestCommonAncestor(i_PullingCommit, i_PulledCommit);
+
+            AncestorFinder ancestorFinder = new AncestorFinder((Function<String, CommitRepresentative>) i_PullingCommit.getMapOfSha1ToCommit());
+            String closestCommonAncestorCommitSha1 = ancestorFinder.traceAncestor(i_PullingCommit.getSHA1(), i_PulledCommit.getSHA1());
+            Commit closestCommonAncestorCommit = i_PullingCommit.GetAncestorCommitBySha1(closestCommonAncestorCommitSha1);
             Map<Path, Item> mapOfRelativePathToItemPullingRootFolder = i_PullingCommit.createMapOfRelativePathToItem(i_RepositoryPath);
             Map<Path, Item> mapOfRelativePathToItemPulledRootFolder = i_PulledCommit.createMapOfRelativePathToItem(i_RepositoryPath);
             Map<Path, Item> mapOfRelativePathToItemAncestorRootFolder = closestCommonAncestorCommit.createMapOfRelativePathToItem(i_RepositoryPath);
@@ -91,6 +97,15 @@ public class Commit {
             });
             return new MergeConflictsAndMergedItems(mergedItems, conflictItems, false, null, null, null);
         }
+    }
+
+    private Commit GetAncestorCommitBySha1(String i_ClosestCommonAncestorCommitSha1) throws Exception {
+        Map<String, Commit> sha1ToCommitMap = this.getMapOfSha1ToCommit();
+        Commit ancestorCommit = sha1ToCommitMap.get(i_ClosestCommonAncestorCommitSha1);
+        if(ancestorCommit==null)
+            throw new Exception("GetAncestorCommitBySha1 - cant find the requested commit");
+        else
+            return ancestorCommit;
     }
 
     private static int getStateForMerge(Path i_ItemRelativePathToCheck, Map<Path, Item> i_MapOfRelativePathToItemPullingRootFolder, Map<Path, Item> i_MapOfRelativePathToItemPulledRootFolder, Map<Path, Item> i_MapOfRelativePathToItemAncestorRootFolder) {
@@ -199,7 +214,7 @@ public class Commit {
         for (int i = 0; i < i_allBranches.size(); i++) {
             Branch currentBranch = i_allBranches.get(i);
             Commit pointedCommit = currentBranch.getPointedCommit();
-            Map<String, Commit> pointedCommitMap = pointedCommit.CreateMapOfSha1ToCommit();
+            Map<String, Commit> pointedCommitMap = pointedCommit.getMapOfSha1ToCommit();
             Set<String> pointedCommitMapKeys = pointedCommitMap.keySet();
             pointedCommitMapKeys.forEach(sha1Key ->
             {
@@ -363,13 +378,13 @@ public class Commit {
         return resMap;
     }
 
-    private Map<String, Commit> CreateMapOfSha1ToCommit() {
+    public Map<String, Commit> getMapOfSha1ToCommit() {
         Map<String, Commit> sha1ToCommitMap = new HashMap<String, Commit>();
         Commit commitIterator = this;
         while (commitIterator != null) {
             sha1ToCommitMap.put(commitIterator.getSHA1(), commitIterator);
             if (commitIterator.GetSecondPrevCommit() != null) {
-                Map<String, Commit> secondMapForSha1ToCommit = commitIterator.GetSecondPrevCommit().CreateMapOfSha1ToCommit();
+                Map<String, Commit> secondMapForSha1ToCommit = commitIterator.GetSecondPrevCommit().getMapOfSha1ToCommit();
                 Set<String> sha1Keys = secondMapForSha1ToCommit.keySet();
                 sha1Keys.forEach(sha1 ->
                 {
@@ -473,5 +488,20 @@ public class Commit {
 
     public boolean AreTheCommitsTheSame(Commit pointedCommit) {
         return this.m_SHA1.equals(pointedCommit.getSHA1());
+    }
+
+    @Override
+    public String getSha1() {
+        return this.m_SHA1;
+    }
+
+    @Override
+    public String getFirstPrecedingSha1() {
+        return this.m_PrevCommit.m_SHA1;
+    }
+
+    @Override
+    public String getSecondPrecedingSha1() {
+        return this.m_SecondPrevCommit.m_SHA1;
     }
 }
