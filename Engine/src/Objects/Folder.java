@@ -420,4 +420,10 @@ public class Folder extends Item
                 item.setPath(Paths.get(i_NewPathOfRepository + sf_Slash + item.getName()));
         }
     }
+
+/*    public static Folder CreateFolderFromSetOfItems(Set<Item> i_setOfItems){
+        Folder res;
+        //i_setOfItems.forEach()
+
+    }*/
 }

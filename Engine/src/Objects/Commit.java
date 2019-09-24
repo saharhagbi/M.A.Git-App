@@ -16,7 +16,6 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.Function;
 
 public class Commit implements CommitRepresentative {
     private Folder m_RootFolder;
@@ -48,7 +47,7 @@ public class Commit implements CommitRepresentative {
         this.m_Date = commit.m_Date;
     }
 
-    public static MergeConflictsAndMergedItems GetConflictsForMerge(Commit i_PullingCommit, Commit i_PulledCommit, Path i_RepositoryPath) throws Exception {
+    public static MergeConflictsAndMergedItems GetConflictsForMerge(Commit i_PullingCommit, Commit i_PulledCommit, Path i_RepositoryPath, Map<String, Commit> i_allCommitsMap) throws Exception {
         if (isRightAncestorOfLeft(i_PulledCommit, i_PullingCommit))// first case of FF
             return new MergeConflictsAndMergedItems(null, null, true, i_PulledCommit, true, false);
         else if (isRightAncestorOfLeft(i_PullingCommit, i_PulledCommit))
@@ -56,9 +55,11 @@ public class Commit implements CommitRepresentative {
         else {
             Set<Item> mergedItems = new HashSet<Item>();
             HashSet<ConflictingItems> conflictItems = new HashSet<ConflictingItems>();
+            AncestorFinder anf = new AncestorFinder(sha1 -> {
+                return i_allCommitsMap.get(sha1);
+            });
 
-            AncestorFinder ancestorFinder = new AncestorFinder((Function<String, CommitRepresentative>) i_PullingCommit.getMapOfSha1ToCommit());
-            String closestCommonAncestorCommitSha1 = ancestorFinder.traceAncestor(i_PullingCommit.getSHA1(), i_PulledCommit.getSHA1());
+            String closestCommonAncestorCommitSha1 = anf.traceAncestor(i_PullingCommit.getSHA1(), i_PulledCommit.getSHA1());
             Commit closestCommonAncestorCommit = i_PullingCommit.GetAncestorCommitBySha1(closestCommonAncestorCommitSha1);
             Map<Path, Item> mapOfRelativePathToItemPullingRootFolder = i_PullingCommit.createMapOfRelativePathToItem(i_RepositoryPath);
             Map<Path, Item> mapOfRelativePathToItemPulledRootFolder = i_PulledCommit.createMapOfRelativePathToItem(i_RepositoryPath);
@@ -73,7 +74,7 @@ public class Commit implements CommitRepresentative {
                 Item pulledItem = mapOfRelativePathToItemPulledRootFolder.get(itemRelativePath);
                 Item baseVersionItem = mapOfRelativePathToItemAncestorRootFolder.get(itemRelativePath);
                 if (MergeConflictsAndMergedItems.isConflict(itemState)) {
-                    conflictItems.add(new ConflictingItems(pullingItem, pulledItem,baseVersionItem));
+                    conflictItems.add(new ConflictingItems(pullingItem, pulledItem, baseVersionItem));
                 } else {
                     if (MergeConflictsAndMergedItems.ShouldTakePullingItem(itemState)) {
                         if (!mergedItems.contains(item) && !mergedItems.contains(pullingItem))
@@ -103,7 +104,7 @@ public class Commit implements CommitRepresentative {
     private Commit GetAncestorCommitBySha1(String i_ClosestCommonAncestorCommitSha1) throws Exception {
         Map<String, Commit> sha1ToCommitMap = this.getMapOfSha1ToCommit();
         Commit ancestorCommit = sha1ToCommitMap.get(i_ClosestCommonAncestorCommitSha1);
-        if(ancestorCommit==null)
+        if (ancestorCommit == null)
             throw new Exception("GetAncestorCommitBySha1 - cant find the requested commit");
         else
             return ancestorCommit;
@@ -126,7 +127,7 @@ public class Commit implements CommitRepresentative {
             stateInBinary = stateInBinary | 0;
 
         stateInBinary = stateInBinary << 1;
-        if (itemFromPulling != null && itemFromPulled != null && itemFromPulling.getSHA1().equals(itemFromPulled.getSHA1()))
+        if (itemFromPulling != null && itemFromPulled != null && itemFromPulled != null && itemFromPulling.getSHA1().equals(itemFromPulled.getSHA1()))
             stateInBinary = stateInBinary | 1;
         else
             stateInBinary = stateInBinary | 0;
@@ -144,7 +145,7 @@ public class Commit implements CommitRepresentative {
             stateInBinary = stateInBinary | 0;
 
         stateInBinary = stateInBinary << 1;
-        if (itemFromPulling != null && itemFromAncestor != null && itemFromPulling.getSHA1().equals(itemFromPulled.getSHA1()))
+        if (itemFromPulling != null && itemFromAncestor != null && itemFromPulled != null && itemFromPulling.getSHA1().equals(itemFromPulled.getSHA1()))
             stateInBinary = stateInBinary | 1;
         else
             stateInBinary = stateInBinary | 0;
@@ -491,18 +492,29 @@ public class Commit implements CommitRepresentative {
         return this.m_SHA1.equals(pointedCommit.getSHA1());
     }
 
+    public Commit GetCommitBySha1(String i_sha1) {
+        Map<String, Commit> mapOfSha1ToCommit = getMapOfSha1ToCommit();
+        return mapOfSha1ToCommit.get(i_sha1);
+    }
+
     @Override
     public String getSha1() {
+        if (this.m_SHA1 == null)
+            return "";
         return this.m_SHA1;
     }
 
     @Override
     public String getFirstPrecedingSha1() {
+        if (this.m_PrevCommit == null)
+            return "";
         return this.m_PrevCommit.m_SHA1;
     }
 
     @Override
     public String getSecondPrecedingSha1() {
+        if (this.m_SecondPrevCommit == null)
+            return "";
         return this.m_SecondPrevCommit.m_SHA1;
     }
 }

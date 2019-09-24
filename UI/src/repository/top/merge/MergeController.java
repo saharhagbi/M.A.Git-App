@@ -71,11 +71,16 @@ public class MergeController {
                 } else { //not FF
 
                     m_ConflictsListView.setItems(conflicts.GetConflictItemsNames());
-
+                    //m_ourVersionListView.setItems(conflicts.GetPullingItemsInConflictNames());
+                    //m_BaseVersionListView.setItems(conflicts.GetBaseVersionItemsInConflictNames());
+                    //m_SelectedBranchListView.setItems(conflicts.GetPulledItemsInConflictNames());
                     // 1. show user conflicts let him choose which he wants
                     // 2. take chosen items and add to -> conflicts.GetMergedItemsNotSorted();
                     // 3. create new folder FromNotSorted mergedItems
+
                     // 4. create the new commit and point the branch to it
+
+
                 }
 
 

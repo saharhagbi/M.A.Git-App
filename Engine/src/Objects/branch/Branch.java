@@ -130,9 +130,9 @@ public class Branch
         return headBranch;
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_PushingBranch, Path i_RepositoryPath) throws Exception
+    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_PushingBranch, Path i_RepositoryPath, Map<String,Commit> i_allCommitsMap) throws Exception
     {
-        MergeConflictsAndMergedItems mergeConflicts = Commit.GetConflictsForMerge(this.getPointedCommit(), i_PushingBranch.getPointedCommit(), i_RepositoryPath);
+        MergeConflictsAndMergedItems mergeConflicts = Commit.GetConflictsForMerge(this.getPointedCommit(), i_PushingBranch.getPointedCommit(), i_RepositoryPath,i_allCommitsMap);
         return mergeConflicts;
     }
 
