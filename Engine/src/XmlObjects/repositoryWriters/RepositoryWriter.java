@@ -35,25 +35,20 @@ public class RepositoryWriter
     {
         MakeDirectoriesForRepositories();
 
-        WriteAllBranches(i_NameHeadBranch);
+        WriteAllBranches(i_NameHeadBranch, m_RepositoryToWrite.getAllBranches());
 
         Folder.SpanDirectory(m_RepositoryToWrite.getActiveBranch().getPointedCommit().getRootFolder());
     }
 
-    public void WriteAllBranches(String i_NameHeadBranch) throws ParseException, IOException
+    public void WriteAllBranches(String i_NameHeadBranch, List<Branch> allBranches) throws ParseException, IOException
     {
-        /*if (m_RepositoryToWrite.getAllBranches() == null)
-            return;*/
 
-        for (Branch currentBranch : m_RepositoryToWrite.getAllBranches())
+        for (Branch currentBranch : allBranches)
         {
             WriteBranch(currentBranch);
 
-//            String pathForWritingBranch = m_RepositoryToWrite.getRepositoryPath().toString() + sf_PathForBranches;
-
             CheckIfCurrentBranchIsHeadAndUpdateIfItDoes(currentBranch.getBranchName(), i_NameHeadBranch,
                     m_RepositoryToWrite.getRepositoryPath().toString() + sf_PathForBranches);
-
         }
     }
 

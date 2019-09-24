@@ -221,7 +221,7 @@ public class RepositoryController {
             createRTBranchInLocalRepository();
     }
 
-    private void createRTBranchInLocalRepository() throws IOException {
+    private void createRTBranchInLocalRepository() throws Exception {
         LocalRepository localRepository = (LocalRepository) getCurrentRepository();
 
         List<String> remoteBranchesNames = localRepository.getRemoteBranches().stream().map(branch -> branch.getBranchName()).collect(Collectors.toList());
@@ -232,12 +232,22 @@ public class RepositoryController {
 
         String[] temp = remoteBranchName.split(ResourceUtils.Slash);
         String branchName = temp[1];
+        checkIfThereIsNotYetRTB(localRepository, branchName);
 
         RemoteBranch remoteBranch = localRepository.findRemoteBranchBranchByPredicate(remoteBranch1 -> remoteBranch1.getBranchName().equals(remoteBranchName));
         Commit pointedCommit = remoteBranch.getPointedCommit();
 
         m_MagitController.createRTB(pointedCommit, branchName);
         m_TopController.updateBoardAfterCreatingNewBranch(branchName);
+    }
+
+    private void checkIfThereIsNotYetRTB(LocalRepository localRepository, String branchName) throws Exception
+    {
+        boolean isExist = localRepository.findRemoteTrackingBranchByPredicate(remoteTrackingBranch ->
+                remoteTrackingBranch.getBranchName().equals(branchName)) != null;
+
+        if(isExist)
+            throw new Exception("Remote Tracking Branch alreadt exist in that specific remote");
     }
 
     public void UpdateWindowAfterDeletingBranch(String i_branchNameToErase) {
