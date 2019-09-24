@@ -27,7 +27,6 @@
             <Button fx:id="m_LoadRepoFromXMLBtn" mnemonicParsing="false" onAction="#LoadRepositoryFromXML_OnClick" prefHeight="390.0" prefWidth="1245.0" text="Load Repository From XML" GridPane.rowIndex="2" />
             <Button fx:id="m_LoadExistingRepositoryBtn" mnemonicParsing="false" onAction="#LoadExistingRepository_OnClick" prefHeight="193.0" prefWidth="677.0" text="Load Existing Repositoty" GridPane.rowIndex="3" />
             <Button fx:id="m_CloneBtn" mnemonicParsing="false" onAction="#Clone_OnClick" prefHeight="424.0" prefWidth="1147.0" text="Clone Repository" GridPane.rowIndex="4" />
-            <ProgressBar fx:id="m_ProgressBar" prefHeight="23.0" prefWidth="225.0" progress="0.0" visible="false" />
          </children>
       </GridPane>
    </bottom>
@@ -38,4 +37,7 @@
          </font>
       </Label>
    </center>
+   <right>
+      <ProgressBar fx:id="m_ProgressBar" prefHeight="23.0" prefWidth="225.0" progress="0.0" BorderPane.alignment="CENTER" />
+   </right>
 </BorderPane>

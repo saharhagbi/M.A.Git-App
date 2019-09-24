@@ -38,8 +38,8 @@ public class MergeController
     void chooseBranchToMerge(Branch i_selectedBranchToMerge, PrimaryController primaryController)
     {
         try {
-            MergeConflictsAndMergedItems conflicts=  this.m_TopController.GetConflictsForMerge(i_selectedBranchToMerge);
-            if(conflicts.IsFastForwardCase())
+           // MergeConflictsAndMergedItems conflicts=  this.m_TopController.GetConflictsForMerge(i_selectedBranchToMerge);
+            /*if(conflicts.IsFastForwardCase())
             {
                 // point head branch to i_selectedBranch
             }
@@ -49,7 +49,7 @@ public class MergeController
                 // 3. create new folder FromNotSorted mergedItems
                 // 4. create the new commit and point the branch to it
             }
-
+*/
         } catch (Exception e) {
             e.printStackTrace();
         }

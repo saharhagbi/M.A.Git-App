@@ -65,8 +65,8 @@ public class StartingController
         File selectedFile = MAGitUtils.GetFile(MAGitUtils.GetStage(m_LoadRepoFromXMLBtn));
 
         m_LoadExistingRepositoryBtn.getParent().setVisible(false);
-        /*m_ProgressBar.setVisible(true);
-        m_ProgressBar.setProgress();
+      m_ProgressBar.setVisible(true);
+        /*  m_ProgressBar.setProgress();
 */
         Task loadTask = new Task()
         {
@@ -82,18 +82,18 @@ public class StartingController
                 return null;
             }
         };
-        m_WelcomeLabel.textProperty().bind(loadTask.messageProperty());
-//        bindTaskComponentsToUI(m_WelcomeLabel, m_ProgressBar, loadTask);
+      //  m_WelcomeLabel.textProperty().bind(loadTask.messageProperty());
+        bindTaskComponentsToUI(m_WelcomeLabel, m_ProgressBar, loadTask);
         new Thread(loadTask).start();
         loadTask.setOnSucceeded(event -> moveToRepositoryScene());
         // moveToRepositoryScene();
     }
 
-   /* private void bindTaskComponentsToUI(Label i_LabelBar, ProgressBar i_ProgressBar, Task i_CommitTask)
+    private void bindTaskComponentsToUI(Label i_LabelBar, ProgressBar i_ProgressBar, Task i_CommitTask)
     {
         i_LabelBar.textProperty().bind(i_CommitTask.messageProperty());
         i_ProgressBar.progressProperty().bind(i_CommitTask.progressProperty());
-    }*/
+    }
 
     @FXML
     public void LoadExistingRepository_OnClick()
