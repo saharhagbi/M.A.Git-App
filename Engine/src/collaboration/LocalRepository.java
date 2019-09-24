@@ -31,10 +31,13 @@ public class LocalRepository extends Repository
     @Override
     public List<Branch> getActiveBranches()
     {
-        return m_RemoteTrackingBranches
+        List<Branch> activeBranches = m_RemoteTrackingBranches
                 .stream()
                 .map(remoteTrackingBranch -> (Branch) remoteTrackingBranch)
                 .collect(Collectors.toList());
+
+        activeBranches.addAll(m_Branches);
+        return activeBranches;
     }
 
     @Override

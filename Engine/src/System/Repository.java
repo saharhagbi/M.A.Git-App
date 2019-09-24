@@ -168,7 +168,7 @@ public class Repository
             if (this.m_ActiveBranch.getPointedCommit().GetPrevCommit() != null)
             {//it means there is no new commit because there were no changes
                 differencesBetweenLastAndCurrentCommit = Commit.findDifferences(m_ActiveBranch.getPointedCommit(), m_ActiveBranch.getPointedCommit().GetPrevCommit());
-                System.out.println(differencesBetweenLastAndCurrentCommit);
+               // System.out.println(differencesBetweenLastAndCurrentCommit);
                 updateActiveBranchInFileSystemToPointToLatestCommit();
             }
         }

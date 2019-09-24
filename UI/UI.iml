@@ -47,7 +47,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../AncestorFinder.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../AncestorFinder.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

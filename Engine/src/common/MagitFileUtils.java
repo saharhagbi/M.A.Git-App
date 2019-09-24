@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -111,5 +112,23 @@ public class MagitFileUtils
         String[] fileNameAndExtension = filePath.getFileName().toString().split("\\.(?=[^\\.]+$)");
         fileName = fileNameAndExtension[0];
         return fileName;
+    }
+
+    public static boolean IsHeadBranchFile(File branchFile)
+    {
+        return branchFile.getName().equals(ResourceUtils.HEAD);
+    }
+
+    public static String GetContentFile(File i_file) throws Exception
+    {
+        try
+        {
+            String content = new String(Files.readAllBytes(Paths.get(i_file.getAbsolutePath())), StandardCharsets.UTF_8);
+            return content;
+
+        } catch (IOException e)
+        {
+            throw new Exception("Exception was occured, problem in reading file:" + i_file.getName());
+        }
     }
 }
