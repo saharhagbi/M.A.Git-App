@@ -71,8 +71,9 @@ public class Commit implements CommitRepresentative {
                 int itemState = getStateForMerge(itemRelativePath, mapOfRelativePathToItemPullingRootFolder, mapOfRelativePathToItemPulledRootFolder, mapOfRelativePathToItemAncestorRootFolder);
                 Item pullingItem = mapOfRelativePathToItemPullingRootFolder.get(itemRelativePath);
                 Item pulledItem = mapOfRelativePathToItemPulledRootFolder.get(itemRelativePath);
+                Item baseVersionItem = mapOfRelativePathToItemAncestorRootFolder.get(itemRelativePath);
                 if (MergeConflictsAndMergedItems.isConflict(itemState)) {
-                    conflictItems.add(new ConflictingItems(pullingItem, pulledItem));
+                    conflictItems.add(new ConflictingItems(pullingItem, pulledItem,baseVersionItem));
                 } else {
                     if (MergeConflictsAndMergedItems.ShouldTakePullingItem(itemState)) {
                         if (!mergedItems.contains(item) && !mergedItems.contains(pullingItem))
@@ -154,7 +155,7 @@ public class Commit implements CommitRepresentative {
 
     public static boolean isRightAncestorOfLeft(Commit i_LeftCommit, Commit i_RightCommit) {
         boolean res;
-        if (i_RightCommit == null)
+        if (i_LeftCommit == null)
             res = false;
         else {
             if (i_LeftCommit.getSHA1().equals(i_RightCommit.getSHA1()))

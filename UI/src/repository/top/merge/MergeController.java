@@ -71,6 +71,7 @@ public class MergeController {
                 } else { //not FF
 
                     m_ConflictsListView.setItems(conflicts.GetConflictItemsNames());
+
                     // 1. show user conflicts let him choose which he wants
                     // 2. take chosen items and add to -> conflicts.GetMergedItemsNotSorted();
                     // 3. create new folder FromNotSorted mergedItems

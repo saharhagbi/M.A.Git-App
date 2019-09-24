@@ -630,7 +630,14 @@ public class Engine
     public MergeConflictsAndMergedItems GetConflictsForMerge(String i_pushingBranchName) throws Exception
     {
         Branch pushingBranch = this.getCurrentRepository().getBranchByName(i_pushingBranchName);
-        return m_CurrentRepository.getActiveBranch().GetConflictsForMerge(pushingBranch, m_CurrentRepository.getRepositoryPath());
+        if(m_CurrentRepository==null){
+            return m_CurrentLocalRepository.getActiveBranch().GetConflictsForMerge(pushingBranch, m_CurrentLocalRepository.getRepositoryPath());
+        }
+        else if(m_CurrentLocalRepository==null){
+            return m_CurrentRepository.getActiveBranch().GetConflictsForMerge(pushingBranch, m_CurrentRepository.getRepositoryPath());
+        }
+        else
+            throw new Exception("no Repository instances");
     }
 }
 
