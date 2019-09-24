@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class LocalRepository extends Repository
 {
@@ -27,7 +28,14 @@ public class LocalRepository extends Repository
         this.m_RemoteRepoRef = i_RemoteRepoRef;
     }
 
-
+    @Override
+    public List<Branch> getActiveBranches()
+    {
+        return m_RemoteTrackingBranches
+                .stream()
+                .map(remoteTrackingBranch -> (Branch) remoteTrackingBranch)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public List<Branch> getAllBranches()
@@ -42,10 +50,10 @@ public class LocalRepository extends Repository
         return allBranches;
     }
 
-   public List<Branch> getRegularBranches()
-   {
-       return m_Branches;
-   }
+    public List<Branch> getRegularBranches()
+    {
+        return m_Branches;
+    }
 
     public List<RemoteTrackingBranch> getRemoteTrackingBranches()
     {

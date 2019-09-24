@@ -151,7 +151,7 @@ public class RightController
         {*/
         return m_RepositoryController.getCurrentRepository().getAllBranches()
                 .stream()
-                .filter(branch -> branch.getPointedCommit() == i_Commit)
+                .filter(branch -> branch.getPointedCommit().AreTheCommitsTheSame(i_Commit))
                 .collect(Collectors.toList());
 
     }

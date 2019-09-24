@@ -3,6 +3,7 @@ package repository.top;
 import Objects.branch.Branch;
 import System.FolderDifferences;
 import System.MergeConflictsAndMergedItems;
+import collaboration.LocalRepository;
 import common.MAGitResourceConstants;
 import common.MAGitUtils;
 import common.constants.StringConstants;
@@ -110,7 +111,9 @@ public class TopController
                     }
                 } catch (Exception e)
                 {
-                    MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", e.getMessage(), e.getMessage());
+                    Platform.runLater(() ->
+                            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", e.getMessage(), e.getMessage())
+                    );
 
                 } finally
                 {
@@ -159,7 +162,7 @@ public class TopController
     {
         try
         {
-           // m_RepositoryController.InitProgress("Setting User..");
+            // m_RepositoryController.InitProgress("Setting User..");
             String newUserName = MAGitUtils.GetString("Enter a new user name please", "Name", "Switch User");
             m_UserNameTxt.setText(newUserName);
             m_RepositoryController.SetUser(newUserName);
@@ -313,7 +316,6 @@ public class TopController
         } catch (Exception e)
         {
             MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", e.getMessage(), e.getMessage());
-
         }
     }
 
@@ -345,8 +347,9 @@ public class TopController
                     }
                 } catch (Exception e)
                 {
-                    MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", e.getMessage(), e.getMessage());
-
+                    Platform.runLater(() ->
+                            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", e.getMessage(), e.getMessage())
+                    );
                 } finally
                 {
                     updateTask();
@@ -392,9 +395,20 @@ public class TopController
 
     private void getBranchNameAndCheckOut() throws Exception
     {
-        List<String> tempList = m_AllBranches
+        /*List<?> branchesChoices;
+
+        if (m_RepositoryController.IsLocalRepository())
+        {
+            LocalRepository localRepository = (LocalRepository) m_RepositoryController.getCurrentRepository();
+            branchesChoices = localRepository.getRemoteTrackingBranches();
+        } else
+        {
+            branchesChoices = m_RepositoryController.getCurrentRepository().getAllBranches();
+        }
+*/
+        List<String> tempList = m_RepositoryController.getCurrentRepository().getActiveBranches()
                 .stream()
-                .map(branch -> branch.getBranchName())
+                .map(branch -> ((Branch) branch).getBranchName())
                 .collect(Collectors.toList());
 
         String[] choices = tempList.stream().toArray(String[]::new);
@@ -419,7 +433,7 @@ public class TopController
     {
         try
         {
-           // m_RepositoryController.InitProgress("Reset...");
+            // m_RepositoryController.InitProgress("Reset...");
             String SHA1OfCommit = MAGitUtils.GetString("Enter the sha1 of the commit you want to reset to", "SHA1:",
                     StringConstants.COMMIT + " SHA1");
 
@@ -460,7 +474,9 @@ public class TopController
                         m_RepositoryController.ShowDifferencesFiles(folderDifferences);
                 } catch (Exception e)
                 {
-                    e.printStackTrace();
+                    Platform.runLater(() ->
+                            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", e.getMessage(), e.getMessage())
+                    );
                 } finally
                 {
                     updateProgress(1, 1);
@@ -474,13 +490,12 @@ public class TopController
         new Thread(showStatusTask).start();
     }
 
-
     @FXML
     void Fetch_OnClick(ActionEvent event)
     {
         try
         {
-           // m_RepositoryController.InitProgress("Fetch...");
+            // m_RepositoryController.InitProgress("Fetch...");
 
             m_RepositoryController.Fetch();
 
@@ -501,9 +516,7 @@ public class TopController
         } catch (Exception e)
         {
             MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", e.getMessage(), e.getMessage());
-
         }
-
         //    m_RepositoryController.UpdateProgress();
     }
 

@@ -2,9 +2,11 @@ package Objects.branch;
 
 import Objects.Commit;
 import Objects.Item;
-import common.MagitFileUtils;
-import common.constants.StringConstants;
 import System.MergeConflictsAndMergedItems;
+import common.MagitFileUtils;
+import common.constants.ResourceUtils;
+import common.constants.StringConstants;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,7 +24,6 @@ public class Branch
 
     public Branch(String i_BranchName, Commit i_CurrentCommit)
     {
-//        super(i_CurrentCommit);
         m_PointedCommit = i_CurrentCommit;
         m_BranchName = i_BranchName;
     }
@@ -56,7 +57,7 @@ public class Branch
         File[] allBranchesFiles = i_BranchFolderPath.toFile().listFiles();
         for (int i = 0; i < allBranchesFiles.length; i++)
         {
-            if (!allBranchesFiles[i].getName().equals(StringConstants.HEAD))
+            if (!allBranchesFiles[i].getName().equals(ResourceUtils.HEAD))
             {
                 allBranches.add(Branch.createBranchInstanceFromExistBranch(allBranchesFiles[i].toPath()));
             }
@@ -87,7 +88,6 @@ public class Branch
     }
 
 
-
     //TODO: if there is more then one line throw exception
     private static String getCommitSha1FromBranchFile(Path i_Branch) throws FileNotFoundException
     {
@@ -112,15 +112,16 @@ public class Branch
         return branchName;
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_PushingBranch, Path i_RepositoryPath) throws Exception {
-        MergeConflictsAndMergedItems mergeConflicts = Commit.GetConflictsForMerge(this.getPointedCommit(), i_PushingBranch.getPointedCommit(), i_RepositoryPath);
-        return mergeConflicts;
-    }
-
     public static Optional<Branch> GetHeadBranch(List<Branch> i_AllBranches, String headBranchName) throws Exception
     {
         Optional<Branch> headBranch = i_AllBranches.stream().filter(branch -> branch.getBranchName().equals(headBranchName)).findFirst();
         return headBranch;
+    }
+
+    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_PushingBranch, Path i_RepositoryPath) throws Exception
+    {
+        MergeConflictsAndMergedItems mergeConflicts = Commit.GetConflictsForMerge(this.getPointedCommit(), i_PushingBranch.getPointedCommit(), i_RepositoryPath);
+        return mergeConflicts;
     }
 
     public String getBranchName()

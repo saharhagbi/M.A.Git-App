@@ -13,7 +13,7 @@ import common.Enums;
 import common.MagitFileUtils;
 import common.constants.NumConstants;
 import common.constants.ResourceUtils;
-import common.constants.StringConstants;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -141,9 +141,21 @@ public class Engine
     public void CheckOut(String i_BranchName) throws Exception
     {
         //1. set active branch to selectd branch
-        this.getCurrentRepository().replaceActiveBranch(i_BranchName);
+        replaceActiveBranch(i_BranchName);
 
         removeFilesFromWCAndSpanNewCommitInActiveBranch();
+    }
+
+    private void replaceActiveBranch(String i_branchName) throws Exception
+    {
+        //3. insert to HEAD.txt (in Branches folder) the name of the branch
+        File HEADFile = Paths.get(getCurrentRepository().getBranchesFolderPath().toString() + ResourceUtils.Slash + ResourceUtils.HEAD).toFile();
+        FileUtils.writeStringToFile(HEADFile, i_branchName, "UTF-8", false);
+
+        Branch newActiveBranch = getCurrentRepository().getActiveBranches().stream().filter(branch -> branch.getBranchName().equals(i_branchName))
+                .findAny().orElse(null);
+
+        getCurrentRepository().setActiveBranch(newActiveBranch);
     }
 
     private void removeFilesFromWCAndSpanNewCommitInActiveBranch() throws IOException
@@ -236,7 +248,7 @@ public class Engine
         //create remote tracking branches and ordinary branches
         for (File branchFile : branchesFiles)
         {
-            if (!branchFile.getName().equals(StringConstants.HEAD) && (!branchFile.isDirectory()))
+            if (!branchFile.getName().equals(ResourceUtils.HEAD) && (!branchFile.isDirectory()))
             {
                 Enums.BranchType type;
                 String branchName = MagitFileUtils.RemoveExtension(branchFile.toPath());
