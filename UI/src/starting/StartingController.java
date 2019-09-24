@@ -16,7 +16,6 @@ import main.MAGitController;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 //import java.awt.*;
@@ -52,9 +51,6 @@ public class StartingController
             moveToRepositoryScene();
         } catch (Exception exception)
         {
-            //Todo:
-            // handle exception in UI, pop up window
-            // handle in case that repository already exist in location!! (popup window> need to move to repository stage?)
             MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", null, exception.getMessage());
         }
     }
@@ -64,10 +60,8 @@ public class StartingController
     {
         File selectedFile = MAGitUtils.GetFile(MAGitUtils.GetStage(m_LoadRepoFromXMLBtn));
 
-        m_LoadExistingRepositoryBtn.getParent().setVisible(false);
-        /*m_ProgressBar.setVisible(true);
-        m_ProgressBar.setProgress();
-*/
+        m_ProgressBar.setVisible(true);
+
         Task loadTask = new Task()
         {
             @Override
@@ -75,25 +69,32 @@ public class StartingController
             {
                 updateMessage("Loading...");
 
-
-                m_MagitController.loadRepositoryFromXML(selectedFile.getAbsolutePath());
+                try
+                {
+                    m_MagitController.loadRepositoryFromXML(selectedFile.getAbsolutePath());
+                    Platform.runLater(() -> moveToRepositoryScene());
+                } catch (Exception xmlException)
+                {
+                    Platform.runLater(() ->
+                            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", "Error in loading repository from ",
+                                    xmlException.getMessage()));
+                }
 
                 updateProgress(1, 1);
+                updateMessage("Welcome To M.A.Git!");
                 return null;
             }
         };
-        m_WelcomeLabel.textProperty().bind(loadTask.messageProperty());
-//        bindTaskComponentsToUI(m_WelcomeLabel, m_ProgressBar, loadTask);
+
+        bindTaskComponentsToUI(m_WelcomeLabel, m_ProgressBar, loadTask);
         new Thread(loadTask).start();
-        loadTask.setOnSucceeded(event -> moveToRepositoryScene());
-        // moveToRepositoryScene();
     }
 
-   /* private void bindTaskComponentsToUI(Label i_LabelBar, ProgressBar i_ProgressBar, Task i_CommitTask)
+    private void bindTaskComponentsToUI(Label i_LabelBar, ProgressBar i_ProgressBar, Task i_CommitTask)
     {
         i_LabelBar.textProperty().bind(i_CommitTask.messageProperty());
         i_ProgressBar.progressProperty().bind(i_CommitTask.progressProperty());
-    }*/
+    }
 
     @FXML
     public void LoadExistingRepository_OnClick()
@@ -102,35 +103,31 @@ public class StartingController
         {
             String RepositoryName = MAGitUtils.GetString("Enter your repository name.", "Name:", "Repository Name");
             File selecredDir = MAGitUtils.GetDirectory(MAGitUtils.GetStage(m_LoadExistingRepositoryBtn), "Select the repository folder");
-            //String RepositoryPath = MAGitUtils.GetString("Enter your existing repository path", "Path:", "Repository Path");
+
             m_MagitController.PullAnExistingRepository(RepositoryName, selecredDir.getAbsolutePath());
+            moveToRepositoryScene();
         } catch (Exception exception)
         {
-            //TODO:
-            // handling exception by proper message to user
-            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", null, exception.getMessage());
+            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", exception.getMessage(), exception.getMessage());
         }
 
-        moveToRepositoryScene();
     }
 
     private void moveToRepositoryScene()
     {
-        Stage currentStage = MAGitUtils.GetStage(m_LoadExistingRepositoryBtn);
-
         try
         {
+            Stage currentStage = MAGitUtils.GetStage(m_LoadExistingRepositoryBtn);
 
             m_MagitController.SwitchScenes(MAGitResourceConstants.REPOSITORY_SCENE, currentStage);
-        } catch (IOException e)
+        } catch (IOException exception)
         {
-            //TODO:
-            // handling exception by proper message to user
-            e.printStackTrace();
+            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", exception.getMessage(), exception.getMessage());
         }
+
     }
 
-    public void HandleCurrentRepositoryAlreadyExist() throws ExecutionException, InterruptedException
+    public void HandleCurrentRepositoryAlreadyExist() throws Exception
     {
         String headerText = String.format("Repository already exist in this location!"
                 + System.lineSeparator()
@@ -149,18 +146,10 @@ public class StartingController
 
         Platform.runLater(futureTask);
 
-
         String userChoice = futureTask.get();
 
-        try
-        {
-            m_MagitController.ExecuteUserChoice(userChoice);
-        } catch (Exception e)
-        {
-            //TODO:
-            // Handling proper message
-            e.printStackTrace();
-        }
+        m_MagitController.ExecuteUserChoice(userChoice);
+
     }
 
     @FXML
@@ -185,7 +174,6 @@ public class StartingController
     @FXML
     void Clone_OnClick(ActionEvent event)
     {
-
         try
         {
             File dirOfRepo = MAGitUtils.GetDirectory(MAGitUtils.GetStage(m_CloneBtn), "Select the folder of the repository you want to clone from: ");
@@ -196,11 +184,7 @@ public class StartingController
             moveToRepositoryScene();
         } catch (Exception e)
         {
-            //todo:
-            // handle proper message UI
-            e.printStackTrace();
+            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", e.getMessage(), e.getMessage());
         }
     }
-
-
 }

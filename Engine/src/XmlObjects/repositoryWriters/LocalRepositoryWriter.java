@@ -7,6 +7,7 @@ import collaboration.LocalRepository;
 import collaboration.RemoteBranch;
 import collaboration.RemoteTrackingBranch;
 import common.MagitFileUtils;
+import common.constants.NumConstants;
 import common.constants.ResourceUtils;
 import common.constants.StringConstants;
 
@@ -32,8 +33,10 @@ public class LocalRepositoryWriter
     public void WriteRepositoryToFileSystem(String i_BranchName) throws IOException, ParseException
     {
         m_Writer.MakeDirectoriesForRepositories();
+
         if (m_RepositoryToWrite.getRegularBranches() != null)
-            m_Writer.WriteAllBranches(i_BranchName);
+            if ((m_RepositoryToWrite.getRegularBranches().size()) != NumConstants.ZERO)
+                m_Writer.WriteAllBranches(i_BranchName, m_RepositoryToWrite.getRegularBranches());
 
         WriteAllRemoteTrackingBranches(i_BranchName);
 

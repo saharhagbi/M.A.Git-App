@@ -69,10 +69,10 @@ public class XMLMain
 
     public boolean IsLocalRepository(MagitRepository magitRepository)
     {
-        return magitRepository.magitRemoteReference.location != null;
+        if (magitRepository.magitRemoteReference == null)
+            return false;
 
-        /*.stream().anyMatch(magitSingleBranch ->
-                (magitSingleBranch.tracking == true));*/
+        return magitRepository.magitRemoteReference.location != null;
     }
 
 

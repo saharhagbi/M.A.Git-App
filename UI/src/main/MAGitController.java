@@ -1,14 +1,14 @@
 package main;
 
 import Objects.Commit;
-import Objects.branch.Branch;
 import System.FolderDifferences;
+import System.MergeConflictsAndMergedItems;
 import System.Repository;
 import XmlObjects.MagitRepository;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import primaryController.PrimaryController;
 import repository.RepositoryController;
@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
-import System.MergeConflictsAndMergedItems;
+
 public class MAGitController
 {
     private PrimaryController m_PrimaryController;
@@ -42,7 +42,7 @@ public class MAGitController
         m_PrimaryController.loadRepositoryFromXML(i_PathToXML);
     }
 
-    public void handleCurrentRepositoryAlreadyExist(MagitRepository i_XmlRepository) throws ExecutionException, InterruptedException
+    public void handleCurrentRepositoryAlreadyExist(MagitRepository i_XmlRepository) throws Exception
     {
         m_StartingController.HandleCurrentRepositoryAlreadyExist();
     }
@@ -61,20 +61,21 @@ public class MAGitController
     {
         URL fxml = getClass().getResource(i_PathToFXMLScene);
         FXMLLoader loader = new FXMLLoader(fxml);
-        Parent root = loader.load(fxml.openStream());
+        BorderPane root = loader.load(fxml.openStream());
 
         boolean isRepositoryScene = setMagitController(loader);
 
         Scene scene = new Scene(root);
 
         i_PrimaryStage.setScene(scene);
-        i_PrimaryStage.setMinWidth(scene.getWidth());
-        i_PrimaryStage.setMinHeight(scene.getHeight());
+        i_PrimaryStage.setHeight(root.getPrefHeight());
+        i_PrimaryStage.setWidth(root.getPrefWidth());
+        i_PrimaryStage.setMinWidth(root.getPrefWidth());
+        i_PrimaryStage.setMinHeight(root.getPrefHeight() + 50);
 
         setComponentsIfRepositoryScene(i_PrimaryStage, isRepositoryScene);
 
         i_PrimaryStage.show();
-
     }
 
     private void setComponentsIfRepositoryScene(Stage i_PrimaryStage, boolean isRepositoryScene)
@@ -169,7 +170,7 @@ public class MAGitController
     public void Pull() throws Exception
     {
         m_PrimaryController.Pull();
-        }
+    }
 
 
     public void InformUserMessage(Alert.AlertType i_AlertType, String i_Title, String i_Header, String i_ContextText)
@@ -232,7 +233,8 @@ public class MAGitController
         m_RepositoryController.UpdateCommitTree();
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_selectedBranchNameToMerge) throws Exception {
+    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_selectedBranchNameToMerge) throws Exception
+    {
         return this.m_PrimaryController.GetConflictsForMerge(i_selectedBranchNameToMerge);
     }
 }

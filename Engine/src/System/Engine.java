@@ -14,7 +14,7 @@ import common.MagitFileUtils;
 import common.constants.NumConstants;
 import common.constants.ResourceUtils;
 import common.constants.StringConstants;
-import System.MergeConflictsAndMergedItems;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -202,7 +202,6 @@ public class Engine
             m_CurrentLocalRepository = null;
             this.m_CurrentRepository.setActiveBranch(activeBranch.get());
         }
-
     }
 
     private void createLocalRepository(String repositoryPath, String activeBranchName, String nameOfRepository) throws Exception
@@ -414,11 +413,21 @@ public class Engine
             case 1:
                 Folder.DeleteDirectory(i_MagitRepository.getLocation());
                 m_CurrentRepository = i_XmlMain.ParseAndWriteXML(i_MagitRepository);
+                assignFitRepository(i_MagitRepository, i_XmlMain);
                 break;
 
             case 2:
                 PullAnExistingRepository(i_MagitRepository.getLocation(), i_MagitRepository.getName());
                 break;
+        }
+    }
+
+    public void assignFitRepository(MagitRepository i_MagitRepository, XMLMain i_XmlMain)
+    {
+        if (i_XmlMain.IsLocalRepository(i_MagitRepository))
+        {
+            m_CurrentLocalRepository = (LocalRepository) m_CurrentRepository;
+            m_CurrentRepository = null;
         }
     }
 
@@ -606,9 +615,10 @@ public class Engine
         writer.WriteRemoteTrackingBranch(remoteTrackingBranch, remoteTrackingBranch.getPointedCommit());
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_pushingBranchName) throws Exception {
+    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_pushingBranchName) throws Exception
+    {
         Branch pushingBranch = this.getCurrentRepository().getBranchByName(i_pushingBranchName);
-        return m_CurrentRepository.getActiveBranch().GetConflictsForMerge(pushingBranch,m_CurrentRepository.getRepositoryPath());
+        return m_CurrentRepository.getActiveBranch().GetConflictsForMerge(pushingBranch, m_CurrentRepository.getRepositoryPath());
     }
 }
 
