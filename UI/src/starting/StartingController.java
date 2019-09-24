@@ -108,6 +108,7 @@ public class StartingController
             moveToRepositoryScene();
         } catch (Exception exception)
         {
+            exception.printStackTrace();
             MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", exception.getMessage(), exception.getMessage());
         }
 

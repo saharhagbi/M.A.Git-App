@@ -12,10 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 public class Branch
 {
@@ -118,9 +115,9 @@ public class Branch
         return headBranch;
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_PushingBranch, Path i_RepositoryPath) throws Exception
+    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_PushingBranch, Path i_RepositoryPath, Map<String,Commit> i_allCommitsMap) throws Exception
     {
-        MergeConflictsAndMergedItems mergeConflicts = Commit.GetConflictsForMerge(this.getPointedCommit(), i_PushingBranch.getPointedCommit(), i_RepositoryPath);
+        MergeConflictsAndMergedItems mergeConflicts = Commit.GetConflictsForMerge(this.getPointedCommit(), i_PushingBranch.getPointedCommit(), i_RepositoryPath,i_allCommitsMap);
         return mergeConflicts;
     }
 

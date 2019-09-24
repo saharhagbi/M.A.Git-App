@@ -44,27 +44,27 @@ public class MergeConflictsAndMergedItems {
     // bits built this way ->       ______              ______              ______                  ______                  ______                  ______
     //                          pulling existence    pulled existence   difference pull-pulled    pulling existence   ancestor existence    pulling-ancestor difference
     //automatic take pulled one
-    public static final int ONLY_PULLED_HAS = 0x010000;                 //=16
+    public static final int ONLY_PULLED_HAS = 0b010000;                 //=16
     public static final int PULLING_AND_ANSCESTOR_THE_SAME_PULLED_IS_DIFFERENT = 0x111110;                 //=62
 
     //automatic take pulled
 
     //check if ancestor have no difference than pulled we can delete - else than pulled one used it and needs its so pull it
-    public static final int PULLED_HAS_BUT_ALSO_ANSCESTOR = 0x010010;   //=18
+    public static final int PULLED_HAS_BUT_ALSO_ANSCESTOR = 0b010010;   //=18
     //check if ancestor have no difference than pulled we can delete - else than pulled one used it and needs its so pull it
 
     //automatic take pulling
-    public static final int ONLY_PULLING_HAS = 0x100100;                //=36
-    public static final int PULLING_AND_ANSCESTOR_HAS_WITH_NO_DIFFERENCE = 0x100110;                //=38
-    public static final int PULLING_AND_ANSCESTOR_HAS_WITH_DIFFERENCE = 0x100111;                //=39
-    public static final int PULLING_AND_PULLED_HAS_WITH_NO_DIFFERENCE = 0x110100;                //=52
-    public static final int PULLING_AND_PULLED_AND_ANSCETOR_HAS_WITH_NO_DIFFERENCE = 0x110110;                //=54
-    public static final int PULLING_AND_PULLED_AND_ANSCETOR_HAS_WITH_DIFFERENCE = 0x110111;                //=55
+    public static final int ONLY_PULLING_HAS = 0b100100;                //=36
+    public static final int PULLING_AND_ANSCESTOR_HAS_WITH_NO_DIFFERENCE = 0b100110;                //=38
+    public static final int PULLING_AND_ANSCESTOR_HAS_WITH_DIFFERENCE = 0b100111;                //=39
+    public static final int PULLING_AND_PULLED_HAS_WITH_NO_DIFFERENCE = 0b110100;                //=52
+    public static final int PULLING_AND_PULLED_AND_ANSCETOR_HAS_WITH_NO_DIFFERENCE = 0b110110;                //=54
+    public static final int PULLING_AND_PULLED_AND_ANSCETOR_HAS_WITH_DIFFERENCE = 0b110111;                //=55
     //automatic take pulling
 
     //conflict
-    public static final int PULLING_AND_PULLED_HAS_WITH_DIFFERENCE = 0x111100;                //=60
-    public static final int PULLING_PULLED_AND_ANSCESTOR_HAS_WITH_DIFFERENCE = 0x111111;                //=63
+    public static final int PULLING_AND_PULLED_HAS_WITH_DIFFERENCE = 0b111100;                //=60
+    public static final int PULLING_PULLED_AND_ANSCESTOR_HAS_WITH_DIFFERENCE = 0b111111;                //=63
     //conflict
 
     public static boolean isConflict(int i_itemState) {
@@ -114,4 +114,5 @@ public class MergeConflictsAndMergedItems {
         });
         return FXCollections.observableList(conflictNamesList);
     }
+
 }
