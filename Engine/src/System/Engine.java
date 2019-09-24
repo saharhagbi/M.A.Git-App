@@ -14,7 +14,7 @@ import common.MagitFileUtils;
 import common.constants.NumConstants;
 import common.constants.ResourceUtils;
 import common.constants.StringConstants;
-
+import System.MergeConflictsAndMergedItems;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -604,6 +604,11 @@ public class Engine
         RemoteTrackingBranch remoteTrackingBranch = localRepository.findRemoteTrackingBranchByPredicate(RTB ->
                 RTB.getBranchName().equals(branchName));
         writer.WriteRemoteTrackingBranch(remoteTrackingBranch, remoteTrackingBranch.getPointedCommit());
+    }
+
+    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_pushingBranchName) throws Exception {
+        Branch pushingBranch = this.getCurrentRepository().getBranchByName(i_pushingBranchName);
+        return m_CurrentRepository.getActiveBranch().GetConflictsForMerge(pushingBranch,m_CurrentRepository.getRepositoryPath());
     }
 }
 

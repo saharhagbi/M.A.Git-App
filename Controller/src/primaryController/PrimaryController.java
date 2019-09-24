@@ -220,9 +220,9 @@ public class PrimaryController
                     "3. There is nothing to push! RR and LR synchronized!");
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(Branch i_PushingBranch) throws Exception
+    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_PushingBranchName) throws Exception
     {
-        return m_Engine.getCurrentRepository().getActiveBranch().GetConflictsForMerge(i_PushingBranch, m_Engine.getCurrentRepository().getRepositoryPath());
+        return m_Engine.GetConflictsForMerge(i_PushingBranchName);
     }
 
     public boolean IsLocalRepository()

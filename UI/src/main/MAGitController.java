@@ -1,6 +1,7 @@
 package main;
 
 import Objects.Commit;
+import Objects.branch.Branch;
 import System.FolderDifferences;
 import System.Repository;
 import XmlObjects.MagitRepository;
@@ -18,7 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
-
+import System.MergeConflictsAndMergedItems;
 public class MAGitController
 {
     private PrimaryController m_PrimaryController;
@@ -229,5 +230,9 @@ public class MAGitController
     public void UpdateCommitTree()
     {
         m_RepositoryController.UpdateCommitTree();
+    }
+
+    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_selectedBranchNameToMerge) throws Exception {
+        return this.m_PrimaryController.GetConflictsForMerge(i_selectedBranchNameToMerge);
     }
 }

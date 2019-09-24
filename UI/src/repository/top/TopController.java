@@ -2,6 +2,7 @@ package repository.top;
 
 import Objects.branch.Branch;
 import System.FolderDifferences;
+import System.MergeConflictsAndMergedItems;
 import common.MAGitResourceConstants;
 import common.MAGitUtils;
 import common.constants.StringConstants;
@@ -26,8 +27,7 @@ import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
-public class TopController
-{
+public class TopController {
 
     @FXML
     private MenuBar m_MenuBar;
@@ -67,53 +67,41 @@ public class TopController
     private ObservableList<Text> m_BranchesList;
 
 
-    public void SetRepositoryController(RepositoryController i_RepositoryController)
-    {
+    public void SetRepositoryController(RepositoryController i_RepositoryController) {
         this.m_RepositoryController = i_RepositoryController;
     }
 
     @FXML
-    void SwitchRepository_OnClick() throws IOException
-    {
+    void SwitchRepository_OnClick() throws IOException {
         Stage currentStage = MAGitUtils.GetStage(m_CommitBtn);
         m_RepositoryController.SwitchScenes(MAGitResourceConstants.STARTING_SCENE, currentStage);
     }
 
     @FXML
-    void Commit_OnClick()
-    {
-        Task commitTask = new Task()
-        {
+    void Commit_OnClick() {
+        Task commitTask = new Task() {
             @Override
-            protected Object call() throws Exception
-            {
-                try
-                {
+            protected Object call() throws Exception {
+                try {
                     updateMessage("Commit...");
-                    if (m_RepositoryController.IsFirstCommit())
-                    {
+                    if (m_RepositoryController.IsFirstCommit()) {
                         doCommit();
-                    } else
-                    {
-                        if (m_RepositoryController.ShowStatus() == null)
-                        {
+                    } else {
+                        if (m_RepositoryController.ShowStatus() == null) {
                             Platform.runLater(() ->
                             {
                                 MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, StringConstants.COMMIT, "Can't Execute Commit"
                                         , StringConstants.NOTHING_TO_COMMIT_ON);
                             });
-                        } else
-                        {
+                        } else {
                             doCommit();
                         }
                     }
-                } catch (Exception commitException)
-                {
+                } catch (Exception commitException) {
                     //TODO:
                     // handle proper message if commit failed(look at exceptions from ui)
                     commitException.printStackTrace();
-                } finally
-                {
+                } finally {
                     updateMessage("Progress: ");
                     updateProgress(1, 1);
                 }
@@ -134,14 +122,12 @@ public class TopController
     }
 
     //check if needed to do it in generic method in repository controller
-    private void bindTaskComponentsToUI(Label i_LabelBar, ProgressBar i_ProgressBar, Task i_CommitTask)
-    {
+    private void bindTaskComponentsToUI(Label i_LabelBar, ProgressBar i_ProgressBar, Task i_CommitTask) {
         i_LabelBar.textProperty().bind(i_CommitTask.messageProperty());
         i_ProgressBar.progressProperty().bind(i_CommitTask.progressProperty());
     }
 
-    private void doCommit() throws Exception
-    {
+    private void doCommit() throws Exception {
         FutureTask<String> futureTask = new FutureTask<String>(() ->
                 MAGitUtils.GetString("Enter your commit message please", "Message:", StringConstants.COMMIT
                 ));
@@ -155,26 +141,22 @@ public class TopController
     }
 
     @FXML
-    void SetUserName_OnClick(ActionEvent event)
-    {
-        try
-        {
+    void SetUserName_OnClick(ActionEvent event) {
+        try {
             m_RepositoryController.InitProgress("Setting User..");
             String newUserName = MAGitUtils.GetString("Enter a new user name please", "Name", "Switch User");
             m_UserNameTxt.setText(newUserName);
             m_RepositoryController.SetUser(newUserName);
             m_RepositoryController.UpdateProgress();
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             //TODO:
             // handle exception in case of cancelling or 'X'
             e.printStackTrace();
         }
     }
 
-    public void InitAllComponentsInTop()
-    {
+    public void InitAllComponentsInTop() {
         initPathAndUserName();
         initBranchesInComboBox();
         initBranchesInMenuBar();
@@ -182,40 +164,33 @@ public class TopController
 
     }
 
-    private void initBranchesInMenuBar()
-    {
+    private void initBranchesInMenuBar() {
         m_RepositoryController.getCurrentRepository().getAllBranches().stream()
                 .forEach(branchItem -> addBranchToMenuBar(branchItem.getBranchName()));
     }
 
-    private void addBranchToMenuBar(String i_BranchName)
-    {
+    private void addBranchToMenuBar(String i_BranchName) {
         MenuItem newBranch = new MenuItem(i_BranchName);
         newBranch.setOnAction((event -> deleteBranch(i_BranchName)));
         m_DeletsBranchMenu.getItems().add(newBranch);
     }
 
-    private void deleteBranch(String i_BranchNameToErase)
-    {
+    private void deleteBranch(String i_BranchNameToErase) {
         //m_RepositoryController.InitProgress("Deleting Branch...");
-        try
-        {
+        try {
 
             m_RepositoryController.DeleteBranch(i_BranchNameToErase);
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             //Todo:
             // handle exception proper message!
             e.printStackTrace();
-        } finally
-        {
+        } finally {
             //m_RepositoryController.UpdateProgress();
         }
     }
 
-    public void UpdateBoardAfterDeletingBranch(String i_BranchNameToErase)
-    {
+    public void UpdateBoardAfterDeletingBranch(String i_BranchNameToErase) {
         deleteBranchFromComboBox(i_BranchNameToErase);
         deleteBranchFromMenuBar(i_BranchNameToErase);
         //m_RepositoryController.UpdateCommitTree();
@@ -225,18 +200,15 @@ public class TopController
     // see if can avoid duplicate,
     // can avoid duplicate! sending branch nametoerase and collection as param
     //one is m_DeletsBranchMenu.getItems(), and second m_BranchesListComboBox
-    private void deleteBranchFromMenuBar(String i_BranchNameToErase)
-    {
+    private void deleteBranchFromMenuBar(String i_BranchNameToErase) {
         m_DeletsBranchMenu.getItems().removeIf(branch -> branch.getText().equals(i_BranchNameToErase));
     }
 
-    private void deleteBranchFromComboBox(String i_BranchNameToErase)
-    {
+    private void deleteBranchFromComboBox(String i_BranchNameToErase) {
         m_BranchesList.removeIf(branch -> branch.getText().equals(i_BranchNameToErase));
     }
 
-    private void initBranchesInComboBox()
-    {
+    private void initBranchesInComboBox() {
       /*  if (m_RepositoryController.IsLocalRepository())
         {
             showAllBranches();
@@ -248,8 +220,7 @@ public class TopController
 //        }
     }
 
-    private ObservableList<Text> showListOfBranches(List<Branch> allBranches)
-    {
+    private ObservableList<Text> showListOfBranches(List<Branch> allBranches) {
         return FXCollections.observableList(allBranches
                 .stream()
                 .map(branch ->
@@ -263,8 +234,7 @@ public class TopController
                 }).collect(Collectors.toList()));
     }
 
-    private void showAllBranches()
-    {
+    private void showAllBranches() {
         /*LocalRepository currentRepository = (LocalRepository) m_RepositoryController.getCurrentRepository();
 
          *//* if (currentRepository.getAllBranches() != null)*//*
@@ -280,8 +250,7 @@ public class TopController
         m_ComboBoxBranches.setItems(m_AllBranchesForComboBox);*/
     }
 
-    private void hightlightHeadBranchInComboBox(boolean i_Highlight)
-    {
+    private void hightlightHeadBranchInComboBox(boolean i_Highlight) {
         m_BranchesList
                 .filtered(txt ->
                         txt.getText().equals(m_RepositoryController.getCurrentRepository().getActiveBranch().getBranchName()))
@@ -294,20 +263,17 @@ public class TopController
                 });
     }
 
-    private void addBranchToComboBox(Text i_BranchName)
-    {
+    private void addBranchToComboBox(Text i_BranchName) {
         m_ComboBoxBranches.getItems().add(i_BranchName);
     }
 
-    private void initPathAndUserName()
-    {
+    private void initPathAndUserName() {
         m_UserNameTxt.setText(StringConstants.ADMINISTRATOR);
         m_PathTxt.setText(m_RepositoryController.getCurrentRepository().getRepositoryPath().toString());
     }
 
     @FXML
-    void ShowBracnhes_OnClick(ActionEvent event) throws IOException
-    {
+    void ShowBracnhes_OnClick(ActionEvent event) throws IOException {
         List<Branch> allBranches = m_RepositoryController.getCurrentRepository().getAllBranches();
         StringBuilder allBranchesInfo = new StringBuilder();
 
@@ -334,12 +300,10 @@ public class TopController
     }
 
     @FXML
-    void CreateBranch_OnClick(ActionEvent event)
-    {
+    void CreateBranch_OnClick(ActionEvent event) {
       /*  String newBranch;
         String SHA1Commit;*/
-        try
-        {
+        try {
             m_RepositoryController.InitProgress("Creationg Branch...");
 /*
 
@@ -353,16 +317,14 @@ public class TopController
 //            updateBoardAfterCreatingNewBranch(newBranch);
 
             m_RepositoryController.UpdateProgress();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             //Todo:
             // handle exception, inside get string or proper to each case proper message
             e.printStackTrace();
         }
     }
 
-    public void updateBoardAfterCreatingNewBranch(String newBranch)
-    {
+    public void updateBoardAfterCreatingNewBranch(String newBranch) {
         addBranchToComboBox(new Text(newBranch));
         addBranchToMenuBar(newBranch);
 
@@ -370,37 +332,28 @@ public class TopController
     }
 
     @FXML
-    void Checkout_OnClick(ActionEvent event)
-    {
-        Task checkoutTask = new Task()
-        {
+    void Checkout_OnClick(ActionEvent event) {
+        Task checkoutTask = new Task() {
             @Override
-            protected Object call()
-            {
-                try
-                {
+            protected Object call() {
+                try {
                     updateMessage("Checkout...");
-                    if (m_RepositoryController.RootFolderChanged())
-                    {
+                    if (m_RepositoryController.RootFolderChanged()) {
                         getUserChoiceAndCheckout();
-                    } else
-                    {
+                    } else {
                         getBranchNameAndCheckOut();
                     }
-                } catch (Exception e)
-                {
+                } catch (Exception e) {
                     //Todo:
                     // handle with proper message
                     e.printStackTrace();
-                } finally
-                {
+                } finally {
                     updateTask();
                 }
                 return null;
             }
 
-            private void updateTask()
-            {
+            private void updateTask() {
                 updateProgress(1, 1);
                 updateMessage("Progress:");
             }
@@ -417,8 +370,7 @@ public class TopController
                         m_RepositoryController.UpdateCommitTree());
     }
 
-    private void getUserChoiceAndCheckout() throws Exception
-    {
+    private void getUserChoiceAndCheckout() throws Exception {
         FutureTask<String> futureTask = new FutureTask<String>(() ->
                 MAGitUtils.GetUserChoice("Changes in WC", "There were changes since last commit"
                         + System.lineSeparator() +
@@ -430,16 +382,14 @@ public class TopController
         handleUserChoice(answer);
     }
 
-    private void handleUserChoice(String i_Answer) throws Exception
-    {
+    private void handleUserChoice(String i_Answer) throws Exception {
         if (i_Answer.equals(StringConstants.NO))
             doCommit();
 
         getBranchNameAndCheckOut();
     }
 
-    private void getBranchNameAndCheckOut() throws Exception
-    {
+    private void getBranchNameAndCheckOut() throws Exception {
         List<String> tempList = m_AllBranches
                 .stream()
                 .map(branch -> branch.getBranchName())
@@ -463,10 +413,8 @@ public class TopController
     }
 
     @FXML
-    void Reset_OnClick(ActionEvent event)
-    {
-        try
-        {
+    void Reset_OnClick(ActionEvent event) {
+        try {
             m_RepositoryController.InitProgress("Reset...");
             String SHA1OfCommit = MAGitUtils.GetString("Enter the sha1 of the commit you want to reset to", "SHA1:",
                     StringConstants.COMMIT + " SHA1");
@@ -474,26 +422,20 @@ public class TopController
             m_RepositoryController.ResetHeadBranch(SHA1OfCommit);
 
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
-        } finally
-        {
+        } finally {
             m_RepositoryController.UpdateProgress();
         }
     }
 
     @FXML
-    void ShowStatus_OnClick(ActionEvent event)
-    {
+    void ShowStatus_OnClick(ActionEvent event) {
 
-        Task showStatusTask = new Task()
-        {
+        Task showStatusTask = new Task() {
             @Override
-            protected Object call() throws Exception
-            {
-                try
-                {
+            protected Object call() throws Exception {
+                try {
                     updateMessage("Show Status...");
                     FolderDifferences folderDifferences = m_RepositoryController.ShowStatus();
 
@@ -506,12 +448,9 @@ public class TopController
                         });
                     else
                         m_RepositoryController.ShowDifferencesFiles(folderDifferences);
-                } catch (Exception e)
-
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
-                } finally
-                {
+                } finally {
                     updateProgress(1, 1);
                     updateMessage(StringConstants.PROGRESS);
                     return null;
@@ -525,17 +464,14 @@ public class TopController
 
 
     @FXML
-    void Fetch_OnClick(ActionEvent event)
-    {
-        try
-        {
+    void Fetch_OnClick(ActionEvent event) {
+        try {
             m_RepositoryController.InitProgress("Fetch...");
 
             m_RepositoryController.Fetch();
 
             m_RepositoryController.UpdateProgress();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             //todo:
             // handle proper message to user
             e.printStackTrace();
@@ -543,14 +479,11 @@ public class TopController
     }
 
     @FXML
-    void Pull_OnClick(ActionEvent event)
-    {
-        try
-        {
+    void Pull_OnClick(ActionEvent event) {
+        try {
             //   m_RepositoryController.InitProgress("Pull...");
             m_RepositoryController.Pull();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             //todo
             e.printStackTrace();
         }
@@ -560,8 +493,22 @@ public class TopController
 
 
     @FXML
-    void Merge_OnClick(ActionEvent event) throws IOException
-    {
+    void Merge_OnClick(ActionEvent event) throws IOException {
+/*        URL urlFXML = getClass().getResource(MAGitResourceConstants.ChooseBranchForMergeScene);
+        FXMLLoader loader = new FXMLLoader(urlFXML);
+
+        Parent root = loader.load(urlFXML.openStream());
+
+        BranchSelectionForMergeController branchSelcetionController = loader.getController();
+        branchSelcetionController.setController(this);
+
+        Stage stage = new Stage();
+        stage.setTitle("MOthaFUCAKAAAAAAAAAAA");
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();*/
+
+        // show merge scene after user chose branch for the merge
         URL urlFXML = getClass().getResource(MAGitResourceConstants.MERGE_STAGE);
         FXMLLoader loader = new FXMLLoader(urlFXML);
 
@@ -578,15 +525,25 @@ public class TopController
     }
 
     @FXML
-    void Push_OnClick(ActionEvent event)
-    {
-        try
-        {
+    void Push_OnClick(ActionEvent event) {
+        try {
             m_RepositoryController.Push();
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             //todo
             e.printStackTrace();
         }
+    }
+
+    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_selectedBranchNameToMerge) throws Exception {
+        return this.m_RepositoryController.GetConflictsForMerge(i_selectedBranchNameToMerge);
+    }
+
+    public ObservableList<String> GetBranchNameList() {
+        return FXCollections.observableList(this.m_RepositoryController.getCurrentRepository().getBranchNameList());
+    }
+
+    public boolean isHeadBranch(String i_BranchName) {
+        return this.m_RepositoryController.getCurrentRepository().isHeadBranch(i_BranchName);
+
     }
 }

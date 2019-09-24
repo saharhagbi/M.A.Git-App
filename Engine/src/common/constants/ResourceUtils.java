@@ -1,7 +1,6 @@
 package common.constants;
 
-public class ResourceUtils
-{
+public class ResourceUtils {
     public static final String AdditinalPathMagit = "/.magit";
     public static final String AdditinalPathBranches = "/.magit/Branches";
     public static final String AdditinalPathObjects = "/.magit/Objects";
