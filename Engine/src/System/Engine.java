@@ -638,7 +638,7 @@ public class Engine
     public void SetConflictsForMergeInRepository(String i_pushingBranchName) throws Exception
     {
         Branch pushingBranch = this.getCurrentRepository().getBranchByName(i_pushingBranchName);
-        MergeConflictsAndMergedItems mergeConflictsAndMergedItems = getCurrentRepository().getActiveBranch().GetConflictsForMerge(pushingBranch, m_CurrentRepository.getRepositoryPath(), createMapOfCommits(this.getCurrentRepository().GetObjectsFolderPath()));
+        MergeConflictsAndMergedItems mergeConflictsAndMergedItems = getCurrentRepository().getActiveBranch().GetConflictsForMerge(pushingBranch, getCurrentRepository().getRepositoryPath(), createMapOfCommits(this.getCurrentRepository().GetObjectsFolderPath()));
         setMergeConflictsInstance(mergeConflictsAndMergedItems);
     }
 

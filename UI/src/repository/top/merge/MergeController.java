@@ -2,7 +2,6 @@ package repository.top.merge;
 
 import System.ConflictingItems;
 import common.MAGitUtils;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -15,8 +14,7 @@ import repository.top.TopController;
 import java.io.IOException;
 
 
-public class MergeController
-{
+public class MergeController {
     ConflictingItems m_CurrentConflictingItem;
     @FXML
     private ListView<String> m_ConflictsListView;
@@ -45,8 +43,7 @@ public class MergeController
     private TopController m_TopController;
     private ObservableList<String> m_ConflictsNameList;
 
-    public void setController(TopController topController)
-    {
+    public void setController(TopController topController) {
         m_TopController = topController;
 
 
@@ -60,19 +57,16 @@ public class MergeController
         initAllComponents();
     }
 
-    private void initAllComponents()
-    {
+    private void initAllComponents() {
         m_BranchesListView.setItems(m_TopController.GetActiveBranchesNameList());
     }
 
-    private void createCommitMerge(String selectedBranchName)
-    {
+    private void createCommitMerge(String selectedBranchName) {
 
     }
 
     @FXML
-    void deleteFileButtonAction(ActionEvent event)
-    {
+    void deleteFileButtonAction(ActionEvent event) {
         m_BaseVersionText.setText(null);
         m_SelectedBranchText.setText(null);
         m_ourVersionText.setText(null);
@@ -80,53 +74,40 @@ public class MergeController
     }
 
     @FXML
-    void takeResultVersionButtonAction(ActionEvent event)
-    {
-        try
-        {
+    void takeResultVersionButtonAction(ActionEvent event) {
+        try {
             m_ConflictsNameList.remove(m_BranchesListView.getSelectionModel().getSelectedItems().get(0));
 
             m_TopController.CreateChosenBlobInWC(m_ResultTextArea.getText(), m_CurrentConflictingItem);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             //todo
             e.printStackTrace();
         }
     }
 
     @FXML
-    void ChooseBranchBtn_OnClick(ActionEvent actionEvent) throws Exception
-    {
+    void ChooseBranchBtn_OnClick(ActionEvent actionEvent) throws Exception {
         m_ChooseBranchBtn.setDisable(true);
 
-        if (noItemWasChosen())
-        {
+        if (noItemWasChosen()) {
             MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Merge ERROR", "Please Choose a Branch To merge first", "");
-        } else
-        {
+        } else {
             String selectedItem = m_BranchesListView.getSelectionModel().getSelectedItems().get(0);
-            if (isHeadBranchSelected(selectedItem))
-            {
+            if (isHeadBranchSelected(selectedItem)) {
                 MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Merge ERROR", "You chose the Head Branch", "please choose a different branch");
-            } else
-            {
+            } else {
                 //MergeConflictsAndMergedItems conflicts = this.m_TopController.SetConflictsForMergeInRepository(selectedItem);
                 this.m_TopController.SetConflictsForMergeInRepository(selectedItem);
                 //if (conflicts.IsFastForwardCase()) {
-                if (this.m_TopController.IsFastForwardCase())
-                {
-                    //if (conflicts.IsPulledAncestorOfPulling()) {// chosen branch is an ancestor of HEAD branch
-                    if (this.m_TopController.IsPulledAncestorOfPulling())
-                    {
-                        // point head branch to i_selectedBranch
+                if (this.m_TopController.IsFastForwardCase()) {
+                    if (this.m_TopController.IsPulledAncestorOfPulling()) {
                         MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Merge - Fast Forward", "This is a Fast Forward Merge - selected Branch is ancestor of head branch", "Head branch will point to current Commit\nno changes have been made");
-                    } else
-                    {// HEAD branch is Ancestor of chosen branch
+                        //TODO: Commit as above
+                    } else {// HEAD branch is Ancestor of chosen branch
                         MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Merge - Fast Forward", "This is a Fast Forward Merge - HEAD branch is Ancestor of selected branch", "HEAD branch will point to the same commit as selected branch");
                     }
 
-                } else
-                { //not FF
+                } else { //not FF
                     m_ConflictsNameList = GetAllConflictsNames();
                     m_ConflictsListView.setItems(GetAllConflictsNames());
                     initAllMergeComponents();
@@ -138,8 +119,7 @@ public class MergeController
     private void initAllMergeComponents() {
         m_ConflictsNameList.addListener((ListChangeListener<String>) c ->
         {
-            if(m_ConflictsNameList.isEmpty())
-            {
+            if (m_ConflictsNameList.isEmpty()) {
                 createCommitMerge(m_BranchesListView.getSelectionModel().getSelectedItems().get(0));
             }
         });
@@ -153,25 +133,33 @@ public class MergeController
         return m_TopController.GetAllConflictsNames();
     }
 
-    private boolean isHeadBranchSelected(String i_selectedItem)
-    {
+    private boolean isHeadBranchSelected(String i_selectedItem) {
         return m_TopController.isHeadBranch(i_selectedItem);
     }
 
-    private boolean noItemWasChosen()
-    {
+    private boolean noItemWasChosen() {
         return (m_BranchesListView.getSelectionModel().getSelectedItems().get(0) == null);
     }
 
-    public void conflictChose_OnClick(MouseEvent mouseEvent)
-    {
+    public void conflictChose_OnClick(MouseEvent mouseEvent) {
         String conflictingItemName = m_ConflictsListView.getSelectionModel().getSelectedItems().get(0);
 
         m_CurrentConflictingItem = this.m_TopController.getConflictingItemsByName(conflictingItemName);
 
         //assign values
-        m_BaseVersionText.setText(m_CurrentConflictingItem.getBaseVersionBlob().getContent());
-        m_SelectedBranchText.setText(m_CurrentConflictingItem.getTheirBlob().getContent());
-        m_ourVersionText.setText(m_CurrentConflictingItem.getOurBlob().getContent());
+        if (m_CurrentConflictingItem.getBaseVersionBlob() == null)
+            m_BaseVersionText.setText("no base version");
+        else
+            m_BaseVersionText.setText(m_CurrentConflictingItem.getBaseVersionBlob().getContent());
+
+        if (m_CurrentConflictingItem.getTheirBlob() == null)
+            m_SelectedBranchText.setText("no their version ");
+        else
+            m_SelectedBranchText.setText(m_CurrentConflictingItem.getTheirBlob().getContent());
+
+        if (m_CurrentConflictingItem.getOurBlob() == null)
+            m_ourVersionText.setText("no our version");
+        else
+            m_ourVersionText.setText(m_CurrentConflictingItem.getOurBlob().getContent());
     }
 }
