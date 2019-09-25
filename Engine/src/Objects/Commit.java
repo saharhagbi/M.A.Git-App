@@ -63,7 +63,7 @@ public class Commit implements CommitRepresentative {
             Map<Path, Blob> mapOfRelativePathToBlobPullingRootFolder = i_PullingCommit.createMapOfRelativePathToItem(i_RepositoryPath);
             Map<Path, Blob> mapOfRelativePathToBlobPulledRootFolder = i_PulledCommit.createMapOfRelativePathToItem(i_RepositoryPath);
             Map<Path, Blob> mapOfRelativePathToBlobAncestorRootFolder = closestCommonAncestorCommit.createMapOfRelativePathToItem(i_RepositoryPath);
-            Set<Blob> pullingAndPulledAllItems = i_PullingCommit.getUnitedListOfItems(i_PulledCommit);
+            Set<Blob> pullingAndPulledAllItems = i_PullingCommit.getUnitedListOfItems(i_PulledCommit,i_RepositoryPath);
 
             pullingAndPulledAllItems.forEach(item ->
             {
@@ -306,21 +306,22 @@ public class Commit implements CommitRepresentative {
         this.m_SecondPrevCommit = m_SecondPrevCommit;
     }
 
-    private Set<Blob> getUnitedListOfItems(Commit i_pulledCommit) {
+    private Set<Blob> getUnitedListOfItems(Commit i_pulledCommit,Path i_RepositoryPath) {
         Set<Blob> allBlobsUnited = new HashSet<Blob>();
         Set<String> allAddedFileNames = new HashSet<>();
         Set<Blob> ourBlobSet = m_RootFolder.GetSetOfBlobs();
-        Set<Blob> theireBlobSet = i_pulledCommit.m_RootFolder.GetSetOfBlobs();
+        Set<Blob> theirBlobSet = i_pulledCommit.m_RootFolder.GetSetOfBlobs();
         ourBlobSet.forEach(item -> {
             if (item.getTypeOfFile().equals(Item.TypeOfFile.BLOB)) {
-                if (!allAddedFileNames.contains(item.getName())) {
+                Path itemsRelativePath = getRelativePath(item.GetPath(),i_RepositoryPath);
+                if (!allAddedFileNames.contains(itemsRelativePath)) {
                     allBlobsUnited.add((Blob) item);
-                    allAddedFileNames.add(item.getName());
+                    allAddedFileNames.add(itemsRelativePath.toString());
                 }
             }
 
         });
-        theireBlobSet.forEach(item -> {
+        theirBlobSet.forEach(item -> {
             if (item.getTypeOfFile().equals(Item.TypeOfFile.BLOB)) {
                 if (!allAddedFileNames.contains(item.getName())) {
                     allBlobsUnited.add((Blob) item);
@@ -335,7 +336,8 @@ public class Commit implements CommitRepresentative {
 
     private Map<Path, Blob> createMapOfRelativePathToItem(Path i_repositoryPath) {
         Map<Path, Blob> resMap = new HashMap<Path, Blob>();
-        m_RootFolder.m_ListOfItems.forEach(item ->
+        Set<Blob> blobSet = m_RootFolder.GetSetOfBlobs();
+        blobSet.forEach(item ->
         {
             if (item.getTypeOfFile().equals(Item.TypeOfFile.BLOB)) {
                 Path relativePath = getRelativePath(item.GetPath(), i_repositoryPath);
