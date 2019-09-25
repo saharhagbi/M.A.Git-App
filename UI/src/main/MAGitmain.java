@@ -7,7 +7,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import starting.StartingController;
 
 import java.net.URL;
 
@@ -25,14 +24,10 @@ public class MAGitmain extends Application
         primaryStage.setTitle(StringConstants.MAGIT);
 
         Scene scene = new Scene(root);
+
+        //scene.getStylesheets().add("/common/themes/dark.css");
+
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-
-
-   /* private void initStartingComponents()
-    {
-        StartingController startingController = new StartingController();
-        startingController.initAllMembers();
-    }*/
 }

@@ -6,8 +6,7 @@ import Objects.Folder;
 import Objects.Item;
 import Objects.branch.Branch;
 import common.MagitFileUtils;
-import common.constants.ResourceUtils;
-import org.apache.commons.io.FileUtils;
+import common.constants.StringConstants;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -70,11 +69,6 @@ public class Repository
         setAllPathsOfRepositoryDirectories(i_RepositoryPath);
     }
 
-    public List<Branch> getActiveBranches()
-    {
-        return m_Branches;
-    }
-
     // this method creates a temp file - writes into it and returns its Path
     public static Path WritingStringInAFile(String i_FileContent, String i_FileName)
     {
@@ -90,6 +84,11 @@ public class Repository
             return null;
         }
 
+    }
+
+    public List<Branch> getActiveBranches()
+    {
+        return m_Branches;
     }
 
     public String getName()
@@ -143,9 +142,7 @@ public class Repository
 
     public FolderDifferences CreateNewCommitAndUpdateActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
     {
-        Commit currentCommit = m_ActiveBranch.getPointedCommit();
-        String prevCommitSha1 = null;
-        String secondPrevCommitSha1 = null;
+
         FolderDifferences differencesBetweenLastAndCurrentCommit = null;
         if (Folder.isDirEmpty(m_RepositoryPath))
         {
@@ -158,17 +155,11 @@ public class Repository
             updateActiveBranchInFileSystemToPointToLatestCommit();
         } else
         {
-            //CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, this.m_ActiveBranch.getCurrentCommit().getSHA1());
-           /* if(currentCommit.GetPrevCommit()!=null)
-                prevCommitSha1 = currentCommit.GetPrevCommit().getSHA1();
-            if(currentCommit.GetSecondPrevCommit()!=null)
-                secondPrevCommitSha1 = currentCommit.GetSecondPrevCommit().getSHA1();*/
-            //CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, currentCommit);
             CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage);
             if (this.m_ActiveBranch.getPointedCommit().GetPrevCommit() != null)
             {//it means there is no new commit because there were no changes
                 differencesBetweenLastAndCurrentCommit = Commit.findDifferences(m_ActiveBranch.getPointedCommit(), m_ActiveBranch.getPointedCommit().GetPrevCommit());
-               // System.out.println(differencesBetweenLastAndCurrentCommit);
+                // System.out.println(differencesBetweenLastAndCurrentCommit);
                 updateActiveBranchInFileSystemToPointToLatestCommit();
             }
         }
@@ -190,7 +181,14 @@ public class Repository
     //this method deletes the old file if there is one and write the new one
     private void writeToFileEraseTheOldOne(String i_Contnet, Path i_FilePathIncludingName) throws IOException
     {
-        if (i_FilePathIncludingName.toFile().exists())
+        String addedContentForRTB = System.lineSeparator() + StringConstants.TRUE;
+
+        i_Contnet = MagitFileUtils.IsRemoteTrackingBranch(i_FilePathIncludingName.toFile()) ?
+                i_Contnet + addedContentForRTB : i_Contnet;
+
+        MagitFileUtils.WritingFileByPath(i_FilePathIncludingName.toString(), i_Contnet);
+
+      /*  if (i_FilePathIncludingName.toFile().exists())
         {
             i_FilePathIncludingName.toFile().delete();
             i_FilePathIncludingName.toFile().createNewFile(); // creating a new "clean" one
@@ -200,7 +198,7 @@ public class Repository
         Path path = i_FilePathIncludingName;
         byte[] strToBytes = str.getBytes();
 
-        Files.write(path, strToBytes);
+        Files.write(path, strToBytes);*/
     }
 
     private Commit getLastCommit()

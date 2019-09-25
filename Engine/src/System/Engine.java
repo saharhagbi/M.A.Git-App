@@ -13,6 +13,7 @@ import common.Enums;
 import common.MagitFileUtils;
 import common.constants.NumConstants;
 import common.constants.ResourceUtils;
+import common.constants.StringConstants;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -195,11 +196,9 @@ public class Engine
         }
         Path branchFolderPath = Paths.get(repositoryPath.toString() + "\\.magit\\Branches");
 
-        // Path objectsFolderPath = Paths.get(repositoryPath.toString() + "\\.magit\\Objects");
-
         Path HEAD = Paths.get(branchFolderPath.toString() + "\\HEAD.txt");
         String activeBranchName = MagitFileUtils.GetContentFile(HEAD.toFile());
-        //  Path activeBranchPath = Paths.get(branchFolderPath.toString() + "\\" + activeBranchName + ".txt");
+
 
         if (MagitFileUtils.IsFolderExist(branchFolderPath))// folder of remote branches ---> that means this is local repository
             createLocalRepository(i_repositoryPathAsString, activeBranchName, i_NameOfRepository);
@@ -208,11 +207,10 @@ public class Engine
             Map<String, Commit> allCommitsInRepositoryMap = createMapOfCommits(Paths.get(i_repositoryPathAsString + ResourceUtils.AdditinalPathObjects));
             List<Branch> allBranches = Branch.GetAllBranches(branchFolderPath, allCommitsInRepositoryMap);
             activeBranch = Branch.GetHeadBranch(allBranches, activeBranchName);
-            //repository = new Repository(activeBranch, repositoryPath, i_NameOfRepository, allBranches);-
+
             repository = new Repository(activeBranch.get(), repositoryPath, i_NameOfRepository, allBranches, allCommitsInRepositoryMap);
             this.m_CurrentRepository = repository;
             m_CurrentLocalRepository = null;
-            // this.m_CurrentRepository.setActiveBranch(activeBranch.get());
         }
     }
 
@@ -429,7 +427,7 @@ public class Engine
             case 1:
                 Folder.DeleteDirectory(i_MagitRepository.getLocation());
                 m_CurrentRepository = i_XmlMain.ParseAndWriteXML(i_MagitRepository);
-                assignFitRepository(i_MagitRepository, i_XmlMain);
+                AssignFitRepository(i_MagitRepository, i_XmlMain);
                 break;
 
             case 2:
@@ -438,7 +436,7 @@ public class Engine
         }
     }
 
-    public void assignFitRepository(MagitRepository i_MagitRepository, XMLMain i_XmlMain)
+    public void AssignFitRepository(MagitRepository i_MagitRepository, XMLMain i_XmlMain)
     {
         if (i_XmlMain.IsLocalRepository(i_MagitRepository))
         {
@@ -478,7 +476,11 @@ public class Engine
                 + getCurrentRepository().getActiveBranch().getBranchName()
                 + Repository.sf_txtExtension;
 
-        MagitFileUtils.OverwriteContentInFile(commitRequested.getSHA1(), branchFilePath);
+        String contentToWrite = MagitFileUtils.IsRemoteTrackingBranch(new File(branchFilePath)) ?
+                commitRequested.getSHA1() + System.lineSeparator() + StringConstants.TRUE :
+                commitRequested.getSHA1();
+
+        MagitFileUtils.OverwriteContentInFile(contentToWrite, branchFilePath);
 
         getCurrentRepository().getActiveBranch().setPointedCommit(commitRequested);
 
@@ -635,14 +637,8 @@ public class Engine
     public MergeConflictsAndMergedItems GetConflictsForMerge(String i_pushingBranchName) throws Exception
     {
         Branch pushingBranch = this.getCurrentRepository().getBranchByName(i_pushingBranchName);
-        if (m_CurrentRepository == null)
-        {
-            return m_CurrentLocalRepository.getActiveBranch().GetConflictsForMerge(pushingBranch, m_CurrentLocalRepository.getRepositoryPath());
-        } else if (m_CurrentLocalRepository == null)
-        {
-            return m_CurrentRepository.getActiveBranch().GetConflictsForMerge(pushingBranch, m_CurrentRepository.getRepositoryPath());
-        } else
-            throw new Exception("no Repository instances");
+        return getCurrentRepository().getActiveBranch().GetConflictsForMerge(pushingBranch, getCurrentRepository().getRepositoryPath(),
+                getCurrentRepository().getAllCommitsSHA1ToCommit());
     }
 }
 

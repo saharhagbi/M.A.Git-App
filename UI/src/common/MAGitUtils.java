@@ -18,9 +18,6 @@ public class MAGitUtils
 {
     public static String GetString(String i_Prompt, String i_Label, String i_Title) throws Exception
     {
-        //TODO
-        // handling in case of emptyString or cancelling
-
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle(i_Title);
         dialog.setHeaderText(i_Prompt);

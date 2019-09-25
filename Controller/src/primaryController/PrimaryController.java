@@ -1,7 +1,6 @@
 package primaryController;
 
 import Objects.Commit;
-import Objects.branch.Branch;
 import System.Engine;
 import System.FolderDifferences;
 import System.MergeConflictsAndMergedItems;
@@ -44,10 +43,11 @@ public class PrimaryController
         isXMLRepoExist = m_XMLMain.CheckXMLFile(Paths.get(i_PathToXML));
 
         if (!isXMLRepoExist)
+        {
             m_Engine.setCurrentRepository(
-                    m_XMLMain.ParseAndWriteXML(m_XMLMain.GetXmlRepository())
-            );
-        else
+                    m_XMLMain.ParseAndWriteXML(m_XMLMain.GetXmlRepository()));
+            m_Engine.AssignFitRepository(m_XMLMain.GetXmlRepository(), m_XMLMain);
+        } else
             m_MagitController.handleCurrentRepositoryAlreadyExist(m_XMLMain.GetXmlRepository());
     }
 
@@ -211,8 +211,7 @@ public class PrimaryController
         {
             pusher.Push();
             m_MagitController.UpdateCommitTree();
-        }
-        else
+        } else
             m_MagitController.InformUserMessage(Alert.AlertType.ERROR, "Error!", "Push Invalid!", "Can't push " +
                     "because one of the following reasons:" + System.lineSeparator() +
                     "1. There are open changes in Wc" + System.lineSeparator() +
