@@ -1,12 +1,10 @@
 package main;
 
 import Objects.Commit;
-import Objects.Item;
+import System.ConflictingItems;
 import System.FolderDifferences;
-import System.MergeConflictsAndMergedItems;
 import System.Repository;
 import XmlObjects.MagitRepository;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -15,7 +13,6 @@ import javafx.stage.Stage;
 import primaryController.PrimaryController;
 import repository.RepositoryController;
 import starting.StartingController;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -241,19 +238,23 @@ public class MAGitController
         this.m_PrimaryController.SetConflictsForMergeInRepository(i_selectedBranchNameToMerge);
     }
 
-    public boolean IsFastForwardCase() {
+    public boolean IsFastForwardCase()
+    {
         return m_PrimaryController.IsFastForwardCase();
     }
 
-    public boolean IsPulledAncestorOfPulling() {
+    public boolean IsPulledAncestorOfPulling()
+    {
         return this.m_PrimaryController.IsPulledAncestorOfPulling();
     }
 
-  /*  public ObservableList<String> GetConflictItemsNames() {
-        return this.m_PrimaryController.GetConflictItemsNames();
+    public ConflictingItems getConflictingItemsByName(String conflictingItemName)
+    {
+        return m_PrimaryController.getConflictingItemsByName(conflictingItemName);
     }
 
-    public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
-        return this.m_PrimaryController.GetPullingVersionOfConflictDetails(i_conflictingItem);
-    }*/
+    public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
+    {
+        m_PrimaryController.CreateChosenBlobInWC(blobText, currentConflictingItem);
+    }
 }

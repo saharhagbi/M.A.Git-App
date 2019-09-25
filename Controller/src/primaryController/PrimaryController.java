@@ -1,10 +1,9 @@
 package primaryController;
 
 import Objects.Commit;
-import Objects.Item;
+import System.ConflictingItems;
 import System.Engine;
 import System.FolderDifferences;
-import System.MergeConflictsAndMergedItems;
 import System.Repository;
 import XmlObjects.XMLMain;
 import collaboration.LocalRepository;
@@ -240,19 +239,25 @@ public class PrimaryController
         m_Engine.CreateRTB(commit, branchName);
     }
 
-    public boolean IsFastForwardCase() {
+    public boolean IsFastForwardCase()
+    {
         return m_Engine.GetConflictsForMerge().IsFastForwardCase();
     }
 
-    public boolean IsPulledAncestorOfPulling() {
-        return m_Engine.getCurrentRepository().m_ConflictsAndItems.IsPulledAncestorOfPulling();
+    public boolean IsPulledAncestorOfPulling()
+    {
+        return m_Engine.getCurrentRepository().getConflictsItemsAndNames().IsPulledAncestorOfPulling();
     }
 
-/*    public ObservableList<String> GetConflictItemsNames() {
-        return m_Engine.getCurrentRepository().m_ConflictsAndItems.GetConflictItemsNames();
+    public ConflictingItems getConflictingItemsByName(String conflictingItemName)
+    {
+        return m_Engine.getConflictingItemsByName(conflictingItemName);
     }
 
-    public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
-        return m_Engine.getCurrentRepository().GetPullingVersionOfConflictDetails(i_conflictingItem);
-    }*/
+    public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
+    {
+/*if(blobText.isEmpty())
+    m_MagitController.InformUserMessage("Error!");*/
+       m_Engine.CreateChosenBlobInWC(blobText, currentConflictingItem);
+    }
 }

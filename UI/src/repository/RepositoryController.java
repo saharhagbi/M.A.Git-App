@@ -26,7 +26,7 @@ import repository.center.CenterController;
 import repository.left.LeftController;
 import repository.right.RightController;
 import repository.top.TopController;
-
+import System.ConflictingItems;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -277,11 +277,13 @@ public class RepositoryController {
         return this.m_MagitController.IsPulledAncestorOfPulling();
     }
 
-/*    public ObservableList<String> GetConflictItemsNames() {
-        return this.m_MagitController.GetConflictItemsNames();
+    public ConflictingItems getConflictingItemsByName(String conflictingItemName)
+    {
+        return m_MagitController.getConflictingItemsByName(conflictingItemName);
     }
 
-    public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
-        return this.m_MagitController.GetPullingVersionOfConflictDetails(i_conflictingItem);
-    }*/
+    public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
+    {
+        m_MagitController.CreateChosenBlobInWC(blobText, currentConflictingItem);
+    }
 }

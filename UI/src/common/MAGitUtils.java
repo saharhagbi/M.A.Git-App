@@ -1,9 +1,6 @@
 package common;
 
-import common.constants.StringConstants;
 import javafx.scene.control.*;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -22,23 +19,27 @@ public class MAGitUtils
         dialog.setTitle(i_Title);
         dialog.setHeaderText(i_Prompt);
         dialog.setContentText(i_Label);
-        Optional<String> repositoryName = dialog.showAndWait();
+        Optional<String> result = dialog.showAndWait();
 
-        if (repositoryName == null)
+        if (result == null)
             throw new Exception("you didn't enter anything!" + System.lineSeparator() + "Please try again");
 
-        return repositoryName.get();
+        return result.get();
     }
 
-    public static String GetUserChoice(String i_Title, String i_HeaderText, String i_DefaultChoice, String[] i_UserChoices)
+    public static String GetUserChoice(String i_Title, String i_HeaderText, String i_DefaultChoice, String[] i_UserChoices) throws Exception
     {
         ChoiceDialog<String> dialog = new ChoiceDialog(i_DefaultChoice, i_UserChoices);
 
         dialog.setTitle(i_Title);
         dialog.setHeaderText(i_HeaderText);
-        dialog.showAndWait();
 
-        return dialog.getSelectedItem();
+        Optional<String> result = dialog.showAndWait();
+
+        if (result == null)
+            throw new Exception("you didn't choose anything!" + System.lineSeparator() + "Please try again!");
+
+        return result.get();
     }
 
     public static Stage GetStage(Control i_Control)
@@ -92,7 +93,6 @@ public class MAGitUtils
     {
         i_Txt.setStyle(null);
     }
-
 
 
     public static void HighlightLabel(Label branchName)

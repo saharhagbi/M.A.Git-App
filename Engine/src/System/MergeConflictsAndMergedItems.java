@@ -1,10 +1,13 @@
 package System;
 
+import Objects.Blob;
 import Objects.Commit;
 import Objects.Item;
+import common.MagitFileUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +22,9 @@ public class MergeConflictsAndMergedItems {
     Commit m_FastForwardCommit;
     Boolean m_IsPullingAncestorOfPulled;
     Boolean m_IsPulledAncestorOfPulling;
-    Map<Path, Item> m_MapOfRelativePathToItemPullingRootFolder;
-    Map<Path, Item> m_MapOfRelativePathToItemPulledRootFolder;
-    Map<Path, Item> m_MapOfRelativePathToItemAncestorRootFolder;
+    Map<Path, Blob> m_MapOfRelativePathToItemPullingRootFolder;
+    Map<Path, Blob> m_MapOfRelativePathToItemPulledRootFolder;
+    Map<Path, Blob> m_MapOfRelativePathToItemAncestorRootFolder;
 
 
     public MergeConflictsAndMergedItems(Set<Item> i_MergedItemsNotSorted,
@@ -30,9 +33,9 @@ public class MergeConflictsAndMergedItems {
                                         Commit i_FastForwardCommit,
                                         Boolean i_isPullingAncestorOfPulled,
                                         Boolean i_isPulledAncestorOfPulling,
-                                        Map<Path, Item> i_MapOfRelativePathToItemPullingRootFolder,
-                                        Map<Path, Item> i_MapOfRelativePathToItemPulledRootFolder,
-                                        Map<Path, Item> i_MapOfRelativePathToItemAncestorRootFolder) {
+                                        Map<Path, Blob> i_MapOfRelativePathToItemPullingRootFolder,
+                                        Map<Path, Blob> i_MapOfRelativePathToItemPulledRootFolder,
+                                        Map<Path, Blob> i_MapOfRelativePathToItemAncestorRootFolder) {
 
         m_mergedItemsNotSorted = i_MergedItemsNotSorted;
         m_conflictItems = i_ConflictItems;
@@ -127,17 +130,24 @@ public class MergeConflictsAndMergedItems {
     public ObservableList<String> GetConflictItemsNames() {
         List<String> conflictNamesList = new ArrayList<>();
         m_conflictItems.forEach(conflictingItem -> {
-            conflictNamesList.add(conflictingItem.m_PullingItem.getName());
+            conflictNamesList.add(conflictingItem.m_OurBlob.getName());
         });
         return FXCollections.observableList(conflictNamesList);
     }
 
     public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
         ConflictingItems conflicting = getConflictingItemByName(i_conflictingItem);
-        return conflicting.m_PullingItem;
+        return conflicting.m_OurBlob;
     }
 
-    private ConflictingItems getConflictingItemByName(String i_conflictingItem) {
+    public ConflictingItems getConflictingItemByName(String i_conflictingItem) {
         return m_conflictItems.stream().filter(item -> item.getName().equals(i_conflictingItem)).findFirst().orElse(null);
+    }
+
+    public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
+    {
+        Blob chosenBlob = currentConflictingItem.getBlobByContent(blobText);
+
+        MagitFileUtils.WritingFileByPath(chosenBlob.GetPath().toString(), chosenBlob.getContent());
     }
 }
