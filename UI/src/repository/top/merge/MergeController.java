@@ -2,7 +2,6 @@ package repository.top.merge;
 
 import System.ConflictingItems;
 import common.MAGitUtils;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -12,7 +11,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import repository.top.TopController;
 
-import javax.swing.event.ChangeListener;
 import java.io.IOException;
 
 
@@ -44,7 +42,7 @@ public class MergeController
     @FXML
     private TextArea m_ResultTextArea;
     private TopController m_TopController;
-    private ObservableList<String> m_BranchNamesObservList;
+    private ObservableList<String> m_ConflictingItems;
 
     public void setController(TopController topController)
     {
@@ -63,12 +61,12 @@ public class MergeController
 
     private void initAllComponents()
     {
-        m_BranchNamesObservList = FXCollections.observableList(m_TopController.GetBranchNameList());
-        m_BranchesListView.setItems(m_BranchNamesObservList);
+        m_BranchesListView.setItems(m_TopController.GetBranchNameList());
 
-        m_BranchNamesObservList.addListener((ListChangeListener<String>) c ->
+
+        m_ConflictingItems.addListener((ListChangeListener<String>) c ->
         {
-            if(m_BranchNamesObservList.isEmpty())
+            if (m_ConflictingItems.isEmpty())
             {
                 createCommitMerge(m_BranchesListView.getSelectionModel().getSelectedItems().get(0));
             }
@@ -98,7 +96,8 @@ public class MergeController
     {
         try
         {
-            m_BranchNamesObservList.remove(m_BranchesListView.getSelectionModel().getSelectedItems().get(0));
+            m_ConflictingItems.remove(m_ConflictsListView.getSelectionModel().getSelectedItems().get(0));
+
 
             m_TopController.CreateChosenBlobInWC(m_ResultTextArea.getText(), m_CurrentConflictingItem);
         } catch (IOException e)

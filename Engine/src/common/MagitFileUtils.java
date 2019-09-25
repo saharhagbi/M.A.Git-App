@@ -131,4 +131,12 @@ public class MagitFileUtils
             throw new Exception("Exception was occured, problem in reading file:" + i_file.getName());
         }
     }
+
+    public static void WritingStringInFileWholePath(String filepath, String contentToWrite) throws IOException
+    {
+        File file = new File(filepath);
+        file.getParentFile().mkdirs();
+
+        WritingFileByPath(file.getAbsolutePath(), contentToWrite);
+    }
 }
