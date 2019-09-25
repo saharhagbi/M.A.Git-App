@@ -46,6 +46,13 @@
                   <MenuItem fx:id="m_PushBtn" mnemonicParsing="false" onAction="#Push_OnClick" text="Push" />
               </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Themes">
+               <items>
+                  <MenuItem fx:id="m_DarkThemeBtn" mnemonicParsing="false" onAction="#DarkTheme_OnClick" text="Dark" />
+                  <MenuItem fx:id="m_LightThemeBtn" mnemonicParsing="false" onAction="#LightTheme_OnClick" text="Light" />
+                  <MenuItem fx:id="m_DefaultThemeBtn" mnemonicParsing="false" onAction="#DefaultTheme_OnClick" text="Default" />
+               </items>
+            </Menu>
         </menus>
       </MenuBar>
       <GridPane prefHeight="55.0" prefWidth="600.0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">

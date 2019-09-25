@@ -67,6 +67,7 @@ public class MAGitController
 
         Scene scene = new Scene(root);
 
+
         i_PrimaryStage.setScene(scene);
         i_PrimaryStage.setHeight(root.getPrefHeight());
         i_PrimaryStage.setWidth(root.getPrefWidth());
@@ -94,6 +95,7 @@ public class MAGitController
             RepositoryController repositoryController = (RepositoryController) Controller;
             repositoryController.SetMagitController(this);
             m_RepositoryController = repositoryController;
+
 
             return true;
 

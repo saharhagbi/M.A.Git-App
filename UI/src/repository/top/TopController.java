@@ -433,7 +433,6 @@ public class TopController
     {
         try
         {
-            // m_RepositoryController.InitProgress("Reset...");
             String SHA1OfCommit = MAGitUtils.GetString("Enter the sha1 of the commit you want to reset to", "SHA1:",
                     StringConstants.COMMIT + " SHA1");
 
@@ -443,10 +442,7 @@ public class TopController
         } catch (Exception e)
         {
             MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!", e.getMessage(), e.getMessage());
-        } /*finally
-        {
-            m_RepositoryController.UpdateProgress();
-        }*/
+        }
     }
 
     @FXML

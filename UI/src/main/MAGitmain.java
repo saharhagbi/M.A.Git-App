@@ -25,7 +25,7 @@ public class MAGitmain extends Application
 
         Scene scene = new Scene(root);
 
-        //scene.getStylesheets().add("/common/themes/dark.css");
+        scene.getStylesheets().add("/common/themes/dark.css");
 
         primaryStage.setScene(scene);
         primaryStage.show();

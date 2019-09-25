@@ -69,7 +69,6 @@ public class CenterController
     public void InitObservCommitList()
     {
         m_CommitsObservableList = FXCollections.observableArrayList();
-
         m_RepositoryController.getCurrentRepository().getAllCommitsSHA1ToCommit()
                 .values()
                 .stream()
