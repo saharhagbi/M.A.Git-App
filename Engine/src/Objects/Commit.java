@@ -1,6 +1,5 @@
 package Objects;
 
-import Objects.branch.Branch;
 import System.ConflictingItems;
 import System.FolderDifferences;
 import System.MergeConflictsAndMergedItems;
@@ -64,7 +63,7 @@ public class Commit implements CommitRepresentative {
             Map<Path, Blob> mapOfRelativePathToBlobPullingRootFolder = i_PullingCommit.createMapOfRelativePathToItem(i_RepositoryPath);
             Map<Path, Blob> mapOfRelativePathToBlobPulledRootFolder = i_PulledCommit.createMapOfRelativePathToItem(i_RepositoryPath);
             Map<Path, Blob> mapOfRelativePathToBlobAncestorRootFolder = closestCommonAncestorCommit.createMapOfRelativePathToItem(i_RepositoryPath);
-            Set<Item> pullingAndPulledAllItems = i_PullingCommit.getUnitedListOfItems(i_PulledCommit);
+            Set<Blob> pullingAndPulledAllItems = i_PullingCommit.getUnitedListOfItems(i_PulledCommit);
 
             pullingAndPulledAllItems.forEach(item ->
             {
@@ -135,21 +134,21 @@ public class Commit implements CommitRepresentative {
         stateInBinary = stateInBinary << 1;
 
         //X X X X _ _
-        if (ourVersion != null && thiereVersion!=null && !ourVersion.getSHA1().equals(thiereVersion.getSHA1()))
+        if (ourVersion != null && thiereVersion != null && !ourVersion.getSHA1().equals(thiereVersion.getSHA1()))
             stateInBinary = stateInBinary | 1;
         else
             stateInBinary = stateInBinary | 0;
         stateInBinary = stateInBinary << 1;
 
         //X X X X X _
-        if (ourVersion != null && baseVersion!=null && !ourVersion.getSHA1().equals(baseVersion.getSHA1()))
+        if (ourVersion != null && baseVersion != null && !ourVersion.getSHA1().equals(baseVersion.getSHA1()))
             stateInBinary = stateInBinary | 1;
         else
             stateInBinary = stateInBinary | 0;
         stateInBinary = stateInBinary << 1;
 
         //X X X X X X
-        if (thiereVersion != null && baseVersion!=null && !thiereVersion.getSHA1().equals(baseVersion.getSHA1()))
+        if (thiereVersion != null && baseVersion != null && !thiereVersion.getSHA1().equals(baseVersion.getSHA1()))
             stateInBinary = stateInBinary | 1;
         else
             stateInBinary = stateInBinary | 0;
@@ -181,58 +180,6 @@ public class Commit implements CommitRepresentative {
         return pathRelative;
     }
 
-    private static Commit getClosestCommonAncestor(Commit i_First, Commit i_Second) throws Exception {
-        Commit optionalAncestor = null;
-        if (i_First.getSHA1().equals(i_Second.getSHA1()))
-            return i_First;
-        if (i_First == null || i_Second == null)
-            return null;
-        else {
-            if ((i_First != null) & (i_Second != null) & (i_Second.GetPrevCommit() != null))
-                optionalAncestor = getClosestCommonAncestor(i_First, i_Second.GetPrevCommit()); // 1,2.p
-
-            if ((optionalAncestor != null) && (i_First != null) && (i_Second != null) && (i_Second.GetSecondPrevCommit() != null))
-                optionalAncestor = getClosestCommonAncestor(i_First, i_Second.GetSecondPrevCommit()); // 1,2.sec_p
-
-            if ((optionalAncestor != null) && (i_First != null) && (i_First.GetPrevCommit() != null) && (i_Second != null))
-                optionalAncestor = getClosestCommonAncestor(i_First.GetPrevCommit(), i_Second); // 1.p,2
-
-            if ((optionalAncestor != null) && (i_First != null) && (i_First.GetSecondPrevCommit() != null) && (i_Second != null))
-                optionalAncestor = getClosestCommonAncestor(i_First.GetSecondPrevCommit(), i_Second); // 1.sec_p,2
-
-            if ((optionalAncestor != null) && (i_First != null) && (i_First.GetPrevCommit() != null) && (i_Second != null) && (i_Second.GetPrevCommit() != null))
-                optionalAncestor = getClosestCommonAncestor(i_First.GetPrevCommit(), i_Second.GetPrevCommit()); // 1.p,2.p
-
-            if ((optionalAncestor != null) && (i_First != null) && (i_First.GetPrevCommit() != null) && (i_Second != null) && (i_Second.GetSecondPrevCommit() != null))
-                optionalAncestor = getClosestCommonAncestor(i_First.GetPrevCommit(), i_Second.GetSecondPrevCommit()); // 1.p,2.sec_p
-
-            if ((optionalAncestor != null) && (i_First != null) && (i_First.GetSecondPrevCommit() != null) && (i_Second != null) && (i_Second.GetPrevCommit() != null))
-                optionalAncestor = getClosestCommonAncestor(i_First.GetSecondPrevCommit(), i_Second.GetPrevCommit()); // 1.sec_p,2.p
-
-            if ((optionalAncestor != null) && (i_First != null) && (i_First.GetSecondPrevCommit() != null) && (i_Second != null) && (i_Second.GetSecondPrevCommit() != null))
-                optionalAncestor = getClosestCommonAncestor(i_First.GetSecondPrevCommit(), i_Second.GetSecondPrevCommit()); // 1.sec_p,2.sec_p
-        }
-        return optionalAncestor;
-    }
-
-    public static Map<String, Commit> GetMapOfCommits(List<Branch> i_allBranches) throws Exception {
-        Map<String, Commit> resMap = new HashMap<>();
-        for (int i = 0; i < i_allBranches.size(); i++) {
-            Branch currentBranch = i_allBranches.get(i);
-            Commit pointedCommit = currentBranch.getPointedCommit();
-            Map<String, Commit> pointedCommitMap = pointedCommit.getMapOfSha1ToCommit();
-            Set<String> pointedCommitMapKeys = pointedCommitMap.keySet();
-            pointedCommitMapKeys.forEach(sha1Key ->
-            {
-                if (resMap.get(sha1Key) == null) {
-                    resMap.put(sha1Key, pointedCommitMap.get(sha1Key));
-                }
-            });
-        }
-
-        return resMap;
-    }
-
     public static List<String> GetCommitFieldsFromCommitTextFile(Path i_CommitTextFilePath) throws IOException {
         Scanner lineScanner = new Scanner(i_CommitTextFilePath);
         List<String> commitTextFileFields = new ArrayList<>();
@@ -259,7 +206,7 @@ public class Commit implements CommitRepresentative {
         String headline = "Commits details:" + System.lineSeparator();
         commitHistoryBuilder.append(headline);
         List<String> commitsDetails = Commit.GetCommitFieldsFromCommitTextFile(i_commitTextFileUnzipped);
-        String[] rootFolderFields = Item.GetItemsDetails(commitsDetails.get(0));
+        //String[] rootFolderFields = Item.GetItemsDetails(commitsDetails.get(0));
         commitHistoryBuilder.append("Sha1: " + i_commitsSha1 + System.lineSeparator());
         commitHistoryBuilder.append("Message: " + commitsDetails.get(2) + System.lineSeparator());
         commitHistoryBuilder.append("Date: " + commitsDetails.get(3) + System.lineSeparator());
@@ -275,8 +222,12 @@ public class Commit implements CommitRepresentative {
 
     }
 
-    public static String createSha1ForCommit(Folder i_rootFolder, String i_sha1PrevCommit, String
-            i_sha1OfSecondPrevCommit, String i_commitMessage, User i_user, Date date) {
+    public static String createSha1ForCommit(Folder i_rootFolder,
+                                             String i_sha1PrevCommit,
+                                             String i_sha1OfSecondPrevCommit,
+                                             String i_commitMessage,
+                                             User i_user,
+                                             Date date) {
         StringBuilder strForCalculatingSHA1 = new StringBuilder();
         strForCalculatingSHA1.append(i_rootFolder.getSHA1());
         strForCalculatingSHA1.append(i_sha1PrevCommit);
@@ -355,21 +306,32 @@ public class Commit implements CommitRepresentative {
         this.m_SecondPrevCommit = m_SecondPrevCommit;
     }
 
-    private Set<Item> getUnitedListOfItems(Commit i_pulledCommit) {
-        Set<Item> allItemsUnited = new HashSet<Item>();
-        this.m_RootFolder.m_ListOfItems.forEach(item ->
-        {
-            if (!allItemsUnited.contains(item))
-                allItemsUnited.add(item);
+    private Set<Blob> getUnitedListOfItems(Commit i_pulledCommit) {
+        Set<Blob> allBlobsUnited = new HashSet<Blob>();
+        Set<String> allAddedFileNames = new HashSet<>();
+        Set<Blob> ourBlobSet = m_RootFolder.GetSetOfBlobs();
+        Set<Blob> theireBlobSet = i_pulledCommit.m_RootFolder.GetSetOfBlobs();
+        ourBlobSet.forEach(item -> {
+            if (item.getTypeOfFile().equals(Item.TypeOfFile.BLOB)) {
+                if (!allAddedFileNames.contains(item.getName())) {
+                    allBlobsUnited.add((Blob) item);
+                    allAddedFileNames.add(item.getName());
+                }
+            }
+
         });
-        i_pulledCommit.m_RootFolder.m_ListOfItems.forEach(item ->
-        {
-            if (!allItemsUnited.contains(item)) {
-                allItemsUnited.add(item);
+        theireBlobSet.forEach(item -> {
+            if (item.getTypeOfFile().equals(Item.TypeOfFile.BLOB)) {
+                if (!allAddedFileNames.contains(item.getName())) {
+                    allBlobsUnited.add((Blob) item);
+                    allAddedFileNames.add(item.getName());
+                }
             }
         });
-        return allItemsUnited;
+
+        return allBlobsUnited;
     }
+
 
     private Map<Path, Blob> createMapOfRelativePathToItem(Path i_repositoryPath) {
         Map<Path, Blob> resMap = new HashMap<Path, Blob>();

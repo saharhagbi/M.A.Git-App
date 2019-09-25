@@ -62,23 +62,36 @@ public class MergeConflictsAndMergedItems {
 
     //automatic take theirs
     public static final int ONLY_THEIRS_EXIST = 0b010000;                 //=16
-    public static final int THEIRS_AND_BASE_ONLY_HAS_BUT_DIFFERENT = 0x011001;                 //=25
+    public static final int OURS_IS_THE_SAME_AS_BASE_BUT_THEIRES_IS_DIFFERENT = 0b111101;                 //=61
     //automatic take theirs
+
+    //take any
+    public static final int ONLY_OURS_AND_THEIRES__WITH_NO_DIFFERENCE = 0b110000;                 //=48
+    public static final int ALL_HAS_BUT_NO_DIFFERENCE = 0b111000;                 //=56
+    public static final int BASE_IS_DIFFERENT_THAN_OURS_AND_THEIRS = 0b111011;                 //=59
+    //take any
+
 
     //automatic take ours
     public static final int ONLY_OURS_EXISTS = 0b100000;                //=32
-    public static final int ONLY_OURS_AND_BASE_HAS_WITH_DIFFERENCE = 0b101010;                //=42
-    public static final int ONLY_OURS_AND_THEIRE_HAS_WITH_NO_DIFFERENCE = 0b110000;                //=48
+    public static final int ONLY_OURS_AND_THEIR_HAS_WITH_NO_DIFFERENCE = 0b110000;                //=48
+    public static final int BASE_AND_THEIRS_ARE_THE_SAME_OURS_IS_DIFFERENT = 0b111110;                //=62
 
     //automatic take ours
 
     //conflict
+    public static final int ONLY_THEIRS_AND_BASE_HAS_WITH_DIFFERENCE = 0x011001;                 //=25
+    public static final int ONLY_OURS_AND_BASE_HAS_WITH_DIFFERENCE = 0b101010;                //=42
     public static final int ONLY_OURS_AND_THEIRS_HAS_WITH_DIFFERENCE = 0b110100;                //=52
     public static final int ALL_HAVE_BUT_WITH_DIFFERENCES = 0b111111;                //=63
     //conflict
 
     public static boolean isConflict(int i_itemState) {
-        if (i_itemState == ONLY_OURS_AND_THEIRS_HAS_WITH_DIFFERENCE || i_itemState == ALL_HAVE_BUT_WITH_DIFFERENCES)
+        if (i_itemState == ONLY_OURS_AND_THEIRS_HAS_WITH_DIFFERENCE ||
+                i_itemState == ALL_HAVE_BUT_WITH_DIFFERENCES ||
+                i_itemState == ONLY_OURS_AND_BASE_HAS_WITH_DIFFERENCE ||
+                i_itemState == ONLY_THEIRS_AND_BASE_HAS_WITH_DIFFERENCE
+        )
             return true;
         else
             return false;
@@ -86,23 +99,25 @@ public class MergeConflictsAndMergedItems {
 
     public static boolean ShouldTakeOurs(int i_itemState) {
         if (i_itemState == ONLY_OURS_EXISTS ||
-                i_itemState == ONLY_OURS_AND_BASE_HAS_WITH_DIFFERENCE ||
-                i_itemState == ONLY_OURS_AND_THEIRE_HAS_WITH_NO_DIFFERENCE)
+                i_itemState == ONLY_OURS_AND_THEIR_HAS_WITH_NO_DIFFERENCE ||
+                i_itemState == BASE_AND_THEIRS_ARE_THE_SAME_OURS_IS_DIFFERENT ||
+                i_itemState == BASE_IS_DIFFERENT_THAN_OURS_AND_THEIRS ||
+                i_itemState == ALL_HAS_BUT_NO_DIFFERENCE ||
+                i_itemState == ONLY_OURS_AND_THEIRES__WITH_NO_DIFFERENCE)
             return true;
         else return false;
     }
 
 
     public static boolean ShouldTakeTheirs(int i_itemState) {
-        if (i_itemState == ONLY_THEIRS_EXIST ||
-                i_itemState == THEIRS_AND_BASE_ONLY_HAS_BUT_DIFFERENT)
+        if (i_itemState == ONLY_THEIRS_EXIST || i_itemState == OURS_IS_THE_SAME_AS_BASE_BUT_THEIRES_IS_DIFFERENT)
             return true;
         else return false;
     }
 
-    public Boolean IsPullingAncestorOfPulled() {
+  /*  public Boolean IsPullingAncestorOfPulled() {
         return m_IsPullingAncestorOfPulled;
-    }
+    }*/
 
     public Boolean IsPulledAncestorOfPulling() {
         return m_IsPulledAncestorOfPulling;
@@ -114,8 +129,8 @@ public class MergeConflictsAndMergedItems {
             Blob ourBlob = conflictingItem.m_OurBlob;
             if (ourBlob != null)
                 conflictNamesList.add(ourBlob.getName());
-            else{
-                if(conflictingItem.m_TheirBlob!=null);
+            else {
+                if (conflictingItem.m_TheirBlob != null) ;
                 conflictNamesList.add(conflictingItem.m_TheirBlob.getName());
             }
         });

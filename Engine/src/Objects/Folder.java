@@ -22,8 +22,7 @@ import static System.Repository.sf_Slash;
 import static common.MagitFileUtils.IsMagitFolder;
 
 
-public class Folder extends Item
-{
+public class Folder extends Item {
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_YELLOW = "\u001B[33m";
@@ -36,8 +35,7 @@ public class Folder extends Item
     //TODO: ADDING SUITABLE CONSTRUCTOR
 
     public Folder(List<Item> m_ListOfItems, String i_FolderPath, String i_FolderName,
-                  String i_SHA1, TypeOfFile i_TypeOfFile, User i_UserName, Date i_Date)
-    {
+                  String i_SHA1, TypeOfFile i_TypeOfFile, User i_UserName, Date i_Date) {
         super(Paths.get(i_FolderPath), i_SHA1, i_TypeOfFile, i_UserName, i_Date, i_FolderName);
 
         this.m_ListOfItems = m_ListOfItems;
@@ -46,23 +44,19 @@ public class Folder extends Item
     }
 
     //TODO: finish this method
-    public static FolderDifferences FinedDifferences(Folder i_newRootFolder, Folder i_OldRootFolder)
-    {
+    public static FolderDifferences FinedDifferences(Folder i_newRootFolder, Folder i_OldRootFolder) {
         FolderDifferences differences = new FolderDifferences();
         StringBuilder changesBetweenFolders = new StringBuilder();
         Iterator keyIterator = i_newRootFolder.m_MapOfItems.keySet().iterator();
         Map<Path, Item> modifiableNewFolderMap = new HashMap<Path, Item>(i_newRootFolder.m_MapOfItems);
         Map<Path, Item> modifiableOldFolderMap = new HashMap<Path, Item>(i_OldRootFolder.m_MapOfItems);
-        while (keyIterator.hasNext())
-        {
+        while (keyIterator.hasNext()) {
             Path keyPath = (Path) keyIterator.next();
             Item newFolderItem = modifiableNewFolderMap.get(keyPath);
             Item oldFolderItem = modifiableOldFolderMap.get(keyPath);
-            if (modifiableOldFolderMap.containsKey(keyPath))
-            { // exist in the old version of this folder - need to check if its the same or been modified
+            if (modifiableOldFolderMap.containsKey(keyPath)) { // exist in the old version of this folder - need to check if its the same or been modified
                 //TODO : fix sha1 check
-                if (!newFolderItem.getSHA1().equals(oldFolderItem.getSHA1()))
-                {
+                if (!newFolderItem.getSHA1().equals(oldFolderItem.getSHA1())) {
                     if (newFolderItem.getTypeOfFile() == BLOB)// Item is a blob
                     {
                         //changesBetweenFolders.append(ANSI_YELLOW + "File changed : " + ANSI_RESET + keyPath.toString() + '\n');
@@ -77,14 +71,11 @@ public class Folder extends Item
                     }
                     modifiableOldFolderMap.remove(keyPath);// remove item so we keep searching for changes
                 }
-            } else
-            {
-                if (newFolderItem.getTypeOfFile() == BLOB)
-                {
+            } else {
+                if (newFolderItem.getTypeOfFile() == BLOB) {
                     //changesBetweenFolders.append(ANSI_GREEN + "File added : " + ANSI_RESET + newFolderItem.GetPath().toString() + '\n');
 
-                } else
-                {
+                } else {
                     //changesBetweenFolders.append(ANSI_GREEN + "Folder added : " + ANSI_RESET + newFolderItem.GetPath().toString() + '\n');
                     //String addedItemsInsideThisItemFolder = getAddedFiles((Folder) newFolderItem);
                     //changesBetweenFolders.append(addedItemsInsideThisItemFolder);
@@ -97,16 +88,13 @@ public class Folder extends Item
 
         }
         Iterator oldFolderKeysIterator = modifiableOldFolderMap.keySet().iterator();
-        while (oldFolderKeysIterator.hasNext())
-        {
+        while (oldFolderKeysIterator.hasNext()) {
             Path keyPath = (Path) oldFolderKeysIterator.next();
             Item item = (Item) modifiableOldFolderMap.get(keyPath);
-            if (item.getTypeOfFile() == BLOB)
-            {
+            if (item.getTypeOfFile() == BLOB) {
                 //changesBetweenFolders.append(ANSI_RED + "File removed : " + ANSI_RESET + keyPath.toString() + System.lineSeparator());
 
-            } else
-            {
+            } else {
                 //changesBetweenFolders.append(ANSI_RED + "Folder removed : " + ANSI_RESET + keyPath.toString() + System.lineSeparator());
             }
             differences.AddToRemovedItemList(item);
@@ -114,18 +102,14 @@ public class Folder extends Item
         return differences;
     }
 
-    private static String getAddedFiles(Folder i_FolderThatHasBeenAdded)
-    {
+    private static String getAddedFiles(Folder i_FolderThatHasBeenAdded) {
         StringBuilder addedItems = new StringBuilder();
         Iterator keyIterator = i_FolderThatHasBeenAdded.m_MapOfItems.keySet().iterator();
-        while (keyIterator.hasNext())
-        {
+        while (keyIterator.hasNext()) {
             Item item = i_FolderThatHasBeenAdded.m_MapOfItems.get(keyIterator.next());
-            if (item.getTypeOfFile() == BLOB)
-            {
+            if (item.getTypeOfFile() == BLOB) {
                 addedItems.append("File added : " + item.GetPath().toString() + System.lineSeparator());
-            } else
-            {
+            } else {
                 addedItems.append("Folder added : " + item.GetPath().toString() + System.lineSeparator());
                 String insideFolderAddedItems = getAddedFiles((Folder) item);//recursive call for this item which is a folder
                 addedItems.append(insideFolderAddedItems);
@@ -134,8 +118,7 @@ public class Folder extends Item
         return addedItems.toString();
     }
 
-    public static String GetInformation(Folder i_Folder)
-    {
+    public static String GetInformation(Folder i_Folder) {
         StringBuilder folderDetailsBuilder = new StringBuilder();
         folderDetailsBuilder.append("Folder:\n");
         folderDetailsBuilder.append("Name: " + i_Folder.GetPath().toString() + "\n");
@@ -144,13 +127,10 @@ public class Folder extends Item
         folderDetailsBuilder.append("Changed by : " + i_Folder.getUser().getUserName() + "\n");
         folderDetailsBuilder.append("Time changed : " + Item.getDateStringByFormat(i_Folder.getDate()) + "\n");
         List<Item> folderListOfItems = i_Folder.m_ListOfItems;
-        for (int i = 0; i < folderListOfItems.size(); i++)
-        {
-            if (folderListOfItems.get(i).getTypeOfFile().equals(FOLDER))
-            {
+        for (int i = 0; i < folderListOfItems.size(); i++) {
+            if (folderListOfItems.get(i).getTypeOfFile().equals(FOLDER)) {
                 folderDetailsBuilder.append(GetInformation((Folder) folderListOfItems.get(i)));
-            } else
-            {
+            } else {
                 StringBuilder blobDetailsBuilder = new StringBuilder();
                 blobDetailsBuilder.append("Blob:\n");
                 blobDetailsBuilder.append("Name: " + folderListOfItems.get(i).GetPath().toString() + "\n");
@@ -165,49 +145,38 @@ public class Folder extends Item
         return folderDetailsBuilder.toString();
     }
 
-    public static void SpanDirectory(Folder i_RootFolder) throws IOException
-    {
+    public static void SpanDirectory(Folder i_RootFolder) throws IOException {
         Path folderPath = i_RootFolder.GetPath();
         folderPath.toFile().mkdir();
         Iterator itemsIterator = i_RootFolder.m_ListOfItems.iterator();
-        while (itemsIterator.hasNext())
-        {
+        while (itemsIterator.hasNext()) {
             Item folderItem = (Item) itemsIterator.next();
-            if (folderItem.getTypeOfFile().equals(FOLDER))
-            {
+            if (folderItem.getTypeOfFile().equals(FOLDER)) {
                 SpanDirectory((Folder) folderItem);
-            } else
-            {
+            } else {
                 Blob currentBlob = (Blob) folderItem;
                 MagitFileUtils.WritingFileByPath(currentBlob.GetPath().toString(), currentBlob.getContent());
             }
         }
     }
 
-    public static void RemoveFilesAndFoldersWithoutMagit(Path i_FolderPathToRemove) throws IOException
-    {
+    public static void RemoveFilesAndFoldersWithoutMagit(Path i_FolderPathToRemove) throws IOException {
         File[] rootFolder = new File(i_FolderPathToRemove.toString()).listFiles();
 
-        for (File currentFile : rootFolder)
-        {
-            if (!currentFile.getName().equals(".magit"))
-            {
-                if (currentFile.isDirectory() == true)
-                {
+        for (File currentFile : rootFolder) {
+            if (!currentFile.getName().equals(".magit")) {
+                if (currentFile.isDirectory() == true) {
                     org.apache.commons.io.FileUtils.deleteDirectory(currentFile);
-                } else
-                {
+                } else {
                     currentFile.delete();
                 }
             }
         }
     }
 
-    public static Folder CreateFolderFromTextFolder(File i_TextFolder, Path i_PathToThisFolder, String i_foldersSha1, User i_user, Date i_Date, Path i_ObjectsFolderPath) throws Exception
-    {   //example: 123,50087888a7c34344416ec0fd600f394dadf3d9d8,FOLDER,Administrator,06.39.2019-06:39:27:027
+    public static Folder CreateFolderFromTextFolder(File i_TextFolder, Path i_PathToThisFolder, String i_foldersSha1, User i_user, Date i_Date, Path i_ObjectsFolderPath) throws Exception {   //example: 123,50087888a7c34344416ec0fd600f394dadf3d9d8,FOLDER,Administrator,06.39.2019-06:39:27:027
         Path tempFolderPath = Paths.get(i_ObjectsFolderPath.getParent().toString() + "\\Temp");
-        if (!tempFolderPath.toFile().exists())
-        {
+        if (!tempFolderPath.toFile().exists()) {
             tempFolderPath.toFile().mkdir();
         }
         List<Item> folderListOfItems = new ArrayList<Item>();
@@ -217,14 +186,11 @@ public class Folder extends Item
         TypeOfFile type = FOLDER;
         User user = i_user;
         Date date = i_Date;
-        try
-        {
+        try {
             Scanner lineScanner = new Scanner(i_TextFolder);
-            while (lineScanner.hasNext())
-            {
+            while (lineScanner.hasNext()) {
                 String lineOfDetails = lineScanner.nextLine();
-                if (Item.IsAFile(lineOfDetails))
-                {
+                if (Item.IsAFile(lineOfDetails)) {
                     // a line that represent a blob, hence we parse it accordingly
                     Blob thisBlob;
                     String[] itemsDetails = Item.GetItemsDetails(lineOfDetails);
@@ -245,8 +211,7 @@ public class Folder extends Item
                     folderListOfItems.add(thisBlob);
 
 
-                } else
-                {//if it a folder
+                } else {//if it a folder
                     //123, 50087888a7c34344416ec0fd600f394dadf3d9d8, FOLDER, Administrator, 06.39.2019-06:39:27:027
                     String[] folderDetails = Item.GetItemsDetails(lineOfDetails);
                     String nameOfFolder = folderDetails[0];
@@ -262,8 +227,7 @@ public class Folder extends Item
                 }
 
             }
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw e;
         }
 
@@ -277,21 +241,16 @@ public class Folder extends Item
 
     }
 
-    public static Folder createInstanceOfFolder(Path i_FolderPath, User i_CurrentUser, Map<Path, Item> i_ItemsMapWithPaths) throws Exception
-    {
+    public static Folder createInstanceOfFolder(Path i_FolderPath, User i_CurrentUser, Map<Path, Item> i_ItemsMapWithPaths) throws Exception {
         List<Item> allItemsInCurrentFolder = new ArrayList<>();
 
         File[] files = new File(i_FolderPath.toString()).listFiles();
-        for (File file : files)
-        {
-            if (!IsMagitFolder(file))
-            {
-                if (file.isDirectory())
-                {
+        for (File file : files) {
+            if (!IsMagitFolder(file)) {
+                if (file.isDirectory()) {
                     Folder currentFolderReturnedFromRecursion = createInstanceOfFolder(file.toPath(), i_CurrentUser, i_ItemsMapWithPaths);
                     allItemsInCurrentFolder.add(currentFolderReturnedFromRecursion);
-                } else
-                {
+                } else {
                     String sha1 = createSHA1ForTextFile(file);
                     Blob currentBlob = new Blob(file.toPath(), sha1, MagitFileUtils.GetContentFile(file),
                             Item.TypeOfFile.BLOB, i_CurrentUser, new Date(), file.getName());
@@ -299,8 +258,7 @@ public class Folder extends Item
                 }
             }
         }
-        for (int i = 0; i < allItemsInCurrentFolder.size(); i++)
-        {
+        for (int i = 0; i < allItemsInCurrentFolder.size(); i++) {
             i_ItemsMapWithPaths.put(allItemsInCurrentFolder.get(i).GetPath(), allItemsInCurrentFolder.get(i));
         }
         Folder currentFolder = new Folder(allItemsInCurrentFolder, i_FolderPath.toString(), i_FolderPath.getFileName().toString(),
@@ -310,12 +268,10 @@ public class Folder extends Item
 
     }
 
-    public static String CreateSHA1ForFolderFile(List<Item> i_AllItems)
-    {
+    public static String CreateSHA1ForFolderFile(List<Item> i_AllItems) {
         StringBuilder stringForCreatingSHA1 = new StringBuilder();
         Collections.sort(i_AllItems, new CompareItems());
-        for (Item currentItemInList : i_AllItems)
-        {
+        for (Item currentItemInList : i_AllItems) {
             stringForCreatingSHA1.append(currentItemInList.getName());
             stringForCreatingSHA1.append(currentItemInList.getSHA1());
             stringForCreatingSHA1.append(currentItemInList.getTypeOfFile().toString());
@@ -324,30 +280,25 @@ public class Folder extends Item
         return DigestUtils.sha1Hex(stringForCreatingSHA1.toString());
     }
 
-    private static String createSHA1ForTextFile(File i_File) throws Exception
-    {
+    private static String createSHA1ForTextFile(File i_File) throws Exception {
         String stringForSha1 = MagitFileUtils.GetContentFile(i_File);
 
         return DigestUtils.sha1Hex(stringForSha1);
     }
 
-    public static boolean isDirEmpty(final Path directory) throws IOException
-    {
+    public static boolean isDirEmpty(final Path directory) throws IOException {
         //TODO: currently sees .magit in folder so it is not empty all the time - instead we need to ignor .magit
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory))
-        {
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
             return !dirStream.iterator().hasNext();
         }
     }
 
-    public static void DeleteDirectory(String i_LocationOfFolderToDelete) throws IOException
-    {
+    public static void DeleteDirectory(String i_LocationOfFolderToDelete) throws IOException {
         Path pathOfFolderToDelete = Paths.get(i_LocationOfFolderToDelete);
         org.apache.commons.io.FileUtils.deleteDirectory(pathOfFolderToDelete.toFile());
     }
 
-    public static boolean IsFileExist(String i_LocationOfFile)
-    {
+    public static boolean IsFileExist(String i_LocationOfFile) {
         File tempFileForCheckExistence = new File(i_LocationOfFile);
 
         return tempFileForCheckExistence.exists();
@@ -356,28 +307,23 @@ public class Folder extends Item
 
     //should replace createTempCommitWithoutCreatingObjects() if possible
 
-    private void createMapOfItems()
-    {
+    private void createMapOfItems() {
         Iterator itemsIterator = m_ListOfItems.iterator();
-        while (itemsIterator.hasNext())
-        {
+        while (itemsIterator.hasNext()) {
             Item item = (Item) itemsIterator.next();
             m_MapOfItems.put(item.GetPath(), item);
         }
     }
 
-    public Integer GetAmountOfItems()
-    {
+    public Integer GetAmountOfItems() {
         return m_ListOfItems.size();
     }
 
-    public List<Item> getListOfItems()
-    {
+    public List<Item> getListOfItems() {
         return m_ListOfItems;
     }
 
-    public Path WritingFolderAsATextFile()
-    {
+    public Path WritingFolderAsATextFile() {
         Path pathFileForWritingString;
         //TODO: CHECK IF POSSIBLE SWITCH TO STREAM METHOD
 
@@ -388,13 +334,11 @@ public class Folder extends Item
         return pathFileForWritingString;
     }
 
-    private String convertFolderToString(Folder i_Folder, User i_CurrentUser)
-    {
+    private String convertFolderToString(Folder i_Folder, User i_CurrentUser) {
         StringBuilder resultString = new StringBuilder();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:SSS");
 
-        for (Item item : i_Folder.getListOfItems())
-        {
+        for (Item item : i_Folder.getListOfItems()) {
             // TODO: ORDER BY REQUIREMENT
             resultString.append(item.getName() + ",");
             resultString.append(item.getSHA1() + ",");
@@ -406,19 +350,37 @@ public class Folder extends Item
         return resultString.toString();
     }
 
-    public void initFolderPaths(Path i_NewPathOfRepository)
-    {
+    public void initFolderPaths(Path i_NewPathOfRepository) {
         this.m_Path = i_NewPathOfRepository;
 
-        for (Item item : this.m_ListOfItems)
-        {
-            if (item.getTypeOfFile().equals(Item.TypeOfFile.FOLDER))
-            {
+        for (Item item : this.m_ListOfItems) {
+            if (item.getTypeOfFile().equals(Item.TypeOfFile.FOLDER)) {
                 Folder currentFolder = (Folder) item;
                 currentFolder.initFolderPaths(Paths.get(i_NewPathOfRepository + sf_Slash + currentFolder.getName()));
             } else
                 item.setPath(Paths.get(i_NewPathOfRepository + sf_Slash + item.getName()));
         }
+    }
+
+    public Set<Blob> GetSetOfBlobs() {
+        return getSetOfBlobsFromFolder(this);
+    }
+
+    private Set<Blob> getSetOfBlobsFromFolder(Folder i_Folder) {
+        Set<Blob> setOfBlobs = new HashSet<Blob>();
+        i_Folder.m_ListOfItems.forEach(item -> {
+            if (item.getTypeOfFile().equals(FOLDER)) {
+                Set<Blob> innerSetOfBlobs = getSetOfBlobsFromFolder((Folder) item);
+                innerSetOfBlobs.forEach(blob -> {
+                    if (!setOfBlobs.contains(blob))
+                        setOfBlobs.add(blob);
+                });
+            } else {
+                setOfBlobs.add((Blob) item);
+            }
+
+        });
+        return setOfBlobs;
     }
 
 /*    public static Folder CreateFolderFromSetOfItems(Set<Item> i_setOfItems){

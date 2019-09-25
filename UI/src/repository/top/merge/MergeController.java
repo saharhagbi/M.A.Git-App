@@ -130,7 +130,6 @@ public class MergeController
                     m_ConflictsNameList = GetAllConflictsNames();
                     m_ConflictsListView.setItems(GetAllConflictsNames());
                     initAllMergeComponents();
-
                 }
             }
         }
