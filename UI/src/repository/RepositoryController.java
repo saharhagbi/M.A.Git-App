@@ -1,7 +1,7 @@
 package repository;
 
 import Objects.Commit;
-import Objects.branch.Branch;
+import Objects.Item;
 import System.FolderDifferences;
 import System.MergeConflictsAndMergedItems;
 import System.Repository;
@@ -11,6 +11,7 @@ import common.Enums;
 import common.MAGitUtils;
 import common.constants.ResourceUtils;
 import common.constants.StringConstants;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -264,7 +265,23 @@ public class RepositoryController {
         m_LeftController.ClearTableView();
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_selectedBranchNameToMerge) throws Exception {
-        return this.m_MagitController.GetConflictsForMerge(i_selectedBranchNameToMerge);
+    public void SetConflictsForMergeInRepository(String i_selectedBranchNameToMerge) throws Exception {
+        m_MagitController.SetConflictsForMergeInRepository(i_selectedBranchNameToMerge);
     }
+
+    public boolean IsFastForwardCase() {
+        return m_MagitController.IsFastForwardCase();
+    }
+
+    public boolean IsPulledAncestorOfPulling() {
+        return this.m_MagitController.IsPulledAncestorOfPulling();
+    }
+
+/*    public ObservableList<String> GetConflictItemsNames() {
+        return this.m_MagitController.GetConflictItemsNames();
+    }
+
+    public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
+        return this.m_MagitController.GetPullingVersionOfConflictDetails(i_conflictingItem);
+    }*/
 }

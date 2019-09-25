@@ -5,8 +5,10 @@ import Objects.Item;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MergeConflictsAndMergedItems {
@@ -17,15 +19,30 @@ public class MergeConflictsAndMergedItems {
     Commit m_FastForwardCommit;
     Boolean m_IsPullingAncestorOfPulled;
     Boolean m_IsPulledAncestorOfPulling;
+    Map<Path, Item> m_MapOfRelativePathToItemPullingRootFolder;
+    Map<Path, Item> m_MapOfRelativePathToItemPulledRootFolder;
+    Map<Path, Item> m_MapOfRelativePathToItemAncestorRootFolder;
 
 
-    public MergeConflictsAndMergedItems(Set<Item> i_MergedItemsNotSorted, Set<ConflictingItems> i_ConflictItems, Boolean i_IsFastForward, Commit i_FastForwardCommit, Boolean i_isPullingAncestorOfPulled, Boolean i_isPulledAncestorOfPulling) {
+    public MergeConflictsAndMergedItems(Set<Item> i_MergedItemsNotSorted,
+                                        Set<ConflictingItems> i_ConflictItems,
+                                        Boolean i_IsFastForward,
+                                        Commit i_FastForwardCommit,
+                                        Boolean i_isPullingAncestorOfPulled,
+                                        Boolean i_isPulledAncestorOfPulling,
+                                        Map<Path, Item> i_MapOfRelativePathToItemPullingRootFolder,
+                                        Map<Path, Item> i_MapOfRelativePathToItemPulledRootFolder,
+                                        Map<Path, Item> i_MapOfRelativePathToItemAncestorRootFolder) {
+
         m_mergedItemsNotSorted = i_MergedItemsNotSorted;
         m_conflictItems = i_ConflictItems;
         m_IsFastForwardCase = i_IsFastForward;
         m_FastForwardCommit = i_FastForwardCommit;
         m_IsPulledAncestorOfPulling = i_isPulledAncestorOfPulling;
         m_IsPullingAncestorOfPulled = i_isPullingAncestorOfPulled;
+        m_MapOfRelativePathToItemPullingRootFolder = i_MapOfRelativePathToItemPullingRootFolder;
+        m_MapOfRelativePathToItemPulledRootFolder = i_MapOfRelativePathToItemPulledRootFolder;
+        m_MapOfRelativePathToItemAncestorRootFolder = i_MapOfRelativePathToItemAncestorRootFolder;
     }
 
     public Boolean IsFastForwardCase() {
@@ -108,11 +125,19 @@ public class MergeConflictsAndMergedItems {
     }
 
     public ObservableList<String> GetConflictItemsNames() {
-        List<String > conflictNamesList = new ArrayList<>();
+        List<String> conflictNamesList = new ArrayList<>();
         m_conflictItems.forEach(conflictingItem -> {
             conflictNamesList.add(conflictingItem.m_PullingItem.getName());
         });
         return FXCollections.observableList(conflictNamesList);
     }
 
+    public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
+        ConflictingItems conflicting = getConflictingItemByName(i_conflictingItem);
+        return conflicting.m_PullingItem;
+    }
+
+    private ConflictingItems getConflictingItemByName(String i_conflictingItem) {
+        return m_conflictItems.stream().filter(item -> item.getName().equals(i_conflictingItem)).findFirst().orElse(null);
+    }
 }

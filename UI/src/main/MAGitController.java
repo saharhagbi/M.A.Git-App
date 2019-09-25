@@ -1,10 +1,12 @@
 package main;
 
 import Objects.Commit;
+import Objects.Item;
 import System.FolderDifferences;
 import System.MergeConflictsAndMergedItems;
 import System.Repository;
 import XmlObjects.MagitRepository;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -18,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.concurrent.ExecutionException;
 
 public class MAGitController
 {
@@ -235,8 +236,24 @@ public class MAGitController
         m_RepositoryController.UpdateCommitTree();
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_selectedBranchNameToMerge) throws Exception
+    public void SetConflictsForMergeInRepository(String i_selectedBranchNameToMerge) throws Exception
     {
-        return this.m_PrimaryController.GetConflictsForMerge(i_selectedBranchNameToMerge);
+        this.m_PrimaryController.SetConflictsForMergeInRepository(i_selectedBranchNameToMerge);
     }
+
+    public boolean IsFastForwardCase() {
+        return m_PrimaryController.IsFastForwardCase();
+    }
+
+    public boolean IsPulledAncestorOfPulling() {
+        return this.m_PrimaryController.IsPulledAncestorOfPulling();
+    }
+
+  /*  public ObservableList<String> GetConflictItemsNames() {
+        return this.m_PrimaryController.GetConflictItemsNames();
+    }
+
+    public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
+        return this.m_PrimaryController.GetPullingVersionOfConflictDetails(i_conflictingItem);
+    }*/
 }

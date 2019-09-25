@@ -15,7 +15,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 import repository.RepositoryController;
-
 public class CenterController
 {
     private RepositoryController m_RepositoryController;

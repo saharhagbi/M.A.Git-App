@@ -1,6 +1,7 @@
 package primaryController;
 
 import Objects.Commit;
+import Objects.Item;
 import System.Engine;
 import System.FolderDifferences;
 import System.MergeConflictsAndMergedItems;
@@ -219,9 +220,9 @@ public class PrimaryController
                     "3. There is nothing to push! RR and LR synchronized!");
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_PushingBranchName) throws Exception
+    public void SetConflictsForMergeInRepository(String i_PushingBranchName) throws Exception
     {
-        return m_Engine.GetConflictsForMerge(i_PushingBranchName);
+        m_Engine.SetConflictsForMergeInRepository(i_PushingBranchName);
     }
 
     public boolean IsLocalRepository()
@@ -238,4 +239,20 @@ public class PrimaryController
     {
         m_Engine.CreateRTB(commit, branchName);
     }
+
+    public boolean IsFastForwardCase() {
+        return m_Engine.GetConflictsForMerge().IsFastForwardCase();
+    }
+
+    public boolean IsPulledAncestorOfPulling() {
+        return m_Engine.getCurrentRepository().m_ConflictsAndItems.IsPulledAncestorOfPulling();
+    }
+
+/*    public ObservableList<String> GetConflictItemsNames() {
+        return m_Engine.getCurrentRepository().m_ConflictsAndItems.GetConflictItemsNames();
+    }
+
+    public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
+        return m_Engine.getCurrentRepository().GetPullingVersionOfConflictDetails(i_conflictingItem);
+    }*/
 }
