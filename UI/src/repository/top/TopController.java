@@ -67,6 +67,10 @@ public class TopController
     private ObservableList<MenuItem> m_BranchesListMenuBar;
     private ObservableList<Text> m_BranchesList;
 
+    public  ObservableList<String> GetAllConflictsNames() {
+        return m_RepositoryController.GetAllConflictsNames();
+    }
+
 
     public void SetRepositoryController(RepositoryController i_RepositoryController)
     {
@@ -552,9 +556,9 @@ public class TopController
         m_RepositoryController.SetConflictsForMergeInRepository(i_selectedBranchNameToMerge);
     }
 
-    public ObservableList<String> GetBranchNameList()
+    public ObservableList<String> GetActiveBranchesNameList()
     {
-        return FXCollections.observableList(this.m_RepositoryController.getCurrentRepository().getBranchNameList());
+        return FXCollections.observableList(this.m_RepositoryController.getCurrentRepository().getActiveBranchesNameList());
     }
 
     public boolean isHeadBranch(String i_BranchName)

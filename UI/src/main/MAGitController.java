@@ -5,6 +5,7 @@ import System.ConflictingItems;
 import System.FolderDifferences;
 import System.Repository;
 import XmlObjects.MagitRepository;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -256,5 +257,9 @@ public class MAGitController
     public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
     {
         m_PrimaryController.CreateChosenBlobInWC(blobText, currentConflictingItem);
+    }
+
+    public ObservableList<String> GetAllConflictsNames() {
+        return m_PrimaryController.GetAllConflictsNames();
     }
 }

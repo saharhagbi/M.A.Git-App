@@ -286,4 +286,8 @@ public class RepositoryController {
     {
         m_MagitController.CreateChosenBlobInWC(blobText, currentConflictingItem);
     }
+
+    public ObservableList<String> GetAllConflictsNames() {
+        return m_MagitController.GetAllConflictsNames();
+    }
 }

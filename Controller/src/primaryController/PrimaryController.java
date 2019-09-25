@@ -11,6 +11,7 @@ import collaboration.Push;
 import collaboration.RemoteBranch;
 import common.constants.NumConstants;
 import common.constants.StringConstants;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import main.MAGitController;
 
@@ -259,5 +260,9 @@ public class PrimaryController
 /*if(blobText.isEmpty())
     m_MagitController.InformUserMessage("Error!");*/
        m_Engine.CreateChosenBlobInWC(blobText, currentConflictingItem);
+    }
+
+    public ObservableList<String> GetAllConflictsNames() {
+        return m_Engine.getCurrentRepository().GetAllConflictsNames();
     }
 }

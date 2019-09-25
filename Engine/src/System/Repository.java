@@ -7,6 +7,7 @@ import Objects.Item;
 import Objects.branch.Branch;
 import common.MagitFileUtils;
 import common.constants.StringConstants;
+import javafx.collections.ObservableList;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -527,10 +528,10 @@ public class Repository
         return allBranchesNameBuilder.toString();
     }
 
-    public List<String> getBranchNameList()
+    public List<String> getActiveBranchesNameList()
     {
         List<String> branchNameList = new ArrayList<>();
-        this.getAllBranches().forEach(branch -> branchNameList.add(branch.getBranchName()));
+        this.getActiveBranches().forEach(branch -> branchNameList.add(branch.getBranchName()));
         return branchNameList;
     }
 
@@ -566,6 +567,10 @@ public class Repository
     public Item GetPullingVersionOfConflictDetails(String i_conflictingItem)
     {
         return m_ConflictsAndItems.GetPullingVersionOfConflictDetails(i_conflictingItem);
+    }
+
+    public ObservableList<String> GetAllConflictsNames() {
+        return m_ConflictsAndItems.GetConflictItemsNames();
     }
 }
 

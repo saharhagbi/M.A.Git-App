@@ -2,6 +2,7 @@ package repository.top.merge;
 
 import System.ConflictingItems;
 import common.MAGitUtils;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -42,7 +43,7 @@ public class MergeController
     @FXML
     private TextArea m_ResultTextArea;
     private TopController m_TopController;
-    private ObservableList<String> m_ConflictingItems;
+    private ObservableList<String> m_ConflictsNameList;
 
     public void setController(TopController topController)
     {
@@ -61,20 +62,7 @@ public class MergeController
 
     private void initAllComponents()
     {
-        m_BranchesListView.setItems(m_TopController.GetBranchNameList());
-
-
-        m_ConflictingItems.addListener((ListChangeListener<String>) c ->
-        {
-            if (m_ConflictingItems.isEmpty())
-            {
-                createCommitMerge(m_BranchesListView.getSelectionModel().getSelectedItems().get(0));
-            }
-        });
-
-        m_OurVersionScrollPane.setOnMouseClicked(event -> m_ResultTextArea.setText(m_ourVersionText.getText()));
-        m_SelectedBranchScrollPane.setOnMouseClicked(event -> m_ResultTextArea.setText(m_SelectedBranchText.getText()));
-        m_BaseVersionScrollPane.setOnMouseClicked(event -> m_ResultTextArea.setText(m_BaseVersionText.getText()));
+        m_BranchesListView.setItems(m_TopController.GetActiveBranchesNameList());
     }
 
     private void createCommitMerge(String selectedBranchName)
@@ -96,8 +84,7 @@ public class MergeController
     {
         try
         {
-            m_ConflictingItems.remove(m_ConflictsListView.getSelectionModel().getSelectedItems().get(0));
-
+            m_ConflictsNameList.remove(m_BranchesListView.getSelectionModel().getSelectedItems().get(0));
 
             m_TopController.CreateChosenBlobInWC(m_ResultTextArea.getText(), m_CurrentConflictingItem);
         } catch (IOException e)
@@ -140,11 +127,31 @@ public class MergeController
 
                 } else
                 { //not FF
+                    m_ConflictsNameList = GetAllConflictsNames();
+                    m_ConflictsListView.setItems(GetAllConflictsNames());
+                    initAllMergeComponents();
 
-                    //m_ConflictsListView.setItems(this.m_TopController.GetConflictItemsNames());
                 }
             }
         }
+    }
+
+    private void initAllMergeComponents() {
+        m_ConflictsNameList.addListener((ListChangeListener<String>) c ->
+        {
+            if(m_ConflictsNameList.isEmpty())
+            {
+                createCommitMerge(m_BranchesListView.getSelectionModel().getSelectedItems().get(0));
+            }
+        });
+
+        m_OurVersionScrollPane.setOnMouseClicked(event -> m_ResultTextArea.setText(m_ourVersionText.getText()));
+        m_SelectedBranchScrollPane.setOnMouseClicked(event -> m_ResultTextArea.setText(m_SelectedBranchText.getText()));
+        m_BaseVersionScrollPane.setOnMouseClicked(event -> m_ResultTextArea.setText(m_BaseVersionText.getText()));
+    }
+
+    private ObservableList<String> GetAllConflictsNames() {
+        return m_TopController.GetAllConflictsNames();
     }
 
     private boolean isHeadBranchSelected(String i_selectedItem)
