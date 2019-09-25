@@ -1,9 +1,7 @@
 package repository.top;
 
-import Objects.Item;
 import Objects.branch.Branch;
 import System.FolderDifferences;
-import System.MergeConflictsAndMergedItems;
 import common.MAGitResourceConstants;
 import common.MAGitUtils;
 import common.constants.StringConstants;
@@ -27,6 +25,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
+import System.ConflictingItems;
 
 public class TopController
 {
@@ -67,6 +66,10 @@ public class TopController
     private List<Branch> m_AllBranches;
     private ObservableList<MenuItem> m_BranchesListMenuBar;
     private ObservableList<Text> m_BranchesList;
+
+    public  ObservableList<String> GetAllConflictsNames() {
+        return m_RepositoryController.GetAllConflictsNames();
+    }
 
 
     public void SetRepositoryController(RepositoryController i_RepositoryController)
@@ -553,9 +556,9 @@ public class TopController
         m_RepositoryController.SetConflictsForMergeInRepository(i_selectedBranchNameToMerge);
     }
 
-    public ObservableList<String> GetBranchNameList()
+    public ObservableList<String> GetActiveBranchesNameList()
     {
-        return FXCollections.observableList(this.m_RepositoryController.getCurrentRepository().getBranchNameList());
+        return FXCollections.observableList(this.m_RepositoryController.getCurrentRepository().getActiveBranchesNameList());
     }
 
     public boolean isHeadBranch(String i_BranchName)
@@ -564,19 +567,23 @@ public class TopController
 
     }
 
-    public boolean IsFastForwardCase() {
+    public boolean IsFastForwardCase()
+    {
         return this.m_RepositoryController.IsFastForwardCase();
     }
 
-    public boolean IsPulledAncestorOfPulling() {
+    public boolean IsPulledAncestorOfPulling()
+    {
         return this.m_RepositoryController.IsPulledAncestorOfPulling();
     }
 
-/*    public ObservableList<String> GetConflictItemsNames() {
-        return this.m_RepositoryController.GetConflictItemsNames();
+    public ConflictingItems getConflictingItemsByName(String conflictingItemName)
+    {
+        return m_RepositoryController.getConflictingItemsByName(conflictingItemName);
     }
 
-    public String GetPullingVersionOfConflictContent(String i_ConflictingItem) {
-        return this.m_RepositoryController.GetPullingVersionOfConflictDetails(i_ConflictingItem);
-    }*/
+    public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
+    {
+        m_RepositoryController.CreateChosenBlobInWC(blobText, currentConflictingItem);
+    }
 }

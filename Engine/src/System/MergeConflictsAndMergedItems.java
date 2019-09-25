@@ -3,9 +3,11 @@ package System;
 import Objects.Blob;
 import Objects.Commit;
 import Objects.Item;
+import common.MagitFileUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,17 +111,29 @@ public class MergeConflictsAndMergedItems {
     public ObservableList<String> GetConflictItemsNames() {
         List<String> conflictNamesList = new ArrayList<>();
         m_conflictItems.forEach(conflictingItem -> {
-            conflictNamesList.add(conflictingItem.m_PullingItem.getName());
+            Blob ourBlob = conflictingItem.m_OurBlob;
+            if (ourBlob != null)
+                conflictNamesList.add(ourBlob.getName());
+            else{
+                if(conflictingItem.m_TheirBlob!=null);
+                conflictNamesList.add(conflictingItem.m_TheirBlob.getName());
+            }
         });
         return FXCollections.observableList(conflictNamesList);
     }
 
     public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
         ConflictingItems conflicting = getConflictingItemByName(i_conflictingItem);
-        return conflicting.m_PullingItem;
+        return conflicting.m_OurBlob;
     }
 
-    private ConflictingItems getConflictingItemByName(String i_conflictingItem) {
+    public ConflictingItems getConflictingItemByName(String i_conflictingItem) {
         return m_conflictItems.stream().filter(item -> item.getName().equals(i_conflictingItem)).findFirst().orElse(null);
+    }
+
+    public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException {
+        Blob chosenBlob = currentConflictingItem.getBlobByContent(blobText);
+
+        MagitFileUtils.WritingFileByPath(chosenBlob.GetPath().toString(), chosenBlob.getContent());
     }
 }

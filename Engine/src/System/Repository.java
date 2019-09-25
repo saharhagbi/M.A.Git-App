@@ -6,12 +6,8 @@ import Objects.Folder;
 import Objects.Item;
 import Objects.branch.Branch;
 import common.MagitFileUtils;
-import common.constants.ResourceUtils;
-import javafx.collections.ObservableList;
-import org.apache.commons.io.FileUtils;
-
 import common.constants.StringConstants;
-
+import javafx.collections.ObservableList;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -37,14 +33,13 @@ public class Repository
     public static final String sf_txtExtension = ".txt";
     protected Branch m_ActiveBranch;
     protected List<Branch> m_Branches = null;
+    private MergeConflictsAndMergedItems m_ConflictsAndItems = null;
     private Path m_RepositoryPath;
     private String m_RepositoryName;
     private Path m_ObjectsFolderPath;
     private Path m_BranchesFolderPath;
     private Path m_TempFolderPath;
     private Map<String, Commit> m_AllCommitsSHA1ToCommit = new HashMap<String, Commit>();
-    public MergeConflictsAndMergedItems m_ConflictsAndItems = null;
-
 
     public Repository(Path i_RepositoryPath, String i_RepositoryName, Branch i_ActiveBranch)
     {
@@ -62,6 +57,7 @@ public class Repository
         settingAllPathsInRepository(i_RepositoryPath);
 
     }
+
 
     public Repository(Branch i_ActiveBranch, Path i_RepositoryPath, String i_RepositoryName, List<Branch> i_AllBranches,
                       Map<String, Commit> i_AllCommitsRepository)
@@ -140,6 +136,7 @@ public class Repository
         String prevCommitSha1 = null;
         if (this.m_ActiveBranch.getPointedCommit() != null) // if its the first time commiting then there is no pointed commit yet
             prevCommitSha1 = this.m_ActiveBranch.getPointedCommit().getSHA1();
+
         String CommitSha1 = Commit.createSha1ForCommit(i_RootFolder, prevCommitSha1, "null", i_CommitMessage, i_User, date);
         Commit theNewCommit = new Commit(i_RootFolder, CommitSha1, this.m_ActiveBranch.getPointedCommit(), null, i_CommitMessage, i_User, date);
         m_AllCommitsSHA1ToCommit.put(CommitSha1, theNewCommit);
@@ -148,7 +145,6 @@ public class Repository
 
     public FolderDifferences CreateNewCommitAndUpdateActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
     {
-
         FolderDifferences differencesBetweenLastAndCurrentCommit = null;
         if (Folder.isDirEmpty(m_RepositoryPath))
         {
@@ -532,10 +528,10 @@ public class Repository
         return allBranchesNameBuilder.toString();
     }
 
-    public List<String> getBranchNameList()
+    public List<String> getActiveBranchesNameList()
     {
         List<String> branchNameList = new ArrayList<>();
-        this.getAllBranches().forEach(branch -> branchNameList.add(branch.getBranchName()));
+        this.getActiveBranches().forEach(branch -> branchNameList.add(branch.getBranchName()));
         return branchNameList;
     }
 
@@ -558,16 +554,23 @@ public class Repository
         return null;
     }
 
-    public void SetMergeConflictsInstance(MergeConflictsAndMergedItems i_mergeConflictsAndMergedItems) {
+    public void SetMergeConflictsInstance(MergeConflictsAndMergedItems i_mergeConflictsAndMergedItems)
+    {
         m_ConflictsAndItems = i_mergeConflictsAndMergedItems;
     }
 
-    public MergeConflictsAndMergedItems getConflictsInstance() {
+    public MergeConflictsAndMergedItems getConflictsItemsAndNames()
+    {
         return m_ConflictsAndItems;
     }
 
-    public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
+    public Item GetPullingVersionOfConflictDetails(String i_conflictingItem)
+    {
         return m_ConflictsAndItems.GetPullingVersionOfConflictDetails(i_conflictingItem);
+    }
+
+    public ObservableList<String> GetAllConflictsNames() {
+        return m_ConflictsAndItems.GetConflictItemsNames();
     }
 }
 

@@ -14,6 +14,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
 <SplitPane dividerPositions="0.29797979797979796" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="701.0" prefWidth="1316.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="repository.top.merge.MergeController">
@@ -31,7 +32,7 @@
               </rowConstraints>
                <children>
                   <ListView fx:id="m_ConflictsListView" maxWidth="1.7976931348623157E308" onMouseClicked="#conflictChose_OnClick" prefHeight="699.0" prefWidth="327.0" />
-                  <Button fx:id="chooseBranchBtn" mnemonicParsing="false" onAction="#ChooseBranchBtn_OnClick" prefHeight="105.0" prefWidth="327.0" text="Choose Branch for Merge" GridPane.rowIndex="1" />
+                  <Button fx:id="m_ChooseBranchBtn" mnemonicParsing="false" onAction="#ChooseBranchBtn_OnClick" prefHeight="105.0" prefWidth="327.0" text="Choose Branch for Merge" GridPane.rowIndex="1" />
                   <ListView fx:id="m_BranchesListView" prefHeight="230.0" prefWidth="327.0" GridPane.rowIndex="2" />
                </children>
             </GridPane>
@@ -53,24 +54,29 @@
                             <RowConstraints maxHeight="241.0" minHeight="10.0" prefHeight="241.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="our version" wrappingWidth="258.6708984375" />
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Base version" wrappingWidth="260.6708984375" GridPane.columnIndex="1" />
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="selected branch version" wrappingWidth="259.6708984375" GridPane.columnIndex="2" />
-                              <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                 <children>
-                                    <ScrollPane prefHeight="241.0" prefWidth="270.0">
-                                       <content>
-                                          <Text fx:id="m_BaseVersionText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="267.6708984375" />
-                                       </content>
-                                    </ScrollPane>
-                                 </children>
-                              </HBox>
-                              <ScrollPane prefHeight="241.0" prefWidth="233.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Our version" textAlignment="CENTER" wrappingWidth="258.6708984375">
+                                 <font>
+                                    <Font size="19.0" />
+                                 </font></Text>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Base version" textAlignment="CENTER" wrappingWidth="260.6708984375" GridPane.columnIndex="1">
+                                 <font>
+                                    <Font size="19.0" />
+                                 </font></Text>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Selected branch version" textAlignment="CENTER" wrappingWidth="259.6708984375" GridPane.columnIndex="2">
+                                 <font>
+                                    <Font size="19.0" />
+                                 </font></Text>
+                              <ScrollPane fx:id="m_BaseVersionScrollPane" prefHeight="241.0" prefWidth="270.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                  <content>
-                                    <Text fx:id="m_TheirVersionText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="267.6708984375" />
+                                    <Text fx:id="m_BaseVersionText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="267.6708984375" />
                                  </content>
                               </ScrollPane>
-                              <ScrollPane prefHeight="241.0" prefWidth="291.0" GridPane.rowIndex="1">
+                              <ScrollPane fx:id="m_SelectedBranchScrollPane" prefHeight="241.0" prefWidth="233.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                 <content>
+                                    <Text fx:id="m_SelectedBranchText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="267.6708984375" />
+                                 </content>
+                              </ScrollPane>
+                              <ScrollPane fx:id="m_OurVersionScrollPane" prefHeight="241.0" prefWidth="291.0" GridPane.rowIndex="1">
                                  <content>
                                     <Text fx:id="m_ourVersionText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="267.6708984375" />
                                  </content>
@@ -91,7 +97,7 @@
                   </HBox>
                   <HBox prefHeight="308.0" prefWidth="1220.0">
                      <children>
-                        <TextArea fx:id="resultTextArea" prefHeight="263.0" prefWidth="518.0" />
+                        <TextArea fx:id="m_ResultTextArea" prefHeight="263.0" prefWidth="518.0" />
                         <Region prefHeight="258.0" prefWidth="41.0" />
                         <VBox>
                            <children>
