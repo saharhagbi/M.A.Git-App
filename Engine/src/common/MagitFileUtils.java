@@ -96,7 +96,6 @@ public class MagitFileUtils
         while (lineScanner.hasNext())
         {
             textFileLines.add(lineScanner.nextLine());
-
         }
         return textFileLines;
     }
@@ -141,6 +140,4 @@ public class MagitFileUtils
 
         WritingFileByPath(file.getAbsolutePath(), contentToWrite);
     }
-
-
 }

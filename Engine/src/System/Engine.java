@@ -51,19 +51,6 @@ public class Engine
         tempFolderPath.toFile().mkdir();
     }
 
-    public static String ReadLineByLine(File i_file) throws Exception
-    {
-        try
-        {
-            String content = new String(Files.readAllBytes(Paths.get(i_file.getAbsolutePath())), StandardCharsets.UTF_8);
-            return content;
-
-        } catch (IOException e)
-        {
-            throw new Exception("Exception was occured, problem in reading file:" + i_file.getName());
-        }
-    }
-
     public void UpdateNewUserInSystem(String i_UserName)
     {
         if (m_User == null)
@@ -636,7 +623,7 @@ public class Engine
     public void SetConflictsForMergeInRepository(String i_pushingBranchName) throws Exception
     {
         Branch pushingBranch = this.getCurrentRepository().getBranchByName(i_pushingBranchName);
-        MergeConflictsAndMergedItems mergeConflictsAndMergedItems = getCurrentRepository().getActiveBranch().GetConflictsForMerge(pushingBranch, m_CurrentRepository.getRepositoryPath(), createMapOfCommits(this.getCurrentRepository().GetObjectsFolderPath()));
+        MergeConflictsAndMergedItems mergeConflictsAndMergedItems = getCurrentRepository().getActiveBranch().GetConflictsForMerge(pushingBranch, getCurrentRepository().getRepositoryPath(), createMapOfCommits(this.getCurrentRepository().GetObjectsFolderPath()));
         setMergeConflictsInstance(mergeConflictsAndMergedItems);
     }
 
@@ -656,7 +643,6 @@ public class Engine
             Branch pushingBranch = this.getCurrentRepository().getBranchByName(i_pushingBranchName);
             return getCurrentRepository().getActiveBranch().GetConflictsForMerge(pushingBranch, getCurrentRepository().getRepositoryPath(),
                     getCurrentRepository().getAllCommitsSHA1ToCommit());
-
         }
     }
 

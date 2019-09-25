@@ -63,7 +63,7 @@ public class MergeController
 
     private void createCommitMerge(String selectedBranchName) throws Exception
     {
-        MAGitUtils.CloseCurrentStageByControl(m_DeleteFileButton);
+        MAGitUtils.GetStage(m_DeleteFileButton).close();
 
         String commitMessage = MAGitUtils.GetString("Enter your commit message: ",
                 "Message: ", StringConstants.COMMIT);
@@ -104,8 +104,6 @@ public class MergeController
     @FXML
     void ChooseBranchBtn_OnClick(ActionEvent actionEvent) throws Exception
     {
-        m_ChooseBranchBtn.setDisable(true);
-
         if (noItemWasChosen())
         {
             MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Merge ERROR", "Please Choose a Branch To merge first", "");
@@ -114,7 +112,7 @@ public class MergeController
             String selectedItem = m_BranchesListView.getSelectionModel().getSelectedItems().get(0);
             if (isHeadBranchSelected(selectedItem))
             {
-                MAGitUtils.CloseCurrentStageByControl(m_DeleteFileButton);
+                MAGitUtils.GetStage(m_DeleteFileButton).close();
             } else
             {
                 //MergeConflictsAndMergedItems conflicts = this.m_TopController.SetConflictsForMergeInRepository(selectedItem);
@@ -131,9 +129,10 @@ public class MergeController
                     {// HEAD branch is Ancestor of chosen branch
                         MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Merge - Fast Forward", "This is a Fast Forward Merge - HEAD branch is Ancestor of selected branch", "HEAD branch will point to the same commit as selected branch");
                     }
-
+                    MAGitUtils.GetStage(m_DeleteFileButton).close();
                 } else
                 { //not FF
+                    m_ChooseBranchBtn.setDisable(true);
                     m_ConflictsNameList = GetAllConflictsNames();
 
                     loadConflictsView();
