@@ -49,9 +49,9 @@ public class Commit implements CommitRepresentative {
 
     public static MergeConflictsAndMergedItems GetConflictsForMerge(Commit i_PullingCommit, Commit i_PulledCommit, Path i_RepositoryPath, Map<String, Commit> i_allCommitsMap) throws Exception {
         if (isRightAncestorOfLeft(i_PulledCommit, i_PullingCommit))// first case of FF
-            return new MergeConflictsAndMergedItems(null, null, true, i_PulledCommit, true, false);
+            return new MergeConflictsAndMergedItems(null, null, true, i_PulledCommit, true, false, null, null, null);
         else if (isRightAncestorOfLeft(i_PullingCommit, i_PulledCommit))
-            return new MergeConflictsAndMergedItems(null, null, true, i_PullingCommit, false, true);
+            return new MergeConflictsAndMergedItems(null, null, true, i_PullingCommit, false, true, null, null, null);
         else {
             Set<Item> mergedItems = new HashSet<Item>();
             HashSet<ConflictingItems> conflictItems = new HashSet<ConflictingItems>();
@@ -97,7 +97,13 @@ public class Commit implements CommitRepresentative {
 
                 }
             });
-            return new MergeConflictsAndMergedItems(mergedItems, conflictItems, false, null, null, null);
+            return new MergeConflictsAndMergedItems(mergedItems,
+                    conflictItems,
+                    false,
+                    null,
+                    null,
+                    null,
+                    mapOfRelativePathToItemPullingRootFolder,mapOfRelativePathToItemPulledRootFolder,mapOfRelativePathToItemAncestorRootFolder);
         }
     }
 

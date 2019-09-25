@@ -6,10 +6,18 @@ public class ConflictingItems {
     Item m_PullingItem;
     Item m_PulledItem;
     Item m_BaseVersionItem;
-    public ConflictingItems(Item i_PullingItem,Item i_PulledItem,Item i_BaseVersionItem)
-    {
+
+    public ConflictingItems(Item i_PullingItem, Item i_PulledItem, Item i_BaseVersionItem) {
         m_PullingItem = i_PullingItem;
         m_PulledItem = i_PulledItem;
         m_BaseVersionItem = i_BaseVersionItem;
+    }
+
+    public String getName() {
+        if (m_PullingItem != null && !m_PullingItem.equals("null")) {
+            return m_PullingItem.getName();
+        } else if (m_PulledItem != null && !m_PulledItem.equals("null"))
+            return m_PulledItem.getName();
+        else return null;
     }
 }

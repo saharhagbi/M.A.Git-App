@@ -1,9 +1,9 @@
 package repository.top;
 
+import Objects.Item;
 import Objects.branch.Branch;
 import System.FolderDifferences;
 import System.MergeConflictsAndMergedItems;
-import collaboration.LocalRepository;
 import common.MAGitResourceConstants;
 import common.MAGitUtils;
 import common.constants.StringConstants;
@@ -552,9 +552,9 @@ public class TopController
         }
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_selectedBranchNameToMerge) throws Exception
+    public void SetConflictsForMergeInRepository(String i_selectedBranchNameToMerge) throws Exception
     {
-        return this.m_RepositoryController.GetConflictsForMerge(i_selectedBranchNameToMerge);
+        m_RepositoryController.SetConflictsForMergeInRepository(i_selectedBranchNameToMerge);
     }
 
     public ObservableList<String> GetBranchNameList()
@@ -566,5 +566,21 @@ public class TopController
     {
         return this.m_RepositoryController.getCurrentRepository().isHeadBranch(i_BranchName);
 
+    }
+
+    public boolean IsFastForwardCase() {
+        return this.m_RepositoryController.IsFastForwardCase();
+    }
+
+    public boolean IsPulledAncestorOfPulling() {
+        return this.m_RepositoryController.IsPulledAncestorOfPulling();
+    }
+
+    public ObservableList<String> GetConflictItemsNames() {
+        return this.m_RepositoryController.GetConflictItemsNames();
+    }
+
+    public Item GetPullingVersionOfConflictDetails(String i_ConflictingItem) {
+        return this.m_RepositoryController.GetPullingVersionOfConflictDetails(i_ConflictingItem);
     }
 }

@@ -7,6 +7,7 @@ import Objects.Item;
 import Objects.branch.Branch;
 import common.MagitFileUtils;
 import common.constants.ResourceUtils;
+import javafx.collections.ObservableList;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -39,6 +40,7 @@ public class Repository
     private Path m_BranchesFolderPath;
     private Path m_TempFolderPath;
     private Map<String, Commit> m_AllCommitsSHA1ToCommit = new HashMap<String, Commit>();
+    public MergeConflictsAndMergedItems m_ConflictsAndItems = null;
 
 
     public Repository(Path i_RepositoryPath, String i_RepositoryName, Branch i_ActiveBranch)
@@ -552,6 +554,18 @@ public class Repository
 
         }
         return null;
+    }
+
+    public void SetMergeConflictsInstance(MergeConflictsAndMergedItems i_mergeConflictsAndMergedItems) {
+        m_ConflictsAndItems = i_mergeConflictsAndMergedItems;
+    }
+
+    public MergeConflictsAndMergedItems getConflictsInstance() {
+        return m_ConflictsAndItems;
+    }
+
+    public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
+        return m_ConflictsAndItems.GetPullingVersionOfConflictDetails(i_conflictingItem);
     }
 }
 

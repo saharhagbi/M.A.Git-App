@@ -30,7 +30,7 @@
                   <RowConstraints maxHeight="355.0" minHeight="0.0" prefHeight="287.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <ListView fx:id="m_ConflictsListView" maxWidth="1.7976931348623157E308" prefHeight="699.0" prefWidth="327.0" />
+                  <ListView fx:id="m_ConflictsListView" onMouseClicked="#conflictChose_OnClick" maxWidth="1.7976931348623157E308"  prefHeight="699.0" prefWidth="327.0" />
                   <Button fx:id="chooseBranchBtn" mnemonicParsing="false" onAction="#ChooseBranchBtn_OnClick" prefHeight="105.0" prefWidth="327.0" text="Choose Branch for Merge" GridPane.rowIndex="1" />
                   <ListView fx:id="m_BranchesListView" prefHeight="230.0" prefWidth="327.0" GridPane.rowIndex="2" />
                </children>

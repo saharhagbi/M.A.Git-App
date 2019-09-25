@@ -559,16 +559,18 @@ public class Engine {
         writer.WriteRemoteTrackingBranch(remoteTrackingBranch, remoteTrackingBranch.getPointedCommit());
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_pushingBranchName) throws Exception {
+    public void SetConflictsForMergeInRepository(String i_pushingBranchName) throws Exception {
         Branch pushingBranch = this.getCurrentRepository().getBranchByName(i_pushingBranchName);
-        if (m_CurrentRepository != null) {
-            return m_CurrentRepository.getActiveBranch().GetConflictsForMerge(pushingBranch, m_CurrentRepository.getRepositoryPath(), createMapOfCommits(this.getCurrentRepository().GetObjectsFolderPath()));
-        } else if (m_CurrentLocalRepository != null) {
-            return m_CurrentLocalRepository.getActiveBranch().GetConflictsForMerge(pushingBranch,
-                    m_CurrentLocalRepository.getRepositoryPath(),
-                    createMapOfCommits(Paths.get(this.m_CurrentLocalRepository.getRepositoryPath().toString() + "\\.magit\\Objects")));
-        } else
-            throw new Exception("no Repository instances");
+        MergeConflictsAndMergedItems mergeConflictsAndMergedItems = getCurrentRepository().getActiveBranch().GetConflictsForMerge(pushingBranch, m_CurrentRepository.getRepositoryPath(), createMapOfCommits(this.getCurrentRepository().GetObjectsFolderPath()));
+        setMergeConflictsInstance(mergeConflictsAndMergedItems);
+    }
+
+    private void setMergeConflictsInstance(MergeConflictsAndMergedItems i_MergeConflictsAndMergedItems) {
+        this.getCurrentRepository().SetMergeConflictsInstance(i_MergeConflictsAndMergedItems);
+    }
+
+    public MergeConflictsAndMergedItems GetConflictsForMerge() {
+        return this.getCurrentRepository().getConflictsInstance();
     }
 }
 

@@ -1,7 +1,7 @@
 package primaryController;
 
 import Objects.Commit;
-import Objects.branch.Branch;
+import Objects.Item;
 import System.Engine;
 import System.FolderDifferences;
 import System.MergeConflictsAndMergedItems;
@@ -12,6 +12,7 @@ import collaboration.Push;
 import collaboration.RemoteBranch;
 import common.constants.NumConstants;
 import common.constants.StringConstants;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import main.MAGitController;
 
@@ -220,9 +221,9 @@ public class PrimaryController
                     "3. There is nothing to push! RR and LR synchronized!");
     }
 
-    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_PushingBranchName) throws Exception
+    public void SetConflictsForMergeInRepository(String i_PushingBranchName) throws Exception
     {
-        return m_Engine.GetConflictsForMerge(i_PushingBranchName);
+        m_Engine.SetConflictsForMergeInRepository(i_PushingBranchName);
     }
 
     public boolean IsLocalRepository()
@@ -238,5 +239,21 @@ public class PrimaryController
     public void CreateRTB(Commit commit, String branchName) throws IOException
     {
         m_Engine.CreateRTB(commit, branchName);
+    }
+
+    public boolean IsFastForwardCase() {
+        return m_Engine.GetConflictsForMerge().IsFastForwardCase();
+    }
+
+    public boolean IsPulledAncestorOfPulling() {
+        return m_Engine.getCurrentRepository().m_ConflictsAndItems.IsPulledAncestorOfPulling();
+    }
+
+    public ObservableList<String> GetConflictItemsNames() {
+        return m_Engine.getCurrentRepository().m_ConflictsAndItems.GetConflictItemsNames();
+    }
+
+    public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
+        return m_Engine.getCurrentRepository().GetPullingVersionOfConflictDetails(i_conflictingItem);
     }
 }
