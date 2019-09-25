@@ -2,6 +2,8 @@ package common;
 
 import common.constants.NumConstants;
 import common.constants.ResourceUtils;
+import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -131,4 +133,14 @@ public class MagitFileUtils
             throw new Exception("Exception was occured, problem in reading file:" + i_file.getName());
         }
     }
+
+    public static void WritingStringInFileWholePath(String filepath, String contentToWrite) throws IOException
+    {
+        File file = new File(filepath);
+        file.getParentFile().mkdirs();
+
+        WritingFileByPath(file.getAbsolutePath(), contentToWrite);
+    }
+
+
 }

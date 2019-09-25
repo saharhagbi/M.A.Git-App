@@ -78,18 +78,19 @@ public class LocalRepository extends Repository
         this.m_RemoteBranches.add(remoteBranch);
     }
 
-    public void FindAndSetActiveBranch(String activeBranchName)
+    public Branch FindBranchInActiveBranchesByName(String branchName)
     {
-        Predicate<Branch> predicate = branch -> branch.getBranchName().equals(activeBranchName);
+        Predicate<Branch> predicate = branch -> branch.getBranchName().equals(branchName);
 
-        //check if can replace two statements with statement below woth predicate
-        m_ActiveBranch = findRemoteTrackingBranchByPredicate(remoteTrackingBranch ->
-                remoteTrackingBranch.getBranchName().equals(activeBranchName));
+        Branch branchToReturn;
 
-        if (m_ActiveBranch == null)
-        {
-            m_ActiveBranch = findBranchByPredicate(predicate);
-        }
+        branchToReturn = findRemoteTrackingBranchByPredicate(remoteTrackingBranch ->
+                remoteTrackingBranch.getBranchName().equals(branchName));
+
+        if (branchToReturn == null)
+            branchToReturn = findBranchByPredicate(predicate);
+
+        return branchToReturn;
     }
 
     public RemoteBranch findRemoteBranchBranchByPredicate(Predicate<RemoteBranch> predicate)

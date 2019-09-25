@@ -157,7 +157,7 @@ public class TopController
         String commitMessage = futureTask.get();
 
         //commitMessage = MAGitUtils.GetString("Enter your commit message please", "Message:", StringConstants.COMMIT);
-        m_RepositoryController.CommitChanges(commitMessage);
+        m_RepositoryController.CommitChanges(commitMessage, null);
     }
 
     @FXML
@@ -585,5 +585,10 @@ public class TopController
     public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
     {
         m_RepositoryController.CreateChosenBlobInWC(blobText, currentConflictingItem);
+    }
+
+    public void CreateCommitMerge(String commitMessage, String selectedBranchName) throws Exception
+    {
+        m_RepositoryController.CreateCommitMerge(commitMessage, selectedBranchName);
     }
 }

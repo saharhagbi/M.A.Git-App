@@ -90,8 +90,8 @@ public class RepositoryController {
         return m_MagitController.IsFirstCommit();
     }
 
-    public void CommitChanges(String i_CommitMessage) throws Exception {
-        m_MagitController.CommitChanges(i_CommitMessage);
+    public void CommitChanges(String i_CommitMessage, Commit prevSecondCommit) throws Exception {
+        m_MagitController.CommitChanges(i_CommitMessage, prevSecondCommit);
     }
 
     public FolderDifferences ShowStatus() throws Exception {
@@ -289,5 +289,10 @@ public class RepositoryController {
 
     public ObservableList<String> GetAllConflictsNames() {
         return m_MagitController.GetAllConflictsNames();
+    }
+
+    public void CreateCommitMerge(String commitMessage, String selectedBranchName) throws Exception
+    {
+        m_MagitController.CreateCommitMerge(commitMessage, selectedBranchName);
     }
 }

@@ -75,9 +75,9 @@ public class Engine
         }
     }
 
-    public void CommitInCurrentRepository(String i_CommitMessage) throws Exception
+    public void CommitInCurrentRepository(String i_CommitMessage, Commit prevSecondCommit) throws Exception
     {
-        getCurrentRepository().CreateNewCommitAndUpdateActiveBranch(m_User, i_CommitMessage);
+        getCurrentRepository().CreateNewCommitAndUpdateActiveBranch(m_User, i_CommitMessage, prevSecondCommit);
     }
 
     public void CreateNewRepository(Path i_PathToRootFolderOfRepository, String i_RepositoryName) throws Exception
@@ -233,7 +233,7 @@ public class Engine
         m_CurrentLocalRepository = new LocalRepository(null, Paths.get(repositoryPath), nameOfRepository, branches, allCommits,
                 remoteTrackingBranches, remoteBranches, remoteRepositoryRef);
 
-        m_CurrentLocalRepository.FindAndSetActiveBranch(activeBranchName);
+        m_CurrentLocalRepository.setActiveBranch(m_CurrentLocalRepository.FindBranchInActiveBranchesByName(activeBranchName));
     }
 
     private void createAllBranches(String repositoryPath, List<Branch> branches, List<RemoteBranch> remoteBranches, String remoteRepoName,
@@ -485,8 +485,6 @@ public class Engine
         getCurrentRepository().getActiveBranch().setPointedCommit(commitRequested);
 
         removeFilesFromWCAndSpanNewCommitInActiveBranch();
-
-//        CheckOut(m_CurrentRepository.getActiveBranch().getBranchName());
     }
 
     private void checkIfSHA1CommitExist(String i_Sha1OfCommit) throws Exception
@@ -670,5 +668,22 @@ public class Engine
     public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
     {
         getCurrentRepository().getConflictsItemsAndNames().CreateChosenBlobInWC(blobText, currentConflictingItem);
+    }
+
+    public void CreateCommitMerge(String commitMessage, String selectedBranchName) throws Exception
+    {
+        Branch selectedBranch;
+
+        if (IsLocalRepository())
+        {
+            LocalRepository localRepository = (LocalRepository) getCurrentRepository();
+            selectedBranch = localRepository.FindBranchInActiveBranchesByName(selectedBranchName);
+        } else
+        {
+            selectedBranch = getCurrentRepository().findBranchByPredicate(branch ->
+                    branch.getBranchName().equals(selectedBranchName));
+        }
+
+        CommitInCurrentRepository(commitMessage, selectedBranch.getPointedCommit());
     }
 }
