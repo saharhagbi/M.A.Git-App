@@ -25,10 +25,7 @@ public class Fetch
         m_Engine = i_Engine;
         m_CurrentLocalRepository = i_CurrentLocalRepository;
         m_AllCommitsInLocal = m_CurrentLocalRepository.getAllCommitsSHA1ToCommit();
-    /*}
 
-    public void Fetch() throws Exception
-    {*/
         RemoteRepositoryRef remoteRepositoryRef = m_CurrentLocalRepository.getRemoteRepoRef();
 
         m_Engine.PullAnExistingRepository(remoteRepositoryRef.getRepoPath().toString(),
@@ -36,7 +33,13 @@ public class Fetch
 
         m_RemoteRepositoryToFetchFrom = m_Engine.getCurrentRepository();
 
-//        fetchAllObjects(repository);
+        reassignValuesOfRepositories();
+    }
+
+    private void reassignValuesOfRepositories()
+    {
+        m_Engine.setCurrentLocalRepository(m_CurrentLocalRepository);
+        m_Engine.setCurrentRepository(null);
     }
 
     public Repository getRemoteRepositoryToFetchFrom()

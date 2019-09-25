@@ -293,7 +293,7 @@ public class Folder extends Item
                 } else
                 {
                     String sha1 = createSHA1ForTextFile(file);
-                    Blob currentBlob = new Blob(file.toPath(), sha1, Blob.ReadLineByLine(file),
+                    Blob currentBlob = new Blob(file.toPath(), sha1, MagitFileUtils.GetContentFile(file),
                             Item.TypeOfFile.BLOB, i_CurrentUser, new Date(), file.getName());
                     allItemsInCurrentFolder.add(currentBlob);
                 }
@@ -326,7 +326,7 @@ public class Folder extends Item
 
     private static String createSHA1ForTextFile(File i_File) throws Exception
     {
-        String stringForSha1 = Blob.ReadLineByLine(i_File);
+        String stringForSha1 = MagitFileUtils.GetContentFile(i_File);
 
         return DigestUtils.sha1Hex(stringForSha1);
     }

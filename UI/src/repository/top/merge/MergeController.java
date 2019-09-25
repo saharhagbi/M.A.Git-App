@@ -11,22 +11,21 @@ import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import repository.top.TopController;
 
+import javax.xml.soap.Text;
+
 public class MergeController {
     @FXML
     private ListView<String> m_ConflictsListView;
     @FXML
-    private ListView<String> m_ourVersionListView;
+    private Text m_ourVersionText;
     @FXML
-    private ListView<String> m_BaseVersionListView;
+    private Text m_TheirVersionText;
+    @FXML
+    private Text m_BaseVersionText;
     @FXML
     private ListView<String> m_SelectedBranchListView;
-
     @FXML
-    private TextArea m_AncestorTextArea;
-    @FXML
-    private TextArea m_TheirTextArea;
-    @FXML
-    private TextArea m_ResultTextArea;
+    private Text m_TheirText;
     @FXML
     private Button m_TakeResultVersionButton;
     @FXML
@@ -74,7 +73,7 @@ public class MergeController {
 
                 } else { //not FF
 
-                    m_ConflictsListView.setItems(this.m_TopController.GetConflictItemsNames());
+                    //m_ConflictsListView.setItems(this.m_TopController.GetConflictItemsNames());
                 }
             }
         }
@@ -94,8 +93,8 @@ public class MergeController {
     public void conflictChose_OnClick(MouseEvent mouseEvent) {
         String conflictingItem = m_ConflictsListView.getSelectionModel().getSelectedItems().get(0);
 
-        Item pullingItem = this.m_TopController.GetPullingVersionOfConflictDetails(conflictingItem);
-        //m_ourVersionListView.setItems(pullingItemDetails);
+        //Item pullingItem = this.m_TopController.GetPullingVersionOfConflict(conflictingItem);
+        //m_ourVersionListView.setItems(pullingItem.content);
 
         //ObservableList<String> pulledItemDetails = this.m_TopController.GetPulledVersionOfConflictDetails(conflictingItem);
         //m_SelectedBranchListView.setItems(pulledItemDetails);

@@ -12,7 +12,6 @@ import collaboration.Push;
 import collaboration.RemoteBranch;
 import common.constants.NumConstants;
 import common.constants.StringConstants;
-import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import main.MAGitController;
 
@@ -45,10 +44,11 @@ public class PrimaryController
         isXMLRepoExist = m_XMLMain.CheckXMLFile(Paths.get(i_PathToXML));
 
         if (!isXMLRepoExist)
+        {
             m_Engine.setCurrentRepository(
-                    m_XMLMain.ParseAndWriteXML(m_XMLMain.GetXmlRepository())
-            );
-        else
+                    m_XMLMain.ParseAndWriteXML(m_XMLMain.GetXmlRepository()));
+            m_Engine.AssignFitRepository(m_XMLMain.GetXmlRepository(), m_XMLMain);
+        } else
             m_MagitController.handleCurrentRepositoryAlreadyExist(m_XMLMain.GetXmlRepository());
     }
 
@@ -212,8 +212,7 @@ public class PrimaryController
         {
             pusher.Push();
             m_MagitController.UpdateCommitTree();
-        }
-        else
+        } else
             m_MagitController.InformUserMessage(Alert.AlertType.ERROR, "Error!", "Push Invalid!", "Can't push " +
                     "because one of the following reasons:" + System.lineSeparator() +
                     "1. There are open changes in Wc" + System.lineSeparator() +
@@ -249,11 +248,11 @@ public class PrimaryController
         return m_Engine.getCurrentRepository().m_ConflictsAndItems.IsPulledAncestorOfPulling();
     }
 
-    public ObservableList<String> GetConflictItemsNames() {
+/*    public ObservableList<String> GetConflictItemsNames() {
         return m_Engine.getCurrentRepository().m_ConflictsAndItems.GetConflictItemsNames();
     }
 
     public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
         return m_Engine.getCurrentRepository().GetPullingVersionOfConflictDetails(i_conflictingItem);
-    }
+    }*/
 }

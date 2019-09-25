@@ -576,11 +576,11 @@ public class TopController
         return this.m_RepositoryController.IsPulledAncestorOfPulling();
     }
 
-    public ObservableList<String> GetConflictItemsNames() {
+/*    public ObservableList<String> GetConflictItemsNames() {
         return this.m_RepositoryController.GetConflictItemsNames();
     }
 
-    public Item GetPullingVersionOfConflictDetails(String i_ConflictingItem) {
+    public String GetPullingVersionOfConflictContent(String i_ConflictingItem) {
         return this.m_RepositoryController.GetPullingVersionOfConflictDetails(i_ConflictingItem);
-    }
+    }*/
 }

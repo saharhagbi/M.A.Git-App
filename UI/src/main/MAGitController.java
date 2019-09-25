@@ -247,11 +247,11 @@ public class MAGitController
         return this.m_PrimaryController.IsPulledAncestorOfPulling();
     }
 
-    public ObservableList<String> GetConflictItemsNames() {
+  /*  public ObservableList<String> GetConflictItemsNames() {
         return this.m_PrimaryController.GetConflictItemsNames();
     }
 
     public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
         return this.m_PrimaryController.GetPullingVersionOfConflictDetails(i_conflictingItem);
-    }
+    }*/
 }

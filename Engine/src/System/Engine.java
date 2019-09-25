@@ -13,6 +13,7 @@ import common.Enums;
 import common.MagitFileUtils;
 import common.constants.NumConstants;
 import common.constants.ResourceUtils;
+import common.constants.StringConstants;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -172,23 +173,20 @@ public class Engine {
         }
         Path branchFolderPath = Paths.get(repositoryPath.toString() + "\\.magit\\Branches");
 
-        // Path objectsFolderPath = Paths.get(repositoryPath.toString() + "\\.magit\\Objects");
-
         Path HEAD = Paths.get(branchFolderPath.toString() + "\\HEAD.txt");
-        String activeBranchName = Engine.ReadLineByLine(HEAD.toFile());
-        //  Path activeBranchPath = Paths.get(branchFolderPath.toString() + "\\" + activeBranchName + ".txt");
+        String activeBranchName = MagitFileUtils.GetContentFile(HEAD.toFile());
 
-        if (MagitFileUtils.IsFolderExist(branchFolderPath))
+
+        if (MagitFileUtils.IsFolderExist(branchFolderPath))// folder of remote branches ---> that means this is local repository
             createLocalRepository(i_repositoryPathAsString, activeBranchName, i_NameOfRepository);
         else {
-            List<Branch> allBranches = Branch.GetAllBranches(branchFolderPath);
+            Map<String, Commit> allCommitsInRepositoryMap = createMapOfCommits(Paths.get(i_repositoryPathAsString + ResourceUtils.AdditinalPathObjects));
+            List<Branch> allBranches = Branch.GetAllBranches(branchFolderPath, allCommitsInRepositoryMap);
             activeBranch = Branch.GetHeadBranch(allBranches, activeBranchName);
-            Map<String, Commit> allCommitsInRepositoryMap = createMapOfCommits(Paths.get(repositoryPath.toString() + ResourceUtils.AdditinalPathObjects));
-            //repository = new Repository(activeBranch, repositoryPath, i_NameOfRepository, allBranches);-
+
             repository = new Repository(activeBranch.get(), repositoryPath, i_NameOfRepository, allBranches, allCommitsInRepositoryMap);
             this.m_CurrentRepository = repository;
             m_CurrentLocalRepository = null;
-            this.m_CurrentRepository.setActiveBranch(activeBranch.get());
         }
     }
 
@@ -340,16 +338,20 @@ public class Engine {
 
         if (!tempFileForCheckingExistence.exists())
             throw new Exception("Error! Branch doesnt exist!");
-        else {
+        else
             deleteBranch(tempFileForCheckingExistence, i_BranchNameToErase);
-        }
     }
 
     private void deleteBranch(File i_TempFileForCheckingExistence, String i_BranchNameToErase) {
-        //TODO:
-        // SOLVE THIS METHOD
         i_TempFileForCheckingExistence.delete();
-        getCurrentRepository().getAllBranches().removeIf(branch -> branch.getBranchName().equals(i_BranchNameToErase));
+
+        if (IsLocalRepository()) {
+            LocalRepository localRepository = (LocalRepository) getCurrentRepository();
+            localRepository.getRemoteTrackingBranches().removeIf(branch -> branch.getBranchName().equals(i_BranchNameToErase));
+            localRepository.getRegularBranches().removeIf(branch -> branch.getBranchName().equals(i_BranchNameToErase));
+
+        } else
+            getCurrentRepository().getAllBranches().removeIf(branch -> branch.getBranchName().equals(i_BranchNameToErase));
     }
 
     public void RemoveTempFolder() throws IOException {
@@ -377,7 +379,7 @@ public class Engine {
             case 1:
                 Folder.DeleteDirectory(i_MagitRepository.getLocation());
                 m_CurrentRepository = i_XmlMain.ParseAndWriteXML(i_MagitRepository);
-                assignFitRepository(i_MagitRepository, i_XmlMain);
+                AssignFitRepository(i_MagitRepository, i_XmlMain);
                 break;
 
             case 2:
@@ -386,7 +388,7 @@ public class Engine {
         }
     }
 
-    public void assignFitRepository(MagitRepository i_MagitRepository, XMLMain i_XmlMain) {
+    public void AssignFitRepository(MagitRepository i_MagitRepository, XMLMain i_XmlMain) {
         if (i_XmlMain.IsLocalRepository(i_MagitRepository)) {
             m_CurrentLocalRepository = (LocalRepository) m_CurrentRepository;
             m_CurrentRepository = null;
@@ -417,10 +419,14 @@ public class Engine {
 
         String branchFilePath = getCurrentRepository().getBranchesFolderPath().toString()
                 + Repository.sf_Slash
-                + m_CurrentRepository.getActiveBranch().getBranchName()
+                + getCurrentRepository().getActiveBranch().getBranchName()
                 + Repository.sf_txtExtension;
 
-        MagitFileUtils.OverwriteContentInFile(commitRequested.getSHA1(), branchFilePath);
+        String contentToWrite = MagitFileUtils.IsRemoteTrackingBranch(new File(branchFilePath)) ?
+                commitRequested.getSHA1() + System.lineSeparator() + StringConstants.TRUE :
+                commitRequested.getSHA1();
+
+        MagitFileUtils.OverwriteContentInFile(contentToWrite, branchFilePath);
 
         getCurrentRepository().getActiveBranch().setPointedCommit(commitRequested);
 
@@ -495,23 +501,24 @@ public class Engine {
         });
     }
 
+    public void setCurrentLocalRepository(LocalRepository m_CurrentLocalRepository) {
+        this.m_CurrentLocalRepository = m_CurrentLocalRepository;
+    }
+
     public void Fetch() throws Exception {
         Fetch fetcher = new Fetch(this, m_CurrentLocalRepository);
         fetcher.FetchAllObjects();
-
-        //fetch assign null to localrepo, so reassgin original values
-        reassignValuesOfRepositories(fetcher);
     }
 
-    public void reassignValuesOfRepositories(Fetch fetcher) {
+    /*public void reassignValuesOfRepositories(Fetch fetcher)
+    {
         m_CurrentLocalRepository = fetcher.getCurrentLocalRepository();
         m_CurrentRepository = null;
-    }
+    }*/
 
     public void Pull() throws Exception {
         Fetch fetcher = new Fetch(this, m_CurrentLocalRepository);
 
-        reassignValuesOfRepositories(fetcher);
         Map<String, Commit> allCommitsInLocal = m_CurrentLocalRepository.getAllCommitsSHA1ToCommit();
 
         Branch activeBranchInRemote = fetcher.getRemoteRepositoryToFetchFrom().getActiveBranch();
@@ -559,6 +566,7 @@ public class Engine {
         writer.WriteRemoteTrackingBranch(remoteTrackingBranch, remoteTrackingBranch.getPointedCommit());
     }
 
+
     public void SetConflictsForMergeInRepository(String i_pushingBranchName) throws Exception {
         Branch pushingBranch = this.getCurrentRepository().getBranchByName(i_pushingBranchName);
         MergeConflictsAndMergedItems mergeConflictsAndMergedItems = getCurrentRepository().getActiveBranch().GetConflictsForMerge(pushingBranch, m_CurrentRepository.getRepositoryPath(), createMapOfCommits(this.getCurrentRepository().GetObjectsFolderPath()));
@@ -572,6 +580,16 @@ public class Engine {
     public MergeConflictsAndMergedItems GetConflictsForMerge() {
         return this.getCurrentRepository().getConflictsInstance();
     }
+
+    public MergeConflictsAndMergedItems GetConflictsForMerge(String i_pushingBranchName) throws Exception {
+        {
+            Branch pushingBranch = this.getCurrentRepository().getBranchByName(i_pushingBranchName);
+            return getCurrentRepository().getActiveBranch().GetConflictsForMerge(pushingBranch, getCurrentRepository().getRepositoryPath(),
+                    getCurrentRepository().getAllCommitsSHA1ToCommit());
+
+        }
+    }
+
 }
 
 

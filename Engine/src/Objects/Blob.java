@@ -1,13 +1,10 @@
 package Objects;
 
 import System.User;
+import common.MagitFileUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Date;
 
 public class Blob extends Item
@@ -25,21 +22,10 @@ public class Blob extends Item
 
     public static String getFileContent(File i_File) throws Exception
     {
-        return ReadLineByLine(i_File);
+        return MagitFileUtils.GetContentFile(i_File);
     }
 
-    public static String ReadLineByLine(File i_file) throws Exception
-    {
-        try
-        {
-            String content = new String(Files.readAllBytes(Paths.get(i_file.getAbsolutePath())), StandardCharsets.UTF_8);
-            return content;
 
-        } catch (IOException e)
-        {
-            throw new Exception("Exception was occured, problem in reading file:" + i_file.getName());
-        }
-    }
 
     public String getContent()
     {

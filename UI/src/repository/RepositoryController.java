@@ -277,11 +277,11 @@ public class RepositoryController {
         return this.m_MagitController.IsPulledAncestorOfPulling();
     }
 
-    public ObservableList<String> GetConflictItemsNames() {
+/*    public ObservableList<String> GetConflictItemsNames() {
         return this.m_MagitController.GetConflictItemsNames();
     }
 
     public Item GetPullingVersionOfConflictDetails(String i_conflictingItem) {
         return this.m_MagitController.GetPullingVersionOfConflictDetails(i_conflictingItem);
-    }
+    }*/
 }

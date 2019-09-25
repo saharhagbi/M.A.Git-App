@@ -4,8 +4,6 @@ import Objects.Commit;
 import Objects.Item;
 import System.MergeConflictsAndMergedItems;
 import common.MagitFileUtils;
-import common.constants.ResourceUtils;
-import common.constants.StringConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -48,19 +46,34 @@ public class Branch
         return commitHistoryBuilder.toString();
     }
 
-    public static List<Branch> GetAllBranches(Path i_BranchFolderPath) throws Exception
+    public static List<Branch> GetAllBranches(Path i_BranchFolderPath, Map<String, Commit> allCommits) throws Exception
     {
         List<Branch> allBranches = new ArrayList<Branch>();
-        File[] allBranchesFiles = i_BranchFolderPath.toFile().listFiles();
-        for (int i = 0; i < allBranchesFiles.length; i++)
+
+        File[] allBranchesFiles = MagitFileUtils.GetFilesInLocation(i_BranchFolderPath.toString());/*i_BranchFolderPath.toFile().listFiles();*/
+        for (File branchFile : allBranchesFiles)
+        {
+            if (!MagitFileUtils.IsHeadBranchFile(branchFile))
+            {
+                String SHA1OfCommit = MagitFileUtils.GetContentFile(branchFile);
+                Commit commitToPointOn = allCommits.get(SHA1OfCommit);
+
+                allBranches.add(new Branch(MagitFileUtils.RemoveExtension(branchFile.toPath()), commitToPointOn));
+            }
+        }
+
+        return allBranches;
+    }
+
+      /*  for (int i = 0; i < allBranchesFiles.length; i++)
         {
             if (!allBranchesFiles[i].getName().equals(ResourceUtils.HEAD))
             {
                 allBranches.add(Branch.createBranchInstanceFromExistBranch(allBranchesFiles[i].toPath()));
             }
         }
-        return allBranches;
-    }
+        return allBranches;*/
+
 
     public static Branch createBranchInstanceFromExistBranch(Path i_BranchesPath) throws Exception
     {
@@ -111,7 +124,9 @@ public class Branch
 
     public static Optional<Branch> GetHeadBranch(List<Branch> i_AllBranches, String headBranchName) throws Exception
     {
-        Optional<Branch> headBranch = i_AllBranches.stream().filter(branch -> branch.getBranchName().equals(headBranchName)).findFirst();
+        Optional<Branch> headBranch = i_AllBranches
+                .stream().
+                        filter(branch -> branch.getBranchName().equals(headBranchName)).findFirst();
         return headBranch;
     }
 
