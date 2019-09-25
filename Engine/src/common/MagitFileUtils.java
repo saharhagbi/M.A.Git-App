@@ -2,6 +2,8 @@ package common;
 
 import common.constants.NumConstants;
 import common.constants.ResourceUtils;
+import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -139,4 +141,6 @@ public class MagitFileUtils
 
         WritingFileByPath(file.getAbsolutePath(), contentToWrite);
     }
+
+
 }

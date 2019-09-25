@@ -130,20 +130,23 @@ public class Repository
     }
 
     //this method is used when creating a new commit that hasnt been created before - aka "commit changes"
-    public Commit createNewInstanceCommit(User i_User, Folder i_RootFolder, String i_CommitMessage) throws Exception
+    public Commit createNewInstanceCommit(User i_User, Folder i_RootFolder, String i_CommitMessage, Commit prevSecondCommit) throws Exception
     {
         Date date = new Date();
-        String prevCommitSha1 = null;
+        String prevCommitSha1 = null, prevSecondCommitSha1 = null;
         if (this.m_ActiveBranch.getPointedCommit() != null) // if its the first time commiting then there is no pointed commit yet
             prevCommitSha1 = this.m_ActiveBranch.getPointedCommit().getSHA1();
 
-        String CommitSha1 = Commit.createSha1ForCommit(i_RootFolder, prevCommitSha1, "null", i_CommitMessage, i_User, date);
-        Commit theNewCommit = new Commit(i_RootFolder, CommitSha1, this.m_ActiveBranch.getPointedCommit(), null, i_CommitMessage, i_User, date);
+        if(prevSecondCommit != null)
+            prevSecondCommitSha1 = prevSecondCommit.getSHA1();
+
+        String CommitSha1 = Commit.createSha1ForCommit(i_RootFolder, prevCommitSha1, prevSecondCommitSha1, i_CommitMessage, i_User, date);
+        Commit theNewCommit = new Commit(i_RootFolder, CommitSha1, this.m_ActiveBranch.getPointedCommit(), prevSecondCommit, i_CommitMessage, i_User, date);
         m_AllCommitsSHA1ToCommit.put(CommitSha1, theNewCommit);
         return theNewCommit;
     }
 
-    public FolderDifferences CreateNewCommitAndUpdateActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
+    public FolderDifferences CreateNewCommitAndUpdateActiveBranch(User i_CurrentUser, String i_CommitMessage, Commit prevSecondCommit) throws Exception
     {
         FolderDifferences differencesBetweenLastAndCurrentCommit = null;
         if (Folder.isDirEmpty(m_RepositoryPath))
@@ -157,7 +160,7 @@ public class Repository
             updateActiveBranchInFileSystemToPointToLatestCommit();
         } else
         {
-            CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage);
+            CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, prevSecondCommit);
             if (this.m_ActiveBranch.getPointedCommit().GetPrevCommit() != null)
             {//it means there is no new commit because there were no changes
                 differencesBetweenLastAndCurrentCommit = Commit.findDifferences(m_ActiveBranch.getPointedCommit(), m_ActiveBranch.getPointedCommit().GetPrevCommit());
@@ -208,7 +211,7 @@ public class Repository
         return this.m_ActiveBranch.getPointedCommit();
     }
 
-    private void CreateANewCommitInActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
+    private void CreateANewCommitInActiveBranch(User i_CurrentUser, String i_CommitMessage, Commit prevSecondCommit) throws Exception
     {
         Map<Path, Item> itemsMapWithPaths = new HashMap<>();
         // 1. create the root folder - current working copy
@@ -220,7 +223,7 @@ public class Repository
 
             Path pathForWritingWC = WC.WritingFolderAsATextFile();
             zipAndPutInObjectsFolder(pathForWritingWC.toFile(), WC.getSHA1());
-            Commit newCommit = createNewInstanceCommit(i_CurrentUser, WC, i_CommitMessage);
+            Commit newCommit = createNewInstanceCommit(i_CurrentUser, WC, i_CommitMessage, prevSecondCommit);
 
             //putting Commit in objects
             String contentOfCommit = newCommit.CreatingContentOfCommit();
@@ -238,7 +241,7 @@ public class Repository
     // this method creats recursivly the working copy as textFiles zipped inside objects as their names are their sha1
     private void createFirstCommitInActiveBranch(User i_CurrentUser, String i_CommitMessage) throws Exception
     {
-        CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage);
+        CreateANewCommitInActiveBranch(i_CurrentUser, i_CommitMessage, null);
     }
 
     //this method takes a Folder object and turns it in to a String -
@@ -347,23 +350,6 @@ public class Repository
         }
     }
 
-    //maybe needed to be deleted - depends on loadBranch function
-   /* void ChangeBranch(String i_NameOfBranch)
-    {
-        // check if this branch already exists - if so - change to it
-        Boolean DoesntExist = false;
-        Iterator branchIterator = m_Branches.iterator();
-        while (branchIterator.hasNext() && !DoesntExist)
-        {
-            Branch currBranch = (Branch) branchIterator.next();
-            if (currBranch.getBranchName().equals(i_NameOfBranch))
-            {
-                setActiveBranch(currBranch);
-                DoesntExist = true;
-            }
-        }
-
-    }*/
 
     private void loadBranchFromBranchFolder(String i_NameOfBranch) throws Exception
     {
@@ -392,7 +378,7 @@ public class Repository
                 rootFoldeDate, m_ObjectsFolderPath);
 
         //Commit brnachCommit = createNewInstanceCommit(new User(rootFolderDetails[3]), commitsMembersFromFile[1], commitsMembersFromFile[2], rootFolder, rootFolderDetails[2]);
-        Commit brnachCommit = createNewInstanceCommit(new User(rootFolderDetails[3]), rootFolder, commitsMembersFromFile[3]);
+        Commit brnachCommit = createNewInstanceCommit(new User(rootFolderDetails[3]), rootFolder, commitsMembersFromFile[3], null);
         setActiveBranch(new Branch(i_NameOfBranch, brnachCommit));
     }
 
@@ -569,7 +555,8 @@ public class Repository
         return m_ConflictsAndItems.GetPullingVersionOfConflictDetails(i_conflictingItem);
     }
 
-    public ObservableList<String> GetAllConflictsNames() {
+    public ObservableList<String> GetAllConflictsNames()
+    {
         return m_ConflictsAndItems.GetConflictItemsNames();
     }
 }

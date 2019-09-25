@@ -99,4 +99,9 @@ public class MAGitUtils
     {
         branchName.setStyle("-fx-font-weight: bold; -fx-stroke: #5b72ff");
     }
+
+    public static void CloseCurrentStageByControl(Control controlInStage)
+    {
+        GetStage(controlInStage).close();
+    }
 }

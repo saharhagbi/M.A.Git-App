@@ -1,7 +1,9 @@
 package XmlObjects;
 
+import Objects.Blob;
+import Objects.Commit;
+import Objects.Folder;
 import Objects.Item;
-import Objects.*;
 import Objects.branch.Branch;
 import Objects.branch.BranchFactory;
 import System.Repository;
@@ -26,7 +28,6 @@ import java.util.stream.Collectors;
 public class XMLParser
 {
     public static final String sf_Slash = "\\";
-    //    private Commit m_CurrentCommit;
     private Branch m_ActiveBranch;
     private MagitRepository m_MagitRepository;
     private MagitBranches m_MagitBranches;
@@ -87,60 +88,10 @@ public class XMLParser
         return repoToCreate;
     }
 
-   /* private void createBranchInBranchFactory(List<Branch> branches, List<RemoteTrackingBranch> remoteTrackingBranches, List<RemoteBranch> remoteBranches, MagitSingleBranch magitSingleBranch, Commit currentCommit)
-    {
-        Enums type = analyzeBranchType(magitSingleBranch);
-        Branch currentBranch;
-
-        switch (type)
-        {
-            case REMOTE_BRANCH:
-                remoteBranches.add(new RemoteBranch(magitSingleBranch.name, currentCommit));
-                break;
-
-            case REMOTE_TRACKING_BRANCH:
-                currentBranch = new RemoteTrackingBranch(magitSingleBranch.name, currentCommit);
-                remoteTrackingBranches.add((RemoteTrackingBranch) currentBranch);
-                checkIfCurrentBranchIsHEAD(magitSingleBranch, currentBranch);
-                break;
-
-            case BRANCH:
-                currentBranch = new Branch(magitSingleBranch.name, currentCommit);
-                branches.add(currentBranch);
-                checkIfCurrentBranchIsHEAD(magitSingleBranch, currentBranch);
-                break;
-        }
-    }
-*/
-        /*if (type == Enums.BRANCH)
-            branches.add(new RemoteBranch(magitSingleBranch.name, currentCommit));
-
-
-        Branch currentBranch;
-        if (type == Enums.REMOTE_TRACKING_BRANCH)
-        {
-            currentBranch = new RemoteTrackingBranch(magitSingleBranch.name, currentCommit);
-            remoteTrackingBranches.add((RemoteTrackingBranch) currentBranch);
-        } else
-        {
-            currentBranch = new Branch(magitSingleBranch.name, currentCommit);
-            branches.add(currentBranch);
-        }
-
-        checkIfCurrentBranchIsHEAD(magitSingleBranch, currentBranch);*/
-
-
-   /* private void createBranchInBranchFactory(MagitSingleBranch magitSingleBranch, List<RemoteBranch> remoteBranches, List<Branch> branches,
-                                             List<RemoteTrackingBranch> remoteTrackingBranches)
-    {
-    }*/
-
     private Enums.BranchType analyzeBranchType(MagitSingleBranch i_MagitSingleBranch)
     {
         if (i_MagitSingleBranch.isRemote != null)
-        {
             return Enums.BranchType.REMOTE_BRANCH;
-        }
 
         return i_MagitSingleBranch.tracking != null ?
                 Enums.BranchType.REMOTE_TRACKING_BRANCH :

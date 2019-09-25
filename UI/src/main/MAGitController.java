@@ -113,9 +113,9 @@ public class MAGitController
         return m_PrimaryController.IsFirstCommit();
     }
 
-    public void CommitChanges(String i_CommitMessage) throws Exception
+    public void CommitChanges(String i_CommitMessage, Commit prevSecondCommit) throws Exception
     {
-        m_PrimaryController.CommitChanges(i_CommitMessage);
+        m_PrimaryController.CommitChanges(i_CommitMessage, prevSecondCommit);
     }
 
     public FolderDifferences ShowStatus() throws Exception
@@ -261,5 +261,10 @@ public class MAGitController
 
     public ObservableList<String> GetAllConflictsNames() {
         return m_PrimaryController.GetAllConflictsNames();
+    }
+
+    public void CreateCommitMerge(String commitMessage, String selectedBranchName) throws Exception
+    {
+        m_PrimaryController.CreateCommitMerge(commitMessage, selectedBranchName);
     }
 }

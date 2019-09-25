@@ -72,11 +72,11 @@ public class PrimaryController
         return m_Engine.getCurrentRepository().ThereAreNoCmmitsYet();
     }
 
-    public void CommitChanges(String i_CommitMessage) throws Exception
+    public void CommitChanges(String i_CommitMessage, Commit prevSecondCommit) throws Exception
     {
         //m_Engine.CommitInCurrentRepository(i_CommitMessage);
         // Commit currentCommit = m_Engine.GetCurrentRepository().getActiveBranch().getCurrentCommit();
-        m_Engine.CommitInCurrentRepository(i_CommitMessage);
+        m_Engine.CommitInCurrentRepository(i_CommitMessage, prevSecondCommit);
     }
 
     public FolderDifferences ShowStatus() throws Exception
@@ -264,5 +264,10 @@ public class PrimaryController
 
     public ObservableList<String> GetAllConflictsNames() {
         return m_Engine.getCurrentRepository().GetAllConflictsNames();
+    }
+
+    public void CreateCommitMerge(String commitMessage, String selectedBranchName) throws Exception
+    {
+        m_Engine.CreateCommitMerge(commitMessage, selectedBranchName);
     }
 }
