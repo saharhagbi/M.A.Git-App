@@ -1,5 +1,6 @@
 package System;
 
+import Objects.Blob;
 import Objects.Commit;
 import Objects.Item;
 import javafx.collections.FXCollections;
@@ -19,9 +20,9 @@ public class MergeConflictsAndMergedItems {
     Commit m_FastForwardCommit;
     Boolean m_IsPullingAncestorOfPulled;
     Boolean m_IsPulledAncestorOfPulling;
-    Map<Path, Item> m_MapOfRelativePathToItemPullingRootFolder;
-    Map<Path, Item> m_MapOfRelativePathToItemPulledRootFolder;
-    Map<Path, Item> m_MapOfRelativePathToItemAncestorRootFolder;
+    Map<Path, Blob> m_MapOfRelativePathToItemPullingRootFolder;
+    Map<Path, Blob> m_MapOfRelativePathToItemPulledRootFolder;
+    Map<Path, Blob> m_MapOfRelativePathToItemAncestorRootFolder;
 
 
     public MergeConflictsAndMergedItems(Set<Item> i_MergedItemsNotSorted,
@@ -30,9 +31,9 @@ public class MergeConflictsAndMergedItems {
                                         Commit i_FastForwardCommit,
                                         Boolean i_isPullingAncestorOfPulled,
                                         Boolean i_isPulledAncestorOfPulling,
-                                        Map<Path, Item> i_MapOfRelativePathToItemPullingRootFolder,
-                                        Map<Path, Item> i_MapOfRelativePathToItemPulledRootFolder,
-                                        Map<Path, Item> i_MapOfRelativePathToItemAncestorRootFolder) {
+                                        Map<Path, Blob> i_MapOfRelativePathToItemPullingRootFolder,
+                                        Map<Path, Blob> i_MapOfRelativePathToItemPulledRootFolder,
+                                        Map<Path, Blob> i_MapOfRelativePathToItemAncestorRootFolder) {
 
         m_mergedItemsNotSorted = i_MergedItemsNotSorted;
         m_conflictItems = i_ConflictItems;
@@ -57,61 +58,42 @@ public class MergeConflictsAndMergedItems {
         return m_conflictItems;
     }
 
-    // states for merge
-    // bits built this way ->       ______              ______              ______                  ______                  ______                  ______
-    //                          pulling existence    pulled existence   difference pull-pulled    pulling existence   ancestor existence    pulling-ancestor difference
-    //automatic take pulled one
-    public static final int ONLY_PULLED_HAS = 0b010000;                 //=16
-    public static final int PULLING_AND_ANSCESTOR_THE_SAME_PULLED_IS_DIFFERENT = 0x111110;                 //=62
+    //automatic take theirs
+    public static final int ONLY_THEIRS_EXIST = 0b010000;                 //=16
+    public static final int THEIRS_AND_BASE_ONLY_HAS_BUT_DIFFERENT = 0x011001;                 //=25
+    //automatic take theirs
 
-    //automatic take pulled
+    //automatic take ours
+    public static final int ONLY_OURS_EXISTS = 0b100000;                //=32
+    public static final int ONLY_OURS_AND_BASE_HAS_WITH_DIFFERENCE = 0b101010;                //=42
+    public static final int ONLY_OURS_AND_THEIRE_HAS_WITH_NO_DIFFERENCE = 0b110000;                //=48
 
-    //check if ancestor have no difference than pulled we can delete - else than pulled one used it and needs its so pull it
-    public static final int PULLED_HAS_BUT_ALSO_ANSCESTOR = 0b010010;   //=18
-    //check if ancestor have no difference than pulled we can delete - else than pulled one used it and needs its so pull it
-
-    //automatic take pulling
-    public static final int ONLY_PULLING_HAS = 0b100100;                //=36
-    public static final int PULLING_AND_ANSCESTOR_HAS_WITH_NO_DIFFERENCE = 0b100110;                //=38
-    public static final int PULLING_AND_ANSCESTOR_HAS_WITH_DIFFERENCE = 0b100111;                //=39
-    public static final int PULLING_AND_PULLED_HAS_WITH_NO_DIFFERENCE = 0b110100;                //=52
-    public static final int PULLING_AND_PULLED_AND_ANSCETOR_HAS_WITH_NO_DIFFERENCE = 0b110110;                //=54
-    public static final int PULLING_AND_PULLED_AND_ANSCETOR_HAS_WITH_DIFFERENCE = 0b110111;                //=55
-    //automatic take pulling
+    //automatic take ours
 
     //conflict
-    public static final int PULLING_AND_PULLED_HAS_WITH_DIFFERENCE = 0b111100;                //=60
-    public static final int PULLING_PULLED_AND_ANSCESTOR_HAS_WITH_DIFFERENCE = 0b111111;                //=63
+    public static final int ONLY_OURS_AND_THEIRS_HAS_WITH_DIFFERENCE = 0b110100;                //=52
+    public static final int ALL_HAVE_BUT_WITH_DIFFERENCES = 0b111111;                //=63
     //conflict
 
     public static boolean isConflict(int i_itemState) {
-        if (i_itemState == PULLING_AND_PULLED_HAS_WITH_DIFFERENCE || i_itemState == PULLING_PULLED_AND_ANSCESTOR_HAS_WITH_DIFFERENCE)
+        if (i_itemState == ONLY_OURS_AND_THEIRS_HAS_WITH_DIFFERENCE || i_itemState == ALL_HAVE_BUT_WITH_DIFFERENCES)
             return true;
         else
             return false;
     }
 
-    public static boolean ShouldTakePullingItem(int i_itemState) {
-        if (i_itemState == ONLY_PULLING_HAS ||
-                i_itemState == PULLING_AND_ANSCESTOR_HAS_WITH_DIFFERENCE ||
-                i_itemState == PULLING_AND_ANSCESTOR_HAS_WITH_NO_DIFFERENCE ||
-                i_itemState == PULLING_AND_PULLED_HAS_WITH_NO_DIFFERENCE ||
-                i_itemState == PULLING_AND_PULLED_AND_ANSCETOR_HAS_WITH_NO_DIFFERENCE ||
-                i_itemState == PULLING_AND_PULLED_AND_ANSCETOR_HAS_WITH_DIFFERENCE)
+    public static boolean ShouldTakeOurs(int i_itemState) {
+        if (i_itemState == ONLY_OURS_EXISTS ||
+                i_itemState == ONLY_OURS_AND_BASE_HAS_WITH_DIFFERENCE ||
+                i_itemState == ONLY_OURS_AND_THEIRE_HAS_WITH_NO_DIFFERENCE)
             return true;
         else return false;
     }
 
 
-    public static boolean ShouldTakePulledItem(int i_itemState) {
-        if (i_itemState == ONLY_PULLED_HAS ||
-                i_itemState == PULLING_AND_ANSCESTOR_THE_SAME_PULLED_IS_DIFFERENT)
-            return true;
-        else return false;
-    }
-
-    public static boolean NeedToCheckWithAncstor(int i_itemState) {
-        if (i_itemState == PULLED_HAS_BUT_ALSO_ANSCESTOR)
+    public static boolean ShouldTakeTheirs(int i_itemState) {
+        if (i_itemState == ONLY_THEIRS_EXIST ||
+                i_itemState == THEIRS_AND_BASE_ONLY_HAS_BUT_DIFFERENT)
             return true;
         else return false;
     }

@@ -61,37 +61,29 @@ public class Commit implements CommitRepresentative {
 
             String closestCommonAncestorCommitSha1 = anf.traceAncestor(i_PullingCommit.getSHA1(), i_PulledCommit.getSHA1());
             Commit closestCommonAncestorCommit = i_PullingCommit.GetAncestorCommitBySha1(closestCommonAncestorCommitSha1);
-            Map<Path, Item> mapOfRelativePathToItemPullingRootFolder = i_PullingCommit.createMapOfRelativePathToItem(i_RepositoryPath);
-            Map<Path, Item> mapOfRelativePathToItemPulledRootFolder = i_PulledCommit.createMapOfRelativePathToItem(i_RepositoryPath);
-            Map<Path, Item> mapOfRelativePathToItemAncestorRootFolder = closestCommonAncestorCommit.createMapOfRelativePathToItem(i_RepositoryPath);
+            Map<Path, Blob> mapOfRelativePathToBlobPullingRootFolder = i_PullingCommit.createMapOfRelativePathToItem(i_RepositoryPath);
+            Map<Path, Blob> mapOfRelativePathToBlobPulledRootFolder = i_PulledCommit.createMapOfRelativePathToItem(i_RepositoryPath);
+            Map<Path, Blob> mapOfRelativePathToBlobAncestorRootFolder = closestCommonAncestorCommit.createMapOfRelativePathToItem(i_RepositoryPath);
             Set<Item> pullingAndPulledAllItems = i_PullingCommit.getUnitedListOfItems(i_PulledCommit);
 
             pullingAndPulledAllItems.forEach(item ->
             {
                 Path itemRelativePath = getRelativePath(item.GetPath(), i_RepositoryPath);
-                int itemState = getStateForMerge(itemRelativePath, mapOfRelativePathToItemPullingRootFolder, mapOfRelativePathToItemPulledRootFolder, mapOfRelativePathToItemAncestorRootFolder);
-                Item pullingItem = mapOfRelativePathToItemPullingRootFolder.get(itemRelativePath);
-                Item pulledItem = mapOfRelativePathToItemPulledRootFolder.get(itemRelativePath);
-                Item baseVersionItem = mapOfRelativePathToItemAncestorRootFolder.get(itemRelativePath);
+                int itemState = getStateForMerge(itemRelativePath, mapOfRelativePathToBlobPullingRootFolder, mapOfRelativePathToBlobPulledRootFolder, mapOfRelativePathToBlobAncestorRootFolder);
+                Blob pullingItem = mapOfRelativePathToBlobPullingRootFolder.get(itemRelativePath);
+                Blob pulledItem = mapOfRelativePathToBlobPulledRootFolder.get(itemRelativePath);
+                Blob baseVersionItem = mapOfRelativePathToBlobAncestorRootFolder.get(itemRelativePath);
                 if (MergeConflictsAndMergedItems.isConflict(itemState)) {
                     conflictItems.add(new ConflictingItems(pullingItem, pulledItem, baseVersionItem));
                 } else {
-                    if (MergeConflictsAndMergedItems.ShouldTakePullingItem(itemState)) {
+                    if (MergeConflictsAndMergedItems.ShouldTakeOurs(itemState)) {
                         if (!mergedItems.contains(item) && !mergedItems.contains(pullingItem))
                             mergedItems.add(pullingItem);
                     }// pulled item cases
                     else {
-                        if (MergeConflictsAndMergedItems.ShouldTakePulledItem(itemState)) {
+                        if (MergeConflictsAndMergedItems.ShouldTakeTheirs(itemState)) {
                             if (!mergedItems.contains(item) && !mergedItems.contains(pulledItem))
                                 mergedItems.add(pulledItem);
-
-
-                        } else if (MergeConflictsAndMergedItems.NeedToCheckWithAncstor(itemState)) {
-                            String sha1OfPulledItem = pulledItem.getSHA1();
-                            String sha1OfAncestorItem = mapOfRelativePathToItemAncestorRootFolder.get(itemRelativePath).getSHA1();
-                            if (!sha1OfPulledItem.equals(sha1OfAncestorItem))
-                                if (!mergedItems.contains(item) && !mergedItems.contains(pulledItem))
-                                    mergedItems.add(pulledItem);
                         }
                     }
 
@@ -103,7 +95,7 @@ public class Commit implements CommitRepresentative {
                     null,
                     null,
                     null,
-                    mapOfRelativePathToItemPullingRootFolder,mapOfRelativePathToItemPulledRootFolder,mapOfRelativePathToItemAncestorRootFolder);
+                    mapOfRelativePathToBlobPullingRootFolder, mapOfRelativePathToBlobPulledRootFolder, mapOfRelativePathToBlobAncestorRootFolder);
         }
     }
 
@@ -116,42 +108,48 @@ public class Commit implements CommitRepresentative {
             return ancestorCommit;
     }
 
-    private static int getStateForMerge(Path i_ItemRelativePathToCheck, Map<Path, Item> i_MapOfRelativePathToItemPullingRootFolder, Map<Path, Item> i_MapOfRelativePathToItemPulledRootFolder, Map<Path, Item> i_MapOfRelativePathToItemAncestorRootFolder) {
+    private static int getStateForMerge(Path i_ItemRelativePathToCheck, Map<Path, Blob> i_MapOfRelativePathToBlobPullingRootFolder, Map<Path, Blob> i_MapOfRelativePathToBlobPulledRootFolder, Map<Path, Blob> i_MapOfRelativePathToBlobAncestorRootFolder) {
         int stateInBinary = 0;
-        Item itemFromPulling = i_MapOfRelativePathToItemPullingRootFolder.get(i_ItemRelativePathToCheck);
-        Item itemFromPulled = i_MapOfRelativePathToItemPulledRootFolder.get(i_ItemRelativePathToCheck);
-        Item itemFromAncestor = i_MapOfRelativePathToItemAncestorRootFolder.get(i_ItemRelativePathToCheck);
-        if (itemFromPulling != null)
+        Blob ourVersion = i_MapOfRelativePathToBlobPullingRootFolder.get(i_ItemRelativePathToCheck);
+        Blob thiereVersion = i_MapOfRelativePathToBlobPulledRootFolder.get(i_ItemRelativePathToCheck);
+        Blob baseVersion = i_MapOfRelativePathToBlobAncestorRootFolder.get(i_ItemRelativePathToCheck);
+        //X _ _ _ _ _
+        if (ourVersion != null)
             stateInBinary = stateInBinary | 1;
         else
             stateInBinary = stateInBinary | 0;
-
         stateInBinary = stateInBinary << 1;
-        if (itemFromPulled != null) {
+
+        //X X _ _ _ _
+        if (thiereVersion != null) {
             stateInBinary = stateInBinary | 1;
         } else
             stateInBinary = stateInBinary | 0;
-
         stateInBinary = stateInBinary << 1;
-        if (itemFromPulling != null && itemFromPulled != null && itemFromPulled != null && itemFromPulling.getSHA1().equals(itemFromPulled.getSHA1()))
+
+        //X X X _ _ _
+        if (baseVersion != null)
             stateInBinary = stateInBinary | 1;
         else
             stateInBinary = stateInBinary | 0;
-
         stateInBinary = stateInBinary << 1;
-        if (itemFromPulling != null)
+
+        //X X X X _ _
+        if (ourVersion != null && thiereVersion!=null && !ourVersion.getSHA1().equals(thiereVersion.getSHA1()))
             stateInBinary = stateInBinary | 1;
         else
             stateInBinary = stateInBinary | 0;
-
         stateInBinary = stateInBinary << 1;
-        if (itemFromAncestor != null)
+
+        //X X X X X _
+        if (ourVersion != null && baseVersion!=null && !ourVersion.getSHA1().equals(baseVersion.getSHA1()))
             stateInBinary = stateInBinary | 1;
         else
             stateInBinary = stateInBinary | 0;
-
         stateInBinary = stateInBinary << 1;
-        if (itemFromPulling != null && itemFromAncestor != null && itemFromPulled != null && itemFromPulling.getSHA1().equals(itemFromPulled.getSHA1()))
+
+        //X X X X X X
+        if (thiereVersion != null && baseVersion!=null && !thiereVersion.getSHA1().equals(baseVersion.getSHA1()))
             stateInBinary = stateInBinary | 1;
         else
             stateInBinary = stateInBinary | 0;
@@ -373,13 +371,15 @@ public class Commit implements CommitRepresentative {
         return allItemsUnited;
     }
 
-    private Map<Path, Item> createMapOfRelativePathToItem(Path i_repositoryPath) {
-        Map<Path, Item> resMap = new HashMap<Path, Item>();
+    private Map<Path, Blob> createMapOfRelativePathToItem(Path i_repositoryPath) {
+        Map<Path, Blob> resMap = new HashMap<Path, Blob>();
         m_RootFolder.m_ListOfItems.forEach(item ->
         {
-            Path relativePath = getRelativePath(item.GetPath(), i_repositoryPath);
-            if (resMap.get(relativePath) == null) {
-                resMap.put(relativePath, item);
+            if (item.getTypeOfFile().equals(Item.TypeOfFile.BLOB)) {
+                Path relativePath = getRelativePath(item.GetPath(), i_repositoryPath);
+                if (resMap.get(relativePath) == null) {
+                    resMap.put(relativePath, (Blob) item);
+                }
             }
         });
 
