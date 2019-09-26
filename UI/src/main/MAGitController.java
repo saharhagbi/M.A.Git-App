@@ -1,5 +1,6 @@
 package main;
 
+import Objects.Blob;
 import Objects.Commit;
 import System.ConflictingItems;
 import System.FolderDifferences;
@@ -254,9 +255,9 @@ public class MAGitController
         return m_PrimaryController.getConflictingItemsByName(conflictingItemName);
     }
 
-    public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
+    public void CreateChosenBlobInWC(String blobText, Blob chosenBlob) throws IOException
     {
-        m_PrimaryController.CreateChosenBlobInWC(blobText, currentConflictingItem);
+        m_PrimaryController.CreateChosenBlobInWC(blobText, chosenBlob);
     }
 
     public ObservableList<String> GetAllConflictsNames() {
@@ -266,5 +267,10 @@ public class MAGitController
     public void CreateCommitMerge(String commitMessage, String selectedBranchName) throws Exception
     {
         m_PrimaryController.CreateCommitMerge(commitMessage, selectedBranchName);
+    }
+
+    public void FastForwardBranch(String selectedBranch) throws IOException
+    {
+        m_PrimaryController.FastForwardBranch(selectedBranch);
     }
 }

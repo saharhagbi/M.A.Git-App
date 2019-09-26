@@ -1,5 +1,6 @@
 package primaryController;
 
+import Objects.Blob;
 import Objects.Commit;
 import System.ConflictingItems;
 import System.Engine;
@@ -255,19 +256,29 @@ public class PrimaryController
         return m_Engine.getConflictingItemsByName(conflictingItemName);
     }
 
-    public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
+    public void CreateChosenBlobInWC(String blobText, Blob chosenBlob) throws IOException
     {
 /*if(blobText.isEmpty())
     m_MagitController.InformUserMessage("Error!");*/
-       m_Engine.CreateChosenBlobInWC(blobText, currentConflictingItem);
+        m_Engine.CreateChosenBlobInWC(blobText, chosenBlob);
     }
 
-    public ObservableList<String> GetAllConflictsNames() {
+    public ObservableList<String> GetAllConflictsNames()
+    {
         return m_Engine.getCurrentRepository().GetAllConflictsNames();
     }
 
     public void CreateCommitMerge(String commitMessage, String selectedBranchName) throws Exception
     {
         m_Engine.CreateCommitMerge(commitMessage, selectedBranchName);
+
+        m_MagitController.UpdateWindowTreeAndTable();
+    }
+
+    public void FastForwardBranch(String selectedBranch) throws IOException
+    {
+        m_Engine.FastForwardBranch(selectedBranch);
+
+        m_MagitController.UpdateWindowTreeAndTable();
     }
 }

@@ -1,8 +1,8 @@
 package System;
 
+import Objects.Blob;
 import Objects.Commit;
 import Objects.Folder;
-import Objects.Item;
 import Objects.branch.Branch;
 import Objects.branch.BranchFactory;
 import Objects.branch.BranchUtils;
@@ -20,7 +20,6 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -627,39 +626,6 @@ public class Engine
         MergeConflictsAndMergedItems mergeConflictsAndMergedItems = getCurrentRepository().getActiveBranch().GetConflictsForMerge(pushingBranch, getCurrentRepository().getRepositoryPath(), createMapOfCommits(this.getCurrentRepository().GetObjectsFolderPath()));
         setMergeConflictsInstance(mergeConflictsAndMergedItems);
 
-        // debug
-        System.out.println("<==========================    merged items    ==========================>");
-        mergeConflictsAndMergedItems.GetMergedItemsNotSorted().forEach(item -> {
-            if(item.getTypeOfFile().equals(Item.TypeOfFile.BLOB))
-                System.out.println(item.GetPath()+"->"+item.getSHA1());
-            else
-                System.out.println("found folder");
-        });
-        System.out.println("<==========================    merged items    ==========================>");
-
-        System.out.println("<==========================    Conflicting items    ==========================>");
-        mergeConflictsAndMergedItems.GetConflictItems().forEach(conflictingItems ->{
-            System.out.println("their version:");
-            if(conflictingItems.m_TheirBlob!=null)
-                System.out.println(conflictingItems.m_TheirBlob.GetPath()+"->"+conflictingItems.m_TheirBlob.getSHA1());
-            else
-                System.out.println("no their version");
-
-            System.out.println("our version:");
-            if(conflictingItems.m_OurBlob!=null)
-                System.out.println(conflictingItems.m_OurBlob.GetPath()+"->"+conflictingItems.m_OurBlob.getSHA1());
-            else
-                System.out.println("no our version");
-            System.out.println("base version:");
-            if(conflictingItems.m_BaseVersionBlob!=null)
-                System.out.println(conflictingItems.m_BaseVersionBlob.GetPath()+"->"+conflictingItems.m_BaseVersionBlob.getSHA1());
-            else
-                System.out.println("no base version");
-
-        });
-        System.out.println("<==========================    Conflicting items    ==========================>");
-
-
     }
 
     private void setMergeConflictsInstance(MergeConflictsAndMergedItems i_MergeConflictsAndMergedItems)
@@ -686,9 +652,9 @@ public class Engine
         return getCurrentRepository().getConflictsItemsAndNames().getConflictingItemByName(conflictingItemName);
     }
 
-    public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
+    public void CreateChosenBlobInWC(String blobText, Blob chosenBlob) throws IOException
     {
-        getCurrentRepository().getConflictsItemsAndNames().CreateChosenBlobInWC(blobText, currentConflictingItem);
+        getCurrentRepository().getConflictsItemsAndNames().CreateChosenBlobInWC(blobText, chosenBlob);
     }
 
     public void CreateCommitMerge(String commitMessage, String selectedBranchName) throws Exception
@@ -706,5 +672,17 @@ public class Engine
         }
 
         CommitInCurrentRepository(commitMessage, selectedBranch.getPointedCommit());
+    }
+
+    public void FastForwardBranch(String selectedBranchName) throws IOException
+    {
+
+        Branch selectedBranch = getCurrentRepository().findBranchByPredicate(branch ->
+                branch.getBranchName().equals(selectedBranchName));
+
+        getCurrentRepository().getActiveBranch().setPointedCommit(selectedBranch.getPointedCommit());
+
+        Folder.RemoveFilesAndFoldersWithoutMagit(getCurrentRepository().getRepositoryPath());
+        Folder.SpanDirectory(getCurrentRepository().m_ActiveBranch.getPointedCommit().getRootFolder());
     }
 }

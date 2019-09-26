@@ -1,5 +1,7 @@
 package repository.top.merge;
 
+import Objects.Blob;
+import Objects.Folder;
 import System.ConflictingItems;
 import common.MAGitUtils;
 import common.constants.StringConstants;
@@ -13,6 +15,7 @@ import javafx.scene.text.Text;
 import repository.top.TopController;
 
 import java.io.IOException;
+import java.util.Set;
 
 
 public class MergeController
@@ -35,21 +38,24 @@ public class MergeController
     @FXML
     private Button m_ChooseBranchBtn;
     @FXML
+    private Button m_DeleteBtn;
+    @FXML
+    private Button m_TakeResultBtn;
+    @FXML
     private ListView<String> m_BranchesListView;
     @FXML
     private TextArea m_ResultTextArea;
+
     private TopController m_TopController;
     private ObservableList<String> m_ConflictsNameList;
+
+    private boolean isTheirBlob = false;
+    private boolean isOurBlob = false;
+    private boolean isBaseBlob = false;
 
     public void setController(TopController topController)
     {
         m_TopController = topController;
-
-        /*------------------------Erase!!--------------------------------------*/
-        m_ourVersionText.setText("a.txt content after change");
-        m_BaseVersionText.setText("a.txt content");
-        m_SelectedBranchText.setText("a.txt content in selected Branch");
-        /*-------------------------------------------------------------------*/
 
         initAllComponents();
     }
@@ -57,6 +63,8 @@ public class MergeController
     private void initAllComponents()
     {
         m_BranchesListView.setItems(m_TopController.GetActiveBranchesNameList());
+
+        disabeButtons(true);
     }
 
     private void createCommitMerge() throws Exception
@@ -72,61 +80,85 @@ public class MergeController
     @FXML
     void deleteFileButtonAction(ActionEvent event)
     {
+        clearAllTexts();
+
+        removeConflictSelected();
+    }
+
+    private void clearAllTexts()
+    {
         m_BaseVersionText.setText(null);
         m_SelectedBranchText.setText(null);
         m_ourVersionText.setText(null);
         m_ResultTextArea.setText(null);
     }
 
-
     private void removeConflictSelected()
     {
-        m_ConflictsNameList.remove(m_BranchesListView.getSelectionModel().getSelectedItems().get(0));
+        m_ConflictsNameList.remove(m_ConflictsListView.getSelectionModel().getSelectedItems().get(0));
         loadConflictsView();
     }
 
     @FXML
-    void ChooseBranchBtn_OnClick(ActionEvent actionEvent) throws Exception
+    void ChooseBranchBtn_OnClick(ActionEvent actionEvent)
     {
-        /*if (noItemWasChosen())
+        try
         {
-            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Merge ERROR", "Please Choose a Branch To merge first", "");
-        } else
-        {*/
-        String selectedItem = m_BranchesListView.getSelectionModel().getSelectedItems().get(0);
-        if (isHeadBranchSelected(selectedItem))
-        {
-            MAGitUtils.GetStage(m_ChooseBranchBtn).close();
-        } else
-        {
-            //MergeConflictsAndMergedItems conflicts = this.m_TopController.SetConflictsForMergeInRepository(selectedItem);
-            this.m_TopController.SetConflictsForMergeInRepository(selectedItem);
-            //if (conflicts.IsFastForwardCase()) {
-            if (this.m_TopController.IsFastForwardCase())
+            String selectedBranch = m_BranchesListView.getSelectionModel().getSelectedItems().get(0);
+            this.m_TopController.SetConflictsForMergeInRepository(selectedBranch);
+
+            if (isHeadBranchSelected(selectedBranch))
             {
-                //if (conflicts.IsPulledAncestorOfPulling()) {// chosen branch is an ancestor of HEAD branch
-                if (this.m_TopController.IsPulledAncestorOfPulling())
-                {
-                    // point head branch to i_selectedBranch
-                    MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Merge - Fast Forward", "This is a Fast Forward Merge - selected Branch is ancestor of head branch", "Head branch will point to current Commit\nno changes have been made");
-                } else
-                {// HEAD branch is Ancestor of chosen branch
-                    MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Merge - Fast Forward", "This is a Fast Forward Merge - HEAD branch is Ancestor of selected branch", "HEAD branch will point to the same commit as selected branch");
-                }
+                MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!",
+                        "Head Branch",
+                        "can not merge head branch to head branch");
                 MAGitUtils.GetStage(m_ChooseBranchBtn).close();
             } else
-            { //not FF
-                m_ChooseBranchBtn.setDisable(true);
-                m_ConflictsNameList = GetAllConflictsNames();
-                loadConflictsView();
-                initAllMergeComponents();
+            {
+                //MergeConflictsAndMergedItems conflicts = this.m_TopController.SetConflictsForMergeInRepository(selectedBranch);
+                //if (conflicts.IsFastForwardCase()) {
+                if (this.m_TopController.IsFastForwardCase())
+                {
+                    //if (conflicts.IsPulledAncestorOfPulling()) {// chosen branch is an ancestor of HEAD branch
+                    if (this.m_TopController.IsSelectedBranchAncestorOfHeadBranch())
+                    {
+                        MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Merge - Fast Forward", "This is a Fast Forward Merge - selected Branch is ancestor of head branch", "Head branch will point to current Commit\nno changes have been made");
+                    } else
+                    {
+                        MAGitUtils.InformUserPopUpMessage(Alert.AlertType.INFORMATION, "Merge - Fast Forward", "This is a Fast Forward Merge - HEAD branch is Ancestor of selected branch", "HEAD branch will point to the same commit as selected branch");
+                        m_TopController.getRepositoryController().FastForwardBranch(selectedBranch);
+                        //  m_TopController.getRepositoryController().FastForwardBranch(selectedBranch, false);
+                    }
+                    MAGitUtils.GetStage(m_ChooseBranchBtn).close();
+                } else
+                { //not FF
+                    Folder.RemoveFilesAndFoldersWithoutMagit(m_TopController.getRepositoryController().getCurrentRepository()
+                            .getActiveBranch().getPointedCommit().getRootFolder().GetPath());
+
+
+                    m_ChooseBranchBtn.setDisable(true);
+                    m_ConflictsNameList = GetAllConflictsNames();
+
+                    if (m_ConflictsNameList.size() == 0)
+                        prepareAllForCommitMerge();
+
+                    loadConflictsView();
+                    initAllMergeComponents();
+                }
             }
+        } catch (Exception e)
+        {
+
+            e.printStackTrace();
+           /* MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!",
+                    "Error Occured",
+                    e.getMessage());*/
         }
     }
 
     private void loadConflictsView()
     {
-        m_ConflictsListView.setItems(GetAllConflictsNames());
+        m_ConflictsListView.setItems(m_ConflictsNameList);
     }
 
     private void initAllMergeComponents()
@@ -137,18 +169,60 @@ public class MergeController
             {
                 try
                 {
-                    createCommitMerge();
+                    prepareAllForCommitMerge();
                 } catch (Exception e)
                 {
-                    //todo
-                    e.printStackTrace();
+                    MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!",
+                            "Writing blob",
+                            "Error in access to writting  blob in WC for merge");
                 }
             }
         });
 
-        m_OurVersionScrollPane.setOnMouseClicked(event -> m_ResultTextArea.setText(m_ourVersionText.getText()));
-        m_SelectedBranchScrollPane.setOnMouseClicked(event -> m_ResultTextArea.setText(m_SelectedBranchText.getText()));
-        m_BaseVersionScrollPane.setOnMouseClicked(event -> m_ResultTextArea.setText(m_BaseVersionText.getText()));
+        m_OurVersionScrollPane.setOnMouseClicked(event ->
+        {
+            m_ResultTextArea.setText(m_ourVersionText.getText());
+            setAllFalse();
+            isOurBlob = true;
+
+        });
+        m_SelectedBranchScrollPane.setOnMouseClicked(event ->
+        {
+            m_ResultTextArea.setText(m_SelectedBranchText.getText());
+            setAllFalse();
+            isTheirBlob = true;
+        });
+        m_BaseVersionScrollPane.setOnMouseClicked(event ->
+        {
+            m_ResultTextArea.setText(m_BaseVersionText.getText());
+            setAllFalse();
+            isBaseBlob = true;
+        });
+    }
+
+    private void prepareAllForCommitMerge() throws Exception
+    {
+        writeAllMergedBlobsInWC();
+        m_ChooseBranchBtn.setDisable(false);
+        createCommitMerge();
+    }
+
+    private void writeAllMergedBlobsInWC() throws IOException
+    {
+        Set<Blob> mergedItems = m_TopController.getRepositoryController().
+                getCurrentRepository().getConflictsItemsAndNames().getMergedItemsNotSorted();
+
+        for (Blob blob : mergedItems)
+        {
+            m_TopController.CreateChosenBlobInWC(blob.getContent(), blob);
+        }
+    }
+
+    private void setAllFalse()
+    {
+        isOurBlob = false;
+        isBaseBlob = false;
+        isTheirBlob = false;
     }
 
     private ObservableList<String> GetAllConflictsNames()
@@ -161,13 +235,11 @@ public class MergeController
         return m_TopController.isHeadBranch(i_selectedItem);
     }
 
-   /* private boolean noItemWasChosen()
-    {
-        return m_BranchesListView.getSelectionModel().getSelectedItems().get(0) == null;
-    }*/
-
     public void conflictChose_OnClick(MouseEvent mouseEvent)
     {
+        clearAllTexts();
+        disabeButtons(false);
+
         String conflictingItemName = m_ConflictsListView.getSelectionModel().getSelectedItems().get(0);
 
         m_CurrentConflictingItem = this.m_TopController.getConflictingItemsByName(conflictingItemName);
@@ -179,22 +251,45 @@ public class MergeController
         if (m_CurrentConflictingItem.getTheirBlob() != null)
             m_SelectedBranchText.setText(m_CurrentConflictingItem.getTheirBlob().getContent());
 
-        if (m_CurrentConflictingItem.getOurBlob() == null)
+        if (m_CurrentConflictingItem.getOurBlob() != null)
             m_ourVersionText.setText(m_CurrentConflictingItem.getOurBlob().getContent());
     }
 
     @FXML
     void takeResultVersionButtonAction(ActionEvent event)
     {
+        disabeButtons(true);
+        Blob chosenBlob = takeFitBlob();
+
         try
         {
-            removeConflictSelected();
+            m_TopController.CreateChosenBlobInWC(m_ResultTextArea.getText(), chosenBlob);
 
-            m_TopController.CreateChosenBlobInWC(m_ResultTextArea.getText(), m_CurrentConflictingItem);
+            removeConflictSelected();
         } catch (IOException e)
         {
-            //todo
-            e.printStackTrace();
+            MAGitUtils.InformUserPopUpMessage(Alert.AlertType.ERROR, "Error!",
+                    "Writing blob",
+                    "Error in access to writting  blob in WC for merge");
         }
+    }
+
+    private void disabeButtons(boolean isDisable)
+    {
+        m_DeleteBtn.setDisable(isDisable);
+        m_TakeResultBtn.setDisable(isDisable);
+    }
+
+    private Blob takeFitBlob()
+    {
+        if (isBaseBlob)
+            return m_CurrentConflictingItem.getBaseVersionBlob();
+
+        if (isTheirBlob)
+            return m_CurrentConflictingItem.getTheirBlob();
+
+        if (isOurBlob)
+            return m_CurrentConflictingItem.getOurBlob();
+        else return null;
     }
 }

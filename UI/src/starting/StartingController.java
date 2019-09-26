@@ -16,6 +16,7 @@ import main.MAGitController;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 //import java.awt.*;
@@ -56,9 +57,8 @@ public class StartingController
     }
 
     @FXML
-    public void LoadRepositoryFromXML_OnClick() throws Exception
+    public void LoadRepositoryFromXML_OnClick()
     {
-        File selectedFile = MAGitUtils.GetFile(MAGitUtils.GetStage(m_LoadRepoFromXMLBtn));
 
         m_ProgressBar.setVisible(true);
 
@@ -71,6 +71,7 @@ public class StartingController
 
                 try
                 {
+                    File selectedFile = getFile();
                     m_MagitController.loadRepositoryFromXML(selectedFile.getAbsolutePath());
                     Platform.runLater(() -> moveToRepositoryScene());
                 } catch (Exception xmlException)
@@ -88,6 +89,16 @@ public class StartingController
 
         bindTaskComponentsToUI(m_WelcomeLabel, m_ProgressBar, loadTask);
         new Thread(loadTask).start();
+    }
+
+    private File getFile() throws ExecutionException, InterruptedException
+    {
+        FutureTask<File> futureTask = new FutureTask<File>(() ->
+                MAGitUtils.GetFile(MAGitUtils.GetStage(m_CloneBtn)));
+
+        Platform.runLater(futureTask);
+
+        return futureTask.get();
     }
 
     private void bindTaskComponentsToUI(Label i_LabelBar, ProgressBar i_ProgressBar, Task i_CommitTask)

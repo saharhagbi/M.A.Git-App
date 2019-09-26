@@ -1,9 +1,9 @@
 package repository;
 
+import Objects.Blob;
 import Objects.Commit;
-import Objects.Item;
+import System.ConflictingItems;
 import System.FolderDifferences;
-import System.MergeConflictsAndMergedItems;
 import System.Repository;
 import collaboration.LocalRepository;
 import collaboration.RemoteBranch;
@@ -26,12 +26,13 @@ import repository.center.CenterController;
 import repository.left.LeftController;
 import repository.right.RightController;
 import repository.top.TopController;
-import System.ConflictingItems;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RepositoryController {
+public class RepositoryController
+{
 
     @FXML
     private GridPane m_Top;
@@ -58,7 +59,8 @@ public class RepositoryController {
 //    private Repository m_CurrentRepository;
 
     @FXML
-    public void initialize() {
+    public void initialize()
+    {
         m_TopController.SetRepositoryController(this);
         m_CenterController.SetRepositoryController(this);
         m_BottomController.SetRepositoryController(this);
@@ -66,11 +68,13 @@ public class RepositoryController {
         m_RightController.SetRepositoryController(this);
     }
 
-    public Repository getCurrentRepository() {
+    public Repository getCurrentRepository()
+    {
         return m_MagitController.GetCurrentRepository();
     }
 
-    public void initAllComponents() {
+    public void initAllComponents()
+    {
 //        m_CurrentRepository = m_MagitController.GetCurrentRepository();
         m_TopController.InitAllComponentsInTop();
         m_LeftController.InitAllComponentsInLeft();
@@ -78,23 +82,28 @@ public class RepositoryController {
         m_CenterController.InitAllComponentsInCenter();
     }
 
-    public void SetMagitController(MAGitController i_MagitController) {
+    public void SetMagitController(MAGitController i_MagitController)
+    {
         m_MagitController = i_MagitController;
     }
 
-    public void SwitchScenes(String i_PathToStartingScene, Stage i_CurrentStage) throws IOException {
+    public void SwitchScenes(String i_PathToStartingScene, Stage i_CurrentStage) throws IOException
+    {
         m_MagitController.SwitchScenes(i_PathToStartingScene, i_CurrentStage);
     }
 
-    public boolean IsFirstCommit() {
+    public boolean IsFirstCommit()
+    {
         return m_MagitController.IsFirstCommit();
     }
 
-    public void CommitChanges(String i_CommitMessage, Commit prevSecondCommit) throws Exception {
+    public void CommitChanges(String i_CommitMessage, Commit prevSecondCommit) throws Exception
+    {
         m_MagitController.CommitChanges(i_CommitMessage, prevSecondCommit);
     }
 
-    public FolderDifferences ShowStatus() throws Exception {
+    public FolderDifferences ShowStatus() throws Exception
+    {
         return m_MagitController.ShowStatus();
     }
 
@@ -102,53 +111,65 @@ public class RepositoryController {
     {
         return m_CurrentRepository.getActiveBranch().getPointedCommit();
     }*/
-    public ProgressBar GetProgressBar() {
+    public ProgressBar GetProgressBar()
+    {
         return m_BottomController.GetProgressBar();
     }
 
-    public Label GetLabelBar() {
+    public Label GetLabelBar()
+    {
         return m_BottomController.GetLabelBar();
     }
 
-    public void CreateNewBranch() throws Exception {
+    public void CreateNewBranch() throws Exception
+    {
         m_MagitController.CreateNewBranch();
     }
 
-    public void DeleteBranch(String i_BranchNameToErase) throws Exception {
+    public void DeleteBranch(String i_BranchNameToErase) throws Exception
+    {
         m_MagitController.DeleteBranch(i_BranchNameToErase);
     }
 
-    public boolean RootFolderChanged() throws Exception {
+    public boolean RootFolderChanged() throws Exception
+    {
         return m_MagitController.RootFolderChanged();
     }
 
-    public void CheckOut(String i_BranchName) throws Exception {
+    public void CheckOut(String i_BranchName) throws Exception
+    {
         m_MagitController.CheckOut(i_BranchName);
     }
 
-    public void ResetHeadBranch(String i_Sha1OfCommit) throws Exception {
+    public void ResetHeadBranch(String i_Sha1OfCommit) throws Exception
+    {
         m_MagitController.ResetHeadBranch(i_Sha1OfCommit);
 
         m_RightController.ResetCommitsTree();
     }
 
-    public void ShowDifferencesFiles(FolderDifferences i_FolderDifferences) {
+    public void ShowDifferencesFiles(FolderDifferences i_FolderDifferences)
+    {
         m_LeftController.ShowDifferencesFiles(i_FolderDifferences);
     }
 
-    public void InitProgress(String i_Label) {
+    public void InitProgress(String i_Label)
+    {
         m_BottomController.InitProgress(i_Label);
     }
 
-    public void UpdateProgress() {
+    public void UpdateProgress()
+    {
         m_BottomController.UpdateProgress();
     }
 
-    public void NewCommitSelectedOnCenterTableView(Commit i_CommitToShow) {
+    public void NewCommitSelectedOnCenterTableView(Commit i_CommitToShow)
+    {
         m_BottomController.ShowCommitInfo(i_CommitToShow);
     }
 
-    public void showDeltaCommits(Commit i_Commit) {
+    public void showDeltaCommits(Commit i_Commit)
+    {
         FolderDifferences folderDifferences = m_MagitController.ShowDeltaCommits(i_Commit);
 
         if (folderDifferences != null)
@@ -158,50 +179,61 @@ public class RepositoryController {
             m_LeftController.ClearTableView();
     }
 
-    public void UpdateCommitTable() {
+    public void UpdateCommitTable()
+    {
         m_CenterController.InitObservCommitList();
         m_CenterController.loadCommitsInTableView();
     }
 
-    public void UpdateCommitTree() {
+    public void UpdateCommitTree()
+    {
         m_RightController.ResetCommitsTree();
     }
 
-    public void UpdateCommitDetailsInBotoomAfterNodeClicked(Commit i_Commit) {
+    public void UpdateCommitDetailsInBotoomAfterNodeClicked(Commit i_Commit)
+    {
         showDeltaCommits(i_Commit);
         m_BottomController.ShowCommitInfo(i_Commit);
     }
 
-    public void Fetch() throws Exception {
+    public void Fetch() throws Exception
+    {
         m_MagitController.Fetch();
     }
 
-    public void Pull() throws Exception {
+    public void Pull() throws Exception
+    {
         m_MagitController.Pull();
     }
 
-    public void InformUserMessage(Alert.AlertType i_AlertType, String i_Title, String i_Header, String i_ContextText) {
+    public void InformUserMessage(Alert.AlertType i_AlertType, String i_Title, String i_Header, String i_ContextText)
+    {
         MAGitUtils.InformUserPopUpMessage(i_AlertType, i_Title, i_Header, i_ContextText);
     }
 
-    public void SetUser(String newUserName) {
+    public void SetUser(String newUserName)
+    {
         m_MagitController.SetUser(newUserName);
     }
 
-    public void Push() throws Exception {
+    public void Push() throws Exception
+    {
         m_MagitController.Push();
     }
 
-    public boolean IsLocalRepository() {
+    public boolean IsLocalRepository()
+    {
         return m_MagitController.IsLocalRepository();
     }
 
-    public boolean IsHeadBranch(String branchName) {
+    public boolean IsHeadBranch(String branchName)
+    {
         return m_MagitController.IsHeadBranch(branchName);
     }
 
 
-    public void getBranchNameAndCommitSHA1AndCreateBranch() throws Exception {
+    public void getBranchNameAndCommitSHA1AndCreateBranch() throws Exception
+    {
         String newBranch = MAGitUtils.GetString("Enter the name of the new Branch", "Name", "New Branch");
         String SHA1Commit = MAGitUtils.GetString("Enter the SHA1 of the commit you want the branch will point",
                 "SHA1:", "Commit SHA1");
@@ -210,7 +242,8 @@ public class RepositoryController {
         m_TopController.updateBoardAfterCreatingNewBranch(newBranch);
     }
 
-    public void getUserChoiceAndCreateBranch() throws Exception {
+    public void getUserChoiceAndCreateBranch() throws Exception
+    {
         String userChoice = MAGitUtils.GetUserChoice("Create Branch", "Choose which kind of Branch dwould you like to create",
                 StringConstants.REMOTE_TRACKING_BRANCH, new String[]{StringConstants.REGULAR_BRANCH, StringConstants.REMOTE_TRACKING_BRANCH});
 
@@ -222,7 +255,8 @@ public class RepositoryController {
             createRTBranchInLocalRepository();
     }
 
-    private void createRTBranchInLocalRepository() throws Exception {
+    private void createRTBranchInLocalRepository() throws Exception
+    {
         LocalRepository localRepository = (LocalRepository) getCurrentRepository();
 
         List<String> remoteBranchesNames = localRepository.getRemoteBranches().stream().map(branch -> branch.getBranchName()).collect(Collectors.toList());
@@ -247,33 +281,39 @@ public class RepositoryController {
         boolean isExist = localRepository.findRemoteTrackingBranchByPredicate(remoteTrackingBranch ->
                 remoteTrackingBranch.getBranchName().equals(branchName)) != null;
 
-        if(isExist)
+        if (isExist)
             throw new Exception("Remote Tracking Branch alreadt exist in that specific remote");
     }
 
-    public void UpdateWindowAfterDeletingBranch(String i_branchNameToErase) {
+    public void UpdateWindowAfterDeletingBranch(String i_branchNameToErase)
+    {
         m_TopController.UpdateBoardAfterDeletingBranch(i_branchNameToErase);
         UpdateCommitTree();
     }
 
-    public void UpdateWindowTreeAndTable() {
+    public void UpdateWindowTreeAndTable()
+    {
         UpdateCommitTable();
         UpdateCommitTree();
     }
 
-    public void ClearTableView() {
+    public void ClearTableView()
+    {
         m_LeftController.ClearTableView();
     }
 
-    public void SetConflictsForMergeInRepository(String i_selectedBranchNameToMerge) throws Exception {
+    public void SetConflictsForMergeInRepository(String i_selectedBranchNameToMerge) throws Exception
+    {
         m_MagitController.SetConflictsForMergeInRepository(i_selectedBranchNameToMerge);
     }
 
-    public boolean IsFastForwardCase() {
+    public boolean IsFastForwardCase()
+    {
         return m_MagitController.IsFastForwardCase();
     }
 
-    public boolean IsPulledAncestorOfPulling() {
+    public boolean IsPulledAncestorOfPulling()
+    {
         return this.m_MagitController.IsPulledAncestorOfPulling();
     }
 
@@ -282,17 +322,23 @@ public class RepositoryController {
         return m_MagitController.getConflictingItemsByName(conflictingItemName);
     }
 
-    public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
+    public void CreateChosenBlobInWC(String blobText, Blob chosenBlob) throws IOException
     {
-        m_MagitController.CreateChosenBlobInWC(blobText, currentConflictingItem);
+        m_MagitController.CreateChosenBlobInWC(blobText, chosenBlob);
     }
 
-    public ObservableList<String> GetAllConflictsNames() {
+    public ObservableList<String> GetAllConflictsNames()
+    {
         return m_MagitController.GetAllConflictsNames();
     }
 
     public void CreateCommitMerge(String commitMessage, String selectedBranchName) throws Exception
     {
         m_MagitController.CreateCommitMerge(commitMessage, selectedBranchName);
+    }
+
+    public void FastForwardBranch(String selectedBranch) throws IOException
+    {
+        m_MagitController.FastForwardBranch(selectedBranch);
     }
 }

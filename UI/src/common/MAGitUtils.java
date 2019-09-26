@@ -34,11 +34,15 @@ public class MAGitUtils
         dialog.setTitle(i_Title);
         dialog.setHeaderText(i_HeaderText);
 
+        dialog.setOnCloseRequest(event ->
+                dialog.close()
+        );
+
+
+
         Optional<String> result = dialog.showAndWait();
 
-        if (result == null)
-            throw new Exception("you didn't choose anything!" + System.lineSeparator() + "Please try again!");
-
+        String strWanted = result.get();
         return result.get();
     }
 
@@ -66,20 +70,19 @@ public class MAGitUtils
 
         if (selectedDir == null)
         {
-            throw new FileNotFoundException("No file were chosen");
+            throw new FileNotFoundException("No Directory was chosen");
         }
         return selectedDir;
     }
 
-    public static File GetFile(Window i_CurrentStage)
+    public static File GetFile(Window i_CurrentStage) throws FileNotFoundException
     {
         FileChooser fileChooser = new FileChooser();
         File selectedFile = fileChooser.showOpenDialog(i_CurrentStage);
 
         if (selectedFile == null)
         {
-            //TODO:
-            // handle in case of cancelling
+            throw new FileNotFoundException("No Directory was chosen");
         }
         return selectedFile;
     }
@@ -93,7 +96,6 @@ public class MAGitUtils
     {
         i_Txt.setStyle(null);
     }
-
 
     public static void HighlightLabel(Label branchName)
     {

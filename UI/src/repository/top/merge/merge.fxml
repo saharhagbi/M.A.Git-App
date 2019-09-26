@@ -68,17 +68,17 @@
                                  </font></Text>
                               <ScrollPane fx:id="m_BaseVersionScrollPane" prefHeight="241.0" prefWidth="270.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                  <content>
-                                    <Text fx:id="m_BaseVersionText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="267.6708984375" />
+                                    <Text fx:id="m_BaseVersionText" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="267.6708984375" />
                                  </content>
                               </ScrollPane>
                               <ScrollPane fx:id="m_SelectedBranchScrollPane" prefHeight="241.0" prefWidth="233.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
                                  <content>
-                                    <Text fx:id="m_SelectedBranchText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="267.6708984375" />
+                                    <Text fx:id="m_SelectedBranchText" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="267.6708984375" />
                                  </content>
                               </ScrollPane>
                               <ScrollPane fx:id="m_OurVersionScrollPane" prefHeight="241.0" prefWidth="291.0" GridPane.rowIndex="1">
                                  <content>
-                                    <Text fx:id="m_ourVersionText" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="267.6708984375" />
+                                    <Text fx:id="m_ourVersionText" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="267.6708984375" />
                                  </content>
                               </ScrollPane>
                            </children>
@@ -101,8 +101,8 @@
                         <Region prefHeight="258.0" prefWidth="41.0" />
                         <VBox>
                            <children>
-                              <Button fx:id="takeResultVersionButton" mnemonicParsing="false" onAction="#takeResultVersionButtonAction" text="Take result version" />
-                              <Button fx:id="deleteFileButton" mnemonicParsing="false" onAction="#deleteFileButtonAction" prefHeight="31.0" prefWidth="113.0" text="Delete file">
+                              <Button fx:id="m_TakeResultBtn" mnemonicParsing="false" onAction="#takeResultVersionButtonAction" text="Take result version" />
+                              <Button fx:id="m_DeleteBtn" mnemonicParsing="false" onAction="#deleteFileButtonAction" prefHeight="31.0" prefWidth="113.0" text="Delete file">
                                  <VBox.margin>
                                     <Insets top="30.0" />
                                  </VBox.margin>

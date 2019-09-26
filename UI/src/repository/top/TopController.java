@@ -1,9 +1,12 @@
 package repository.top;
 
+import Objects.Blob;
 import Objects.branch.Branch;
+import System.ConflictingItems;
 import System.FolderDifferences;
 import common.MAGitResourceConstants;
 import common.MAGitUtils;
+import common.constants.NumConstants;
 import common.constants.StringConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -25,7 +28,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
-import System.ConflictingItems;
 
 public class TopController
 {
@@ -67,7 +69,8 @@ public class TopController
     private ObservableList<MenuItem> m_BranchesListMenuBar;
     private ObservableList<Text> m_BranchesList;
 
-    public  ObservableList<String> GetAllConflictsNames() {
+    public ObservableList<String> GetAllConflictsNames()
+    {
         return m_RepositoryController.GetAllConflictsNames();
     }
 
@@ -398,17 +401,6 @@ public class TopController
 
     private void getBranchNameAndCheckOut() throws Exception
     {
-        /*List<?> branchesChoices;
-
-        if (m_RepositoryController.IsLocalRepository())
-        {
-            LocalRepository localRepository = (LocalRepository) m_RepositoryController.getCurrentRepository();
-            branchesChoices = localRepository.getRemoteTrackingBranches();
-        } else
-        {
-            branchesChoices = m_RepositoryController.getCurrentRepository().getAllBranches();
-        }
-*/
         List<String> tempList = m_RepositoryController.getCurrentRepository().getActiveBranches()
                 .stream()
                 .map(branch -> ((Branch) branch).getBranchName())
@@ -419,7 +411,7 @@ public class TopController
         //String[] choices = (String[]) tempList.toArray();
         FutureTask<String> futureTask = new FutureTask<String>(() ->
                 MAGitUtils.GetUserChoice(
-                        "Branch Name", "Now, Choose one branch from below for checkout", "choose branch here",
+                        "Branch Name", "Now, Choose one branch from below for checkout", choices[NumConstants.ZERO],
                         choices)
         );
 
@@ -572,7 +564,7 @@ public class TopController
         return this.m_RepositoryController.IsFastForwardCase();
     }
 
-    public boolean IsPulledAncestorOfPulling()
+    public boolean IsSelectedBranchAncestorOfHeadBranch()
     {
         return this.m_RepositoryController.IsPulledAncestorOfPulling();
     }
@@ -582,13 +574,18 @@ public class TopController
         return m_RepositoryController.getConflictingItemsByName(conflictingItemName);
     }
 
-    public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException
+    public void CreateChosenBlobInWC(String blobText, Blob chosenBlob) throws IOException
     {
-        m_RepositoryController.CreateChosenBlobInWC(blobText, currentConflictingItem);
+        m_RepositoryController.CreateChosenBlobInWC(blobText, chosenBlob);
     }
 
     public void CreateCommitMerge(String commitMessage, String selectedBranchName) throws Exception
     {
         m_RepositoryController.CreateCommitMerge(commitMessage, selectedBranchName);
+    }
+
+    public RepositoryController getRepositoryController()
+    {
+        return m_RepositoryController;
     }
 }
