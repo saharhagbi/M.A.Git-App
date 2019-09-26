@@ -151,4 +151,7 @@ public class MergeConflictsAndMergedItems {
 
         MagitFileUtils.WritingStringInFileWholePath(chosenBlob.GetPath().toString(), chosenBlob.getContent());
     }
+    public Set<Item> GetSetOfmergedItemsNotSorted(){
+        return m_mergedItemsNotSorted;
+    }
 }

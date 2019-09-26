@@ -118,7 +118,6 @@ public class MergeController
             { //not FF
                 m_ChooseBranchBtn.setDisable(true);
                 m_ConflictsNameList = GetAllConflictsNames();
-
                 loadConflictsView();
                 initAllMergeComponents();
             }

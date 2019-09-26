@@ -2,6 +2,7 @@ package System;
 
 import Objects.Commit;
 import Objects.Folder;
+import Objects.Item;
 import Objects.branch.Branch;
 import Objects.branch.BranchFactory;
 import Objects.branch.BranchUtils;
@@ -625,6 +626,40 @@ public class Engine
         Branch pushingBranch = this.getCurrentRepository().getBranchByName(i_pushingBranchName);
         MergeConflictsAndMergedItems mergeConflictsAndMergedItems = getCurrentRepository().getActiveBranch().GetConflictsForMerge(pushingBranch, getCurrentRepository().getRepositoryPath(), createMapOfCommits(this.getCurrentRepository().GetObjectsFolderPath()));
         setMergeConflictsInstance(mergeConflictsAndMergedItems);
+
+        // debug
+        System.out.println("<==========================    merged items    ==========================>");
+        mergeConflictsAndMergedItems.GetMergedItemsNotSorted().forEach(item -> {
+            if(item.getTypeOfFile().equals(Item.TypeOfFile.BLOB))
+                System.out.println(item.GetPath()+"->"+item.getSHA1());
+            else
+                System.out.println("found folder");
+        });
+        System.out.println("<==========================    merged items    ==========================>");
+
+        System.out.println("<==========================    Conflicting items    ==========================>");
+        mergeConflictsAndMergedItems.GetConflictItems().forEach(conflictingItems ->{
+            System.out.println("their version:");
+            if(conflictingItems.m_TheirBlob!=null)
+                System.out.println(conflictingItems.m_TheirBlob.GetPath()+"->"+conflictingItems.m_TheirBlob.getSHA1());
+            else
+                System.out.println("no their version");
+
+            System.out.println("our version:");
+            if(conflictingItems.m_OurBlob!=null)
+                System.out.println(conflictingItems.m_OurBlob.GetPath()+"->"+conflictingItems.m_OurBlob.getSHA1());
+            else
+                System.out.println("no our version");
+            System.out.println("base version:");
+            if(conflictingItems.m_BaseVersionBlob!=null)
+                System.out.println(conflictingItems.m_BaseVersionBlob.GetPath()+"->"+conflictingItems.m_BaseVersionBlob.getSHA1());
+            else
+                System.out.println("no base version");
+
+        });
+        System.out.println("<==========================    Conflicting items    ==========================>");
+
+
     }
 
     private void setMergeConflictsInstance(MergeConflictsAndMergedItems i_MergeConflictsAndMergedItems)
