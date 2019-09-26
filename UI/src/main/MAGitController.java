@@ -273,4 +273,8 @@ public class MAGitController
     {
         m_PrimaryController.FastForwardBranch(selectedBranch);
     }
+
+    public String GetExistingRepositoryName(File i_ExistingRepositoryFolder) throws IOException {
+        return m_PrimaryController.GetExistingRepositoryName(i_ExistingRepositoryFolder);
+    }
 }

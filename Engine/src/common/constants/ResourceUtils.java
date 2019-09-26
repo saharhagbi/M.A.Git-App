@@ -7,4 +7,5 @@ public class ResourceUtils {
     public static final String Slash = "/";
     public static final String TxtExtension = ".txt";
     public static final String HEAD = "HEAD.txt";
+    public static final String RepoName = "repository name";
 }

@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="M.A.Git App:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/M_A_Git_App_jar</output-path>
+    <root id="archive" name="M.A.Git App.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/Engine/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="M.A.Git App" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,15 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Controller:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Controller_jar</output-path>
+    <root id="archive" name="Controller.jar">
+      <element id="module-output" name="Controller" />
+      <element id="module-output" name="Engine" />
+      <element id="module-output" name="UI" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../M.A.Git/commons-io-2.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../M.A.Git/commons-collections4-4.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../M.A.Git/commons-codec-1.12.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/fxgraph-0.0.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/AncestorFinder.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

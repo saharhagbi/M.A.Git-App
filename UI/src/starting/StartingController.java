@@ -112,9 +112,9 @@ public class StartingController
     {
         try
         {
-            String RepositoryName = MAGitUtils.GetString("Enter your repository name.", "Name:", "Repository Name");
+            //String RepositoryName = MAGitUtils.GetString("Enter your repository name.", "Name:", "Repository Name");
             File selecredDir = MAGitUtils.GetDirectory(MAGitUtils.GetStage(m_LoadExistingRepositoryBtn), "Select the repository folder");
-
+            String RepositoryName = m_MagitController.GetExistingRepositoryName(selecredDir);
             m_MagitController.PullAnExistingRepository(RepositoryName, selecredDir.getAbsolutePath());
             moveToRepositoryScene();
         } catch (Exception exception)

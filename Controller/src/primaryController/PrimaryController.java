@@ -48,6 +48,7 @@ public class PrimaryController
         {
             m_Engine.setCurrentRepository(
                     m_XMLMain.ParseAndWriteXML(m_XMLMain.GetXmlRepository()));
+            //m_Engine.WriteRepositoryNameFileInMagitRepository();
             m_Engine.AssignFitRepository(m_XMLMain.GetXmlRepository(), m_XMLMain);
         } else
             m_MagitController.handleCurrentRepositoryAlreadyExist(m_XMLMain.GetXmlRepository());
@@ -280,5 +281,9 @@ public class PrimaryController
         m_Engine.FastForwardBranch(selectedBranch);
 
         m_MagitController.UpdateWindowTreeAndTable();
+    }
+
+    public String GetExistingRepositoryName(File i_existingRepositoryFolder) throws IOException {
+        return m_Engine.GetExistingRepositoryName(i_existingRepositoryFolder);
     }
 }
