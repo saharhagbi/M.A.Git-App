@@ -149,6 +149,6 @@ public class MergeConflictsAndMergedItems {
     public void CreateChosenBlobInWC(String blobText, ConflictingItems currentConflictingItem) throws IOException {
         Blob chosenBlob = currentConflictingItem.getBlobByContent(blobText);
 
-        MagitFileUtils.WritingFileByPath(chosenBlob.GetPath().toString(), chosenBlob.getContent());
+        MagitFileUtils.WritingStringInFileWholePath(chosenBlob.GetPath().toString(), chosenBlob.getContent());
     }
 }
