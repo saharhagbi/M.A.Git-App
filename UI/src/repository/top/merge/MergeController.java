@@ -12,6 +12,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import repository.top.TopController;
 
+import java.io.IOException;
+
 
 public class MergeController
 {
@@ -185,15 +187,15 @@ public class MergeController
     @FXML
     void takeResultVersionButtonAction(ActionEvent event)
     {
-        /*try
-        {*/
-        removeConflictSelected();
+        try
+        {
+            removeConflictSelected();
 
-//         m_TopController.CreateChosenBlobInWC(m_ResultTextArea.getText(), m_CurrentConflictingItem);
-        /*} catch (IOException e)
+            m_TopController.CreateChosenBlobInWC(m_ResultTextArea.getText(), m_CurrentConflictingItem);
+        } catch (IOException e)
         {
             //todo
             e.printStackTrace();
-        }*/
+        }
     }
 }

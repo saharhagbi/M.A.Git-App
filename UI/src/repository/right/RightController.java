@@ -10,6 +10,7 @@ import com.fxgraph.graph.ICell;
 import com.fxgraph.graph.Model;
 import com.fxgraph.graph.PannableCanvas;
 import common.constants.NumConstants;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import repository.RepositoryController;
@@ -50,6 +51,13 @@ public class RightController
         initComponentsInTree();
 
         PannableCanvas canvas = m_TreeGraph.getCanvas();
+
+        Platform.runLater(() ->
+        {
+            m_TreeGraph.getUseViewportGestures().set(false);
+            m_TreeGraph.getUseNodeGestures().set(false);
+        });
+
         m_TreeScrollPane.setContent(canvas);
     }
 
